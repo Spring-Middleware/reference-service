@@ -1,0 +1,67 @@
+components:
+  responses:
+    Error400:
+      description: Bad Request
+      content:
+        application/json:
+          schema: { $ref: "product-schema.yaml#/components/schemas/ErrorMessage" }
+    Error401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: "product-schema.yaml#/components/schemas/ErrorMessage" }
+    Error403:
+      description: Forbidden
+      content:
+        application/json:
+          schema: { $ref: "product-schema.yaml#/components/schemas/ErrorMessage" }
+    Error404:
+      description: Not Found
+      content:
+        application/json:
+          schema: { $ref: "product-schema.yaml#/components/schemas/ErrorMessage" }
+    Error409:
+      description: Conflict
+      content:
+        application/json:
+          schema: { $ref: "product-schema.yaml#/components/schemas/ErrorMessage" }
+    Error500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema: { $ref: "product-schema.yaml#/components/schemas/ErrorMessage" }
+
+    ProductResponse:
+      description: Product
+      content:
+        application/json:
+          schema:
+            $ref: "product-schema.yaml#/components/schemas/Product"
+
+  schemas:
+    ProductLookupResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items: { $ref: "product-schema.yaml#/components/schemas/ProductSummary" }
+        missingIds:
+          type: array
+          items: { type: string }
+          example: ["123e4567-e89b-12d3-a456-426614174999"]
+      required: [items, missingIds]
+
+    PagedProductResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items: { $ref: "product-schema.yaml#/components/schemas/Product" }
+        page: { type: integer, example: 0 }
+        size: { type: integer, example: 20 }
+        totalItems: { type: integer, example: 123 }
+        totalPages: { type: integer, example: 7 }
+      required: [items, page, size, totalItems, totalPages]
+

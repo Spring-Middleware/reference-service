@@ -1,0 +1,310 @@
+openapi: 3.0.3
+info:
+  title: Catalog Service API
+  version: 1.0.0
+  description: |
+    Reference-service (Catalog) for Spring-Middleware.
+    Provides CRUD for Catalog (the "1" side of a 1→N relationship).
+
+servers:
+  - url: http://localhost:8081
+    description: Local
+
+tags:
+  - name: Catalogs
+
+paths:
+  /api/v1/catalogs:
+    get:
+      tags: [ Catalogs ]
+      summary: List catalogs
+      operationId: listCatalogs
+      parameters:
+        - name: q
+          in: query
+          description: Optional search query by name
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Optional status filter
+          required: false
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/CatalogStatus"
+        - name: page
+          in: query
+          description: Page index (0-based)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Page size
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+        - name: sort
+          in: query
+          description: Sort expression, e.g. "createdAt,desc"
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "catalog-responses.yaml#/components/responses/PagedCatalogResponse"
+        "400":
+          $ref: "catalog-responses.yaml#/components/responses/Error400"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+
+    post:
+      tags: [ Catalogs ]
+      summary: Create catalog
+      operationId: createCatalog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "catalog-requests.yaml#/components/schemas/CatalogCreateRequest"
+            examples:
+              create:
+                value:
+                  name: "Summer 2026"
+      responses:
+        "201":
+          $ref: "catalog-responses.yaml#/components/responses/CatalogResponse"
+        "400":
+          $ref: "catalog-responses.yaml#/components/responses/Error400"
+        "409":
+          $ref: "catalog-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+
+  /api/v1/catalogs/{id}:
+    get:
+      tags: [ Catalogs ]
+      summary: Get catalog by id
+      operationId: getCatalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+          example: 123e4567-e89b-12d3-a456-426614174000
+        - name: expand
+          in: query
+          required: false
+          description: |
+            Optional expansions. Use `products` to include full product objects.
+            If not provided, only `productIds` are returned.
+          schema:
+            type: string
+            enum: [ products ]
+      responses:
+        "200":
+          $ref: "catalog-responses.yaml#/components/responses/CatalogResponse"
+        "404":
+          $ref: "catalog-responses.yaml#/components/responses/Error404"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+
+    put:
+      tags: [ Catalogs ]
+      summary: Replace catalog
+      operationId: replaceCatalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "catalog-requests.yaml#/components/schemas/CatalogUpdateRequest"
+      responses:
+        "200":
+          $ref: "catalog-responses.yaml#/components/responses/CatalogResponse"
+        "400":
+          $ref: "catalog-responses.yaml#/components/responses/Error400"
+        "404":
+          $ref: "catalog-responses.yaml#/components/responses/Error404"
+        "409":
+          $ref: "catalog-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+
+    patch:
+      tags: [ Catalogs ]
+      summary: Partially update catalog
+      operationId: patchCatalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "catalog-requests.yaml#/components/schemas/CatalogPatchRequest"
+      responses:
+        "200":
+          $ref: "catalog-responses.yaml#/components/responses/CatalogResponse"
+        "400":
+          $ref: "catalog-responses.yaml#/components/responses/Error400"
+        "404":
+          $ref: "catalog-responses.yaml#/components/responses/Error404"
+        "409":
+          $ref: "catalog-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+
+    delete:
+      tags: [ Catalogs ]
+      summary: Delete catalog
+      operationId: deleteCatalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          $ref: "catalog-responses.yaml#/components/responses/Error404"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+
+  /api/v1/catalogs/{id}/products:
+    get:
+      tags: [ Catalogs ]
+      summary: List products in a catalog
+      operationId: listCatalogProducts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: page
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: size
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+      responses:
+        "200":
+          description: Paged products in this catalog
+          content:
+            application/json:
+              schema:
+                $ref: "catalog-responses.yaml#/components/responses/PagedProductResponse"
+        "404":
+          $ref: "catalog-responses.yaml#/components/responses/Error404"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+
+    post:
+      tags: [ Catalogs ]
+      summary: Add new products to a catalog (bulk). Internally calls product-service.
+      operationId: addProductsToCatalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "catalog-requests.yaml#/components/schemas/CatalogProductsAddRequest"
+            examples:
+              add:
+                value:
+                  products:
+                    - name: "Product A"
+                      sku: "PROD-A"
+                      price:
+                        amount: 10.0
+                        currency: "EUR"
+                    - name: "Product B"
+                      sku: "PROD-B"
+                      price:
+                        amount: 20.0
+                        currency: "EUR"
+      responses:
+        "200":
+          $ref: "catalog-responses.yaml#/components/responses/CatalogResponse"
+        "400":
+          $ref: "catalog-responses.yaml#/components/responses/Error400"
+        "404":
+          $ref: "catalog-responses.yaml#/components/responses/Error404"
+        "409":
+          $ref: "catalog-responses.yaml#/components/responses/Error409"
+        "422":
+          $ref: "catalog-responses.yaml#/components/responses/Error422"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+
+    put:
+      tags: [ Catalogs ]
+      summary: Replace products of a catalog (bulk)
+      operationId: replaceCatalogProducts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "catalog-requests.yaml#/components/schemas/CatalogProductsReplaceRequest"
+      responses:
+        "200":
+          $ref: "catalog-responses.yaml#/components/responses/CatalogResponse"
+        "400":
+          $ref: "catalog-responses.yaml#/components/responses/Error400"
+        "404":
+          $ref: "catalog-responses.yaml#/components/responses/Error404"
+        "422":
+          $ref: "catalog-responses.yaml#/components/responses/Error422"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+
+  /api/v1/catalogs/{id}/products/{productId}:
+    delete:
+      tags: [ Catalogs ]
+      summary: Remove a product from a catalog
+      operationId: removeProductFromCatalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: productId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Removed
+        "404":
+          $ref: "catalog-responses.yaml#/components/responses/Error404"
+        "500":
+          $ref: "catalog-responses.yaml#/components/responses/Error500"
+

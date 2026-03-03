@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>io.github.spring-middleware</groupId>
+        <artifactId>catalog-service</artifactId>
+        <version>${catalog.version}</version>
+    </parent>
+
+    <groupId>io.github.spring-middleware</groupId>
+    <artifactId>catalog-core</artifactId>
+    <version>${catalog.version}</version>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
+            <artifactId>app</artifactId>
+            <version>${spring-middleware.app.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
+            <artifactId>mongo-core</artifactId>
+            <version>${spring-middleware.mongo-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
+            <artifactId>catalog-api</artifactId>
+            <version>${catalog.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

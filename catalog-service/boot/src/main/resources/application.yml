@@ -1,0 +1,40 @@
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: ${SERVER_CONTEXT_PATH:/catalog}
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017/catalog}
+
+middleware:
+  client:
+    proxy:
+      # When running in Docker compose the registry service is reachable at hostname `registry` on port 8080
+      registryEndpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/catalog}
+      maxRetries: ${PROXY_MAX_RETRIES:3}
+      waitBetweenRetries: ${PROXY_WAIT_BETWEEN_RETRIES:1000}
+
+  resourceRegister:
+    clusterName: ${RESOURCE_CLUSTER_NAME:catalog}
+
+  publicServer:
+    # In Docker the public hostname will be the service name `registry` (or set via env)
+    host: ${PUBLIC_SERVER_HOST:localhost}
+    port: ${PUBLIC_SERVER_PORT:8080}
+
+  graphql:
+    enabled: ${GRAPHQL_ENABLED:false}
+
+redisson:
+  # In Docker compose Redis service should be named `redis`
+  address: ${REDIS_ADDRESS:redis://localhost:6379}
+  database: ${REDIS_DATABASE:0}
+
+logging:
+  level:
+    io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:DEBUG}
+    root: ${LOG_LEVEL_ROOT:ERROR}
+
+

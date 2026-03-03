@@ -1,0 +1,85 @@
+components:
+  schemas:
+    ProductStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, DISCONTINUED]
+      example: ACTIVE
+
+    Money:
+      type: object
+      additionalProperties: false
+      properties:
+        amount:
+          type: number
+          format: double
+          example: 19.99
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: EUR
+      required: [amount, currency]
+
+    Product:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        sku:
+          type: string
+          example: "TSHIRT-BLUE-M"
+        name:
+          type: string
+          example: "T-Shirt Blue (M)"
+        description:
+          type: string
+          nullable: true
+          example: "100% cotton"
+        status:
+          $ref: "#/components/schemas/ProductStatus"
+        price:
+          $ref: "#/components/schemas/Money"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-03-02T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-03-02T12:30:00Z"
+      required: [id, sku, name, status, price, createdAt, updatedAt]
+
+    ProductSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        id: { type: string, format: uuid, example: "123e4567-e89b-12d3-a456-426614174000" }
+        sku: { type: string, example: "TSHIRT-BLUE-M" }
+        name: { type: string, example: "T-Shirt Blue (M)" }
+        status: { $ref: "#/components/schemas/ProductStatus" }
+        price: { $ref: "#/components/schemas/Money" }
+      required: [id, sku, name, status, price]
+
+    ErrorMessage:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          example: UNKNOWN_ERROR
+        message:
+          type: string
+          example: An unknown error occurred
+        requestId:
+          type: string
+          nullable: true
+          example: 7b9e3c1a-7c40-4b93-9d2a-9b5d4ef7d2c1
+        extensions:
+          type: object
+          nullable: true
+          additionalProperties: true
+      required: [code, message]
+

@@ -1,0 +1,78 @@
+components:
+  responses:
+
+    CatalogResponse:
+      description: Catalog response with optional product details.
+      content:
+        application/json:
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/Catalog"
+
+    PagedProductResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items: { $ref: "catalog-schema.yaml#/components/schemas/ProductSummary" }
+        page: { type: integer, example: 0 }
+        size: { type: integer, example: 20 }
+        totalItems: { type: integer, example: 123 }
+        totalPages: { type: integer, example: 7 }
+      required: [ items, page, size, totalItems, totalPages ]
+
+    PagedCatalogResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "catalog-schema.yaml#/components/schemas/Catalog"
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+        totalItems:
+          type: integer
+          example: 123
+        totalPages:
+          type: integer
+          example: 7
+      required: [ items, page, size, totalItems, totalPages ]
+
+    Error400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/ErrorMessage"
+    Error422:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/ErrorMessage"
+    Error404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/ErrorMessage"
+    Error409:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/ErrorMessage"
+    Error500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/ErrorMessage"
+
+
+

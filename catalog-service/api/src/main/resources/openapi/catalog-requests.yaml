@@ -1,0 +1,62 @@
+components:
+  schemas:
+    CatalogProductsAddRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        products:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items:
+            $ref: "catalog-schema.yaml#/components/schemas/ProductInput"
+      required: [ products ]
+
+    CatalogProductsReplaceRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "catalog-schema.yaml#/components/schemas/ProductWithIdInput"
+          maxItems: 500
+      required: [ products ]
+
+    CatalogCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        status:
+          $ref: "catalog-schema.yaml#/components/schemas/CatalogStatus"
+      required: [ name ]
+
+    CatalogUpdateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        status:
+          $ref: "catalog-schema.yaml#/components/schemas/CatalogStatus"
+      required: [ name, status ]
+
+    CatalogPatchRequest:
+      type: object
+      additionalProperties: false
+      description: Only provided fields will be updated.
+      properties:
+        name:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 200
+        status:
+          $ref: "catalog-schema.yaml#/components/schemas/CatalogStatus"
+

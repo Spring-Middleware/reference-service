@@ -1,0 +1,273 @@
+openapi: 3.0.3
+info:
+  title: Product Service API
+  version: 1.0.0
+  description: |
+    Product-service for Spring-Middleware demo.
+    Internal service intended to be called ONLY by catalog-service (service-to-service).
+
+servers:
+  - url: http://localhost:8082
+    description: Local
+
+tags:
+  - name: Products
+  - name: Internal
+
+security:
+  - ServiceAuth: []
+
+paths:
+  /api/v1/products:
+    get:
+      tags: [Products]
+      summary: List products
+      operationId: listProducts
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: Optional search query by name/sku
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "product-schema.yaml#/components/schemas/ProductStatus"
+        - name: catalogId
+          in: query
+          required: false
+          description: Optional filter by catalogId (if you model a reverse index)
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+        - name: sort
+          in: query
+          required: false
+          description: Sort expression, e.g. "createdAt,desc"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paged products
+          content:
+            application/json:
+              schema:
+                $ref: "product-responses.yaml#/components/schemas/PagedProductResponse"
+        "400":
+          $ref: "product-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "product-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+    post:
+      tags: [Products]
+      summary: Create product
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "product-requests.yaml#/components/schemas/ProductCreateRequest"
+            examples:
+              create:
+                value:
+                  sku: "TSHIRT-BLUE-M"
+                  name: "T-Shirt Blue (M)"
+                  status: "ACTIVE"
+                  price:
+                    amount: 19.99
+                    currency: "EUR"
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              description: URL of the created resource
+              schema:
+                type: string
+                example: /api/v1/products/123e4567-e89b-12d3-a456-426614174000
+          content:
+            application/json:
+              schema:
+                $ref: "product-schema.yaml#/components/schemas/Product"
+        "400":
+          $ref: "product-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "product-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
+        "409":
+          $ref: "product-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+  /api/v1/products/{id}:
+    get:
+      tags: [Products]
+      summary: Get product by id
+      operationId: getProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        "200":
+          $ref: "product-responses.yaml#/components/responses/ProductResponse"
+        "401":
+          $ref: "product-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
+        "404":
+          $ref: "product-responses.yaml#/components/responses/Error404"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+    put:
+      tags: [Products]
+      summary: Replace product
+      operationId: replaceProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "product-requests.yaml#/components/schemas/ProductUpdateRequest"
+      responses:
+        "200":
+          $ref: "product-responses.yaml#/components/responses/ProductResponse"
+        "400":
+          $ref: "product-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "product-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
+        "404":
+          $ref: "product-responses.yaml#/components/responses/Error404"
+        "409":
+          $ref: "product-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+    patch:
+      tags: [Products]
+      summary: Partially update product
+      operationId: patchProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "product-requests.yaml#/components/schemas/ProductPatchRequest"
+      responses:
+        "200":
+          $ref: "product-responses.yaml#/components/responses/ProductResponse"
+        "400":
+          $ref: "product-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "product-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
+        "404":
+          $ref: "product-responses.yaml#/components/responses/Error404"
+        "409":
+          $ref: "product-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+    delete:
+      tags: [Products]
+      summary: Delete product
+      operationId: deleteProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          $ref: "product-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
+        "404":
+          $ref: "product-responses.yaml#/components/responses/Error404"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+  /internal/v1/products:lookup:
+    post:
+      tags: [Internal]
+      summary: Bulk lookup products by ids (for catalog-service expansions)
+      operationId: lookupProducts
+      description: |
+        Returns product summaries for the provided ids. Designed for catalog-service to enrich a catalog with products
+        without N calls. Missing ids are returned in `missingIds`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "product-requests.yaml#/components/schemas/ProductLookupRequest"
+            examples:
+              lookup:
+                value:
+                  productIds: ["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174001"]
+      responses:
+        "200":
+          description: Lookup result
+          content:
+            application/json:
+              schema:
+                $ref: "product-responses.yaml#/components/schemas/ProductLookupResponse"
+        "400":
+          $ref: "product-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "product-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+components:
+  securitySchemes:
+    ServiceAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Service-to-service authentication (e.g., OAuth2 Client Credentials JWT or mTLS-fronted token).
+        Only catalog-service should be allowed.
+

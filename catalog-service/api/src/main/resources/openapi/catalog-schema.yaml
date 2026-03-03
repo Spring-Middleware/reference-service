@@ -1,0 +1,108 @@
+components:
+  schemas:
+    CatalogStatus:
+      type: string
+      enum: [ ACTIVE, INACTIVE ]
+      example: ACTIVE
+
+    ProductStatus:
+      type: string
+      enum: [ ACTIVE, INACTIVE, DISCONTINUED ]
+      example: ACTIVE
+
+    Money:
+      type: object
+      additionalProperties: false
+      properties:
+        amount:
+          type: number
+          format: double
+          example: 19.99
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: EUR
+      required: [ amount, currency ]
+
+    Catalog:
+      type: object
+      additionalProperties: false
+      properties:
+        id: { type: string, format: uuid, example: "123e4567-e89b-12d3-a456-426614174000" }
+        name: { type: string, example: "Summer 2026" }
+        status: { $ref: "#/components/schemas/CatalogStatus" }
+        productIds:
+          type: array
+          description: Product identifiers contained in this catalog.
+          items: { type: string }
+          example: [ "123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002" ]
+        products:
+          type: array
+          description: Present only when `expand=products`.
+          items:
+            $ref: "#/components/schemas/ProductSummary"
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-03-02T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-03-02T12:30:00Z"
+      required: [ id, name, status, productIds, createdAt, updatedAt ]
+
+    ProductSummary:
+      type: object
+      additionalProperties: false
+      description: Minimal product representation returned by catalog-service when expanded.
+      properties:
+        id: { type: string, format: uuid, example: "123e4567-e89b-12d3-a456-426614174001" }
+        sku: { type: string, example: "TSHIRT-BLUE-M" }
+        name: { type: string, example: "T-Shirt Blue" }
+        status: { $ref: "#/components/schemas/ProductStatus" }
+        price: { $ref: "#/components/schemas/Money" }
+      required: [ id, name, status, price ]
+
+    ErrorMessage:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          example: UNKNOWN_ERROR
+        message:
+          type: string
+          example: An unknown error occurred
+        requestId:
+          type: string
+          nullable: true
+          example: 7b9e3c1a-7c40-4b93-9d2a-9b5d4ef7d2c1
+        extensions:
+          type: object
+          nullable: true
+          additionalProperties: true
+      required: [ code, message ]
+
+    ProductInput:
+      type: object
+      additionalProperties: false
+      properties:
+        sku: { type: string, example: "TSHIRT-BLUE-M" }
+        name: { type: string, example: "T-Shirt Blue" }
+        status: { $ref: "#/components/schemas/ProductStatus" }
+        price: { $ref: "#/components/schemas/Money" }
+      required: [ name, sku, price ]
+
+    ProductWithIdInput:
+      type: object
+      additionalProperties: false
+      properties:
+        id: { type: string, format: uuid, example: "123e4567-e89b-12d3-a456-426614174001" }
+        sku: { type: string, example: "TSHIRT-BLUE-M" }
+        name: { type: string, example: "T-Shirt Blue" }
+        status: { $ref: "#/components/schemas/ProductStatus" }
+        price: { $ref: "#/components/schemas/Money" }
+      required: [ id, name, sku, price ]
+

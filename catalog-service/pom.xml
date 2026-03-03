@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.spring-middleware</groupId>
+        <artifactId>reference-service</artifactId>
+        <version>${reference.version}</version>
+    </parent>
+
+    <groupId>io.github.spring-middleware</groupId>
+    <artifactId>catalog-service</artifactId>
+    <version>${catalog.version}</version>
+    <name>catalog-service</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>api</module>
+        <module>core</module>
+        <module>boot</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.spring-middleware</groupId>
+                <artifactId>catalog-api</artifactId>
+                <version>${catalog.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.spring-middleware</groupId>
+                <artifactId>catalog-service</artifactId>
+                <version>${catalog.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
