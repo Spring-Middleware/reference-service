@@ -1,4 +1,4 @@
-package io.github.spring.middleware.catalog.model;
+package io.github.spring.middleware.catalog.domain;
 
 import lombok.Data;
 

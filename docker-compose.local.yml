@@ -13,6 +13,41 @@ services:
     networks:
       - middleware-net
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_local
+    ports:
+      - "6379:6379"
+    networks:
+      middleware-net:
+        aliases:
+          - redis
+
+  registry:
+    # Build context as passed by user, assuming files exist relative to execution context or built image exists
+    # build:
+    #   context: .
+    #   dockerfile: parent/registry/boot/Dockerfile.runtime
+    image: spring-base_registry:latest
+    container_name: registry_local
+    hostname: registry
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - SPRING_PROFILES_ACTIVE=LOCAL
+      - REGISTRY_ENDPOINT=http://registry:8080/registry
+      - REDIS_ADDRESS=redis://redis:6379
+      - GRAPHQL_ENABLED=false
+      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=false
+    networks:
+      middleware-net:
+        aliases:
+          - registry
+    depends_on:
+      - redis
+
   catalog-service:
     build:
       context: ./catalog-service
@@ -20,9 +55,9 @@ services:
     image: catalog-service:latest
     ports:
       - "8070:8080"
-      - "5006:5005"
+      - "5006:5006"
     environment:
-      - JAVA_TOOL_OPTIONS= -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006
       - SERVER_PORT=8080
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - SERVER_CONTEXT_PATH=/catalog
@@ -32,12 +67,37 @@ services:
       - GRAPHQL_ENABLED=false
     depends_on:
       - mongo
+      - registry
+    networks:
+      - middleware-net
+
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    image: product-service:latest
+    ports:
+      - "8082:8082"
+      - "5007:5007"
+    environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
+      - SERVER_PORT=8080
+      - SERVER_CONTEXT_PATH=/product
+      - REGISTRY_ENDPOINT=http://registry:8080/registry
+      - MONGO_URI=mongodb://mongo:27017/product
+      - GRAPHQL_ENABLED=true
+      - GRAPHQL_CLUSTER_NAME=product
+      - GRAPHQL_NAMESPACE=product
+      - SPRING_PROFILES_ACTIVE=local
+    depends_on:
+      - mongo
+      - registry
     networks:
       - middleware-net
 
 networks:
   middleware-net:
-    external: true
+    driver: bridge
 
 volumes:
   mongo-data:

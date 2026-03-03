@@ -1,6 +1,6 @@
 package io.github.spring.middleware.catalog.entity;
 
-import io.github.spring.middleware.catalog.model.CatalogStatus;
+import io.github.spring.middleware.catalog.domain.CatalogStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

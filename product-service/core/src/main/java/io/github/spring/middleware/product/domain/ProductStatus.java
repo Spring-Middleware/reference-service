@@ -1,9 +1,8 @@
-package io.github.spring.middleware.catalog.model;
+package io.github.spring.middleware.product.domain;
 
 public enum ProductStatus {
-
     ACTIVE,
     INACTIVE,
     DISCONTINUED
-
 }
+

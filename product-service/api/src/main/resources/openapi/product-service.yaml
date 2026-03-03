@@ -1,4 +1,5 @@
 openapi: 3.0.3
+x-middleware-endpoint: product
 info:
   title: Product Service API
   version: 1.0.0
@@ -9,9 +10,12 @@ info:
 servers:
   - url: http://localhost:8082
     description: Local
+    x-middleware-endpoint: product
 
 tags:
   - name: Products
+    description: "Endpoints for managing products (CRUD operations)."
+
   - name: Internal
 
 security:

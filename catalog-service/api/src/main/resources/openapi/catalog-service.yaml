@@ -1,4 +1,5 @@
 openapi: 3.0.3
+x-middlewre-endpoint: catalog
 info:
   title: Catalog Service API
   version: 1.0.0

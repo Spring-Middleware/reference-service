@@ -1,0 +1,35 @@
+package io.github.spring.middleware.product.mapper;
+
+import io.github.spring.middleware.product.domain.Money;
+import io.github.spring.middleware.product.domain.Product;
+import io.github.spring.middleware.product.domain.ProductStatus;
+import io.github.spring.middleware.product.dto.MoneyDto;
+import io.github.spring.middleware.product.dto.ProductDto;
+import io.github.spring.middleware.product.dto.ProductStatusDto;
+import io.github.spring.middleware.product.dto.ProductSummaryDto;
+import org.mapstruct.Mapper;
+import org.openapitools.jackson.nullable.JsonNullable;
+
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
+@Mapper(componentModel = "spring")
+public interface ProductDtoMapper {
+
+    ProductDto toDto(Product product);
+
+    ProductSummaryDto toSummaryDto(Product product);
+
+    MoneyDto toDto(Money money);
+
+    ProductStatusDto toDto(ProductStatus status);
+
+    default JsonNullable<String> map(String value) {
+        return JsonNullable.of(value);
+    }
+
+    default OffsetDateTime map(Instant value) {
+        return value == null ? null : value.atOffset(ZoneOffset.UTC);
+    }
+}

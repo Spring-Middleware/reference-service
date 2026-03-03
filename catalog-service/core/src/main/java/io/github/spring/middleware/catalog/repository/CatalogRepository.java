@@ -1,7 +1,7 @@
 package io.github.spring.middleware.catalog.repository;
 
 import io.github.spring.middleware.catalog.entity.CatalogEntity;
-import io.github.spring.middleware.catalog.model.CatalogStatus;
+import io.github.spring.middleware.catalog.domain.CatalogStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;

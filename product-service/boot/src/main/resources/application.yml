@@ -1,12 +1,16 @@
+# Product Service Configuration
 server:
   port: ${SERVER_PORT:8080}
   servlet:
-    context-path: ${SERVER_CONTEXT_PATH:/catalog}
+    context-path: ${SERVER_CONTEXT_PATH:/product}
 
 spring:
+  application:
+    name: product-service
   data:
     mongodb:
-      uri: ${MONGO_URI:mongodb://localhost:27017/catalog}
+      uri: ${MONGO_URI:mongodb://127.0.0.1:27017/product}
+      auto-index-creation: true
 
 springdoc:
   api-docs:
@@ -28,7 +32,7 @@ middleware:
       waitBetweenRetries: ${PROXY_WAIT_BETWEEN_RETRIES:1000}
 
   resourceRegister:
-    clusterName: ${RESOURCE_CLUSTER_NAME:catalog}
+    clusterName: ${RESOURCE_CLUSTER_NAME:product}
 
   publicServer:
     # In Docker the public hostname will be the service name `registry` (or set via env)
@@ -37,12 +41,10 @@ middleware:
 
   graphql:
     enabled: ${GRAPHQL_ENABLED:false}
+    clusterName: ${GRAPHQL_CLUSTER_NAME:product}
+    namespace: ${GRAPHQL_NAMESPACE:product}
 
 redisson:
   # In Docker compose Redis service should be named `redis`
   address: ${REDIS_ADDRESS:redis://localhost:6379}
   database: ${REDIS_DATABASE:0}
-
-
-
-

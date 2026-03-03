@@ -113,7 +113,7 @@ import {{javaxPackage}}.annotation.Generated;
 @RequestMapping("${openapi.<%title%>.base-path:<%>defaultBasePath%>}")
 <%={{ }}=%>
 {{/useRequestMappingOnInterface}}
-@io.github.spring.middleware.annotation.MiddlewareContract
+@io.github.spring.middleware.annotation.MiddlewareContract("{{vendorExtensions.x-middleware-endpoint}}")
 public interface {{classname}} {
 {{#jdk8-default-interface}}
     {{^isDelegate}}
