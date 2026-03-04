@@ -91,6 +91,7 @@
                                 <skipDefaultInterface>true</skipDefaultInterface>
                                 <useTags>true</useTags>
                                 <useResponseEntity>false</useResponseEntity>
+                                <openApiNullable>false</openApiNullable>
                             </configOptions>
 
                             <generateApiTests>false</generateApiTests>

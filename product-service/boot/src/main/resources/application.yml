@@ -44,6 +44,10 @@ middleware:
     clusterName: ${GRAPHQL_CLUSTER_NAME:product}
     namespace: ${GRAPHQL_NAMESPACE:product}
 
+  registry-consistency-scheduler:
+    enabled: ${REGISTRY_CONSISTENCY_SCHEDULER_ENABLED:true}
+    cron: ${REGISTRY_CONSISTENCY_SCHEDULER_CRON:*/30 * * * * *}
+
 redisson:
   # In Docker compose Redis service should be named `redis`
   address: ${REDIS_ADDRESS:redis://localhost:6379}
