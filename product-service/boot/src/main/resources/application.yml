@@ -11,6 +11,7 @@ spring:
     mongodb:
       uri: ${MONGO_URI:mongodb://127.0.0.1:27017/product}
       auto-index-creation: true
+      uuid-representation: standard
 
 springdoc:
   api-docs:
@@ -25,11 +26,7 @@ logging:
 
 middleware:
   client:
-    proxy:
-      # When running in Docker compose the registry service is reachable at hostname `registry` on port 8080
-      registryEndpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
-      maxRetries: ${PROXY_MAX_RETRIES:3}
-      waitBetweenRetries: ${PROXY_WAIT_BETWEEN_RETRIES:1000}
+    registryEndpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
 
   resourceRegister:
     clusterName: ${RESOURCE_CLUSTER_NAME:product}

@@ -27,12 +27,14 @@
         <dependency>
             <groupId>io.github.spring-middleware</groupId>
             <artifactId>app</artifactId>
-            <version>${spring-middleware.app.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
+            <artifactId>graphql</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.spring-middleware</groupId>
             <artifactId>mongo-core</artifactId>
-            <version>${spring-middleware.mongo-core.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.spring-middleware</groupId>

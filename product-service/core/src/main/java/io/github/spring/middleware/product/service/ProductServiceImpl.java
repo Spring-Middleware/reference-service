@@ -1,19 +1,16 @@
 package io.github.spring.middleware.product.service;
 
 import io.github.spring.middleware.product.domain.Product;
-import io.github.spring.middleware.product.dto.ProductLookupRequestDto;
-import io.github.spring.middleware.product.dto.ProductLookupResponseDto;
-import io.github.spring.middleware.product.dto.ProductStatusDto;
+import io.github.spring.middleware.product.domain.ProductStatus;
 import io.github.spring.middleware.product.entity.ProductEntity;
+import io.github.spring.middleware.product.exceptions.ProductAlreadyExistsException;
+import io.github.spring.middleware.product.exceptions.ProductNotFoundException;
 import io.github.spring.middleware.product.mapper.ProductEntityMapper;
 import io.github.spring.middleware.product.repository.ProductRepository;
-import io.github.spring.middleware.product.domain.ProductStatus;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -34,11 +31,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product createProduct(Product product) {
         if (productRepository.existsBySku(product.getSku())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Product with SKU " + product.getSku() + " already exists");
+            throw new ProductAlreadyExistsException(STR."Product with SKU \{product.getSku()} already exists");
         }
-
         ProductEntity entity = productEntityMapper.toEntity(product);
-        entity.setId(UUID.randomUUID());
+
+        // Generate UUID manually to ensure it is stored as UUID in MongoDB, not ObjectId
+        if (entity.getId() == null) {
+            entity.setId(UUID.randomUUID());
+        }
 
         Instant now = Instant.now();
         entity.setCreatedAt(now);
@@ -51,22 +51,22 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product getProduct(UUID id) {
         ProductEntity entity = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(STR."Product with \{id} not found"));
         return productEntityMapper.toDomain(entity);
     }
 
     @Override
     public Product replaceProduct(UUID id, Product product) {
         ProductEntity entity = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(STR."Product with \{id} not found"));
 
         if (!entity.getSku().equals(product.getSku()) && productRepository.existsBySku(product.getSku())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Product with SKU " + product.getSku() + " already exists");
+            throw new ProductAlreadyExistsException(STR."Product with SKU \{product.getSku()} already exists");
         }
 
         ProductEntity mappedEntity = productEntityMapper.toEntity(product);
-        mappedEntity.setId(id);
-        mappedEntity.setCreatedAt(entity.getCreatedAt()); // Preserve createdAt
+        mappedEntity.setId(id); // Ensure ID is preserved
+        mappedEntity.setCreatedAt(entity.getCreatedAt()); // Preserve creation date
         mappedEntity.setUpdatedAt(Instant.now());
 
         ProductEntity saved = productRepository.save(mappedEntity);
@@ -76,11 +76,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product patchProduct(UUID id, Product product) {
         ProductEntity entity = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(STR."Product with \{id} not found"));
 
         if (product.getSku() != null) {
-             if (!entity.getSku().equals(product.getSku()) && productRepository.existsBySku(product.getSku())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Product with SKU " + product.getSku() + " already exists");
+            if (!entity.getSku().equals(product.getSku()) && productRepository.existsBySku(product.getSku())) {
+                throw new ProductAlreadyExistsException(STR."Product with SKU \{product.getSku()} already exists");
             }
             entity.setSku(product.getSku());
         }
@@ -114,14 +114,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(UUID id) {
         if (!productRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + id);
+            throw new ProductNotFoundException(STR."Product with \{id} not found");
         }
         productRepository.deleteById(id);
     }
 
     @Override
     public List<Product> lookupProducts(List<UUID> ids) {
-        List<ProductEntity> entities = (List<ProductEntity>) productRepository.findAllById(ids);
+        List<ProductEntity> entities = productRepository.findAllById(ids);
 
         return entities.stream()
                 .map(productEntityMapper::toDomain)

@@ -37,6 +37,22 @@
             <artifactId>catalog-api</artifactId>
             <version>${catalog.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
+            <artifactId>product-api</artifactId>
+            <version>${product.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.5.5.Final</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -7,8 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
-public interface CatalogRepository extends MongoRepository<CatalogEntity, String> {
+public interface CatalogRepository extends MongoRepository<CatalogEntity, UUID> {
 
     Page<CatalogEntity> findByNameContainingIgnoreCase(String name, Pageable pageable);
 

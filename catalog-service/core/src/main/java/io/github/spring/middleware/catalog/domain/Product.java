@@ -9,6 +9,7 @@ public class Product {
 
     private UUID id;
     private String name;
+    private String description;
     private String sku;
     private ProductStatus productStatus;
     private Money price;

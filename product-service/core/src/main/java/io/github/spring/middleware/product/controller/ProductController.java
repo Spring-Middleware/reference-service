@@ -49,7 +49,7 @@ public class ProductController implements ProductsApi {
     }
 
     @Override
-    public PagedProductResponseDto listProducts(String q, ProductStatusDto status, String catalogId, Integer page, Integer size, String sort) {
+    public PagedProductResponseDto listProducts(String q, ProductStatusDto status, UUID catalogId, Integer page, Integer size, String sort) {
         log.info("Rest request to list products. q: {}, status: {}, page: {}, size: {}", q, status, page, size);
         Pageable pageable = PageRequest.of(
                 page == null ? 0 : page,

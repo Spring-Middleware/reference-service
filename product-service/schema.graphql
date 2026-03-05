@@ -1,0 +1,104 @@
+# This file was generated. Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+"Indicates an Input Object is a OneOf Input Object."
+directive @oneOf on INPUT_OBJECT
+
+type Money {
+    amount: BigDecimal
+    currency: String
+}
+
+"Mutation root"
+type Mutation {
+    createProduct(input: ProductInputInput): Product
+    deleteProduct(id: UUID): Boolean
+    patchProduct(id: UUID, input: ProductInputInput): Product
+    replaceProduct(id: UUID, input: ProductInputInput): Product
+}
+
+type Page_Product {
+    content: [Product]
+    first: Boolean!
+    last: Boolean!
+    number: Int!
+    numberOfElements: Int!
+    pageable: Pageable
+    size: Int!
+    sort: Sort
+    totalElements: Long!
+    totalPages: Int!
+}
+
+type Pageable {
+    offset: Long!
+    pageNumber: Int!
+    pageSize: Int!
+    paged: Boolean!
+    sort: Sort
+    unpaged: Boolean!
+}
+
+type Product {
+    createdAt: Instant
+    description: String
+    id: UUID
+    name: String
+    price: Money
+    sku: String
+    status: ProductStatus
+    updatedAt: Instant
+}
+
+"Query root"
+type Query {
+    product(id: UUID): Product
+    products(page: Int, q: String, size: Int, sort: String, status: ProductStatus): Page_Product
+}
+
+type Sort {
+    DEFAULT_DIRECTION: Direction
+    empty: Boolean!
+    sorted: Boolean!
+    unsorted: Boolean!
+}
+
+enum Direction {
+    ASC
+    DESC
+}
+
+enum ProductStatus {
+    ACTIVE
+    DISCONTINUED
+    INACTIVE
+}
+
+"An arbitrary precision signed decimal"
+scalar BigDecimal
+
+"Built-in scalar representing an instant in time"
+scalar Instant
+
+"A 64-bit signed integer"
+scalar Long
+
+"UUID String"
+scalar UUID
+
+input MoneyInputInput {
+    amount: BigDecimal
+    currency: String
+}
+
+input ProductInputInput {
+    description: String
+    name: String
+    price: MoneyInputInput
+    sku: String
+    status: ProductStatus
+}

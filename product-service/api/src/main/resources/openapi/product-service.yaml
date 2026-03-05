@@ -45,6 +45,7 @@ paths:
           description: Optional filter by catalogId (if you model a reverse index)
           schema:
             type: string
+            format: uuid
         - name: page
           in: query
           required: false
