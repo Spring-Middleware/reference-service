@@ -2,64 +2,108 @@ package io.github.spring.middleware.catalog.controller;
 
 import io.github.spring.middleware.annotation.RegisterSchema;
 import io.github.spring.middleware.catalog.api.CatalogsApi;
+import io.github.spring.middleware.catalog.domain.Catalog;
+import io.github.spring.middleware.catalog.domain.CatalogStatus;
+import io.github.spring.middleware.catalog.domain.CatalogWithProducts;
 import io.github.spring.middleware.catalog.dto.*;
-
+import io.github.spring.middleware.catalog.mapper.CatalogDtoMapper;
+import io.github.spring.middleware.catalog.mapper.CatalogMapper;
+import io.github.spring.middleware.catalog.mapper.ProductMapper;
+import io.github.spring.middleware.catalog.service.CatalogService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RegisterSchema("catalog")
+@RequiredArgsConstructor
 public class CatalogController implements CatalogsApi {
 
+    private final CatalogService catalogService;
+
+    private final CatalogMapper catalogMapper;
+
+    private final CatalogDtoMapper catalogDtoMapper;
+
+    private final ProductMapper productMapper;
 
     @Override
     public CatalogDto addProductsToCatalog(UUID id, CatalogProductsAddRequestDto catalogProductsAddRequestDto) {
-        return null;
+        log.info("Received request to add products to catalog with id: {}", id);
+        var products = catalogProductsAddRequestDto.getProducts().stream()
+                .map(productMapper::toDomain)
+                .toList();
+        Catalog catalog = catalogService.addProductsToCatalog(id, products);
+        return catalogDtoMapper.toDto(catalog);
     }
 
     @Override
     public CatalogDto createCatalog(CatalogCreateRequestDto catalogCreateRequestDto) {
-        return null;
+        log.info("Received request to create catalog with name: {}", catalogCreateRequestDto.getName());
+        Catalog catalog = catalogMapper.toCatalog(catalogCreateRequestDto);
+        Catalog createdCatalog = catalogService.createCatalog(catalog);
+        return catalogDtoMapper.toDto(createdCatalog);
     }
 
     @Override
     public void deleteCatalog(UUID id) {
-
+        log.info("Received request to delete catalog with id: {}", id);
+        catalogService.deleteCatalog(id);
     }
 
     @Override
-    public CatalogDto getCatalog(UUID id, String expand) {
-        return null;
+    public CatalogWithProductsDto getCatalog(UUID id, String expand) {
+        log.info("Received request to get catalog with id: {}", id);
+        CatalogWithProducts catalog = catalogService.getCatalog(id, "products".equals(expand));
+        return catalogDtoMapper.toWithProductsDto(catalog);
     }
 
     @Override
     public PagedProductResponseDto listCatalogProducts(UUID id, Integer page, Integer size) {
-        return null;
+        log.info("Received request to list products of catalog with id: {}", id);
+        var pagedProducts = catalogService.listCatalogProducts(id, PageRequest.of(page, size));
+        return productMapper.toPagedResponseDto(pagedProducts);
     }
 
     @Override
-    public void listCatalogs(String q, CatalogStatusDto status, Integer page, Integer size, String sort) {
-
+    public PagedCatalogResponseDto listCatalogs(String q, CatalogStatusDto status, Integer page, Integer size, String sort) {
+        log.info("Received request to list catalogs with query: {}, status: {}, page: {}, size: {}, sort: {}", q, status, page, size, sort);
+        var pagedCatalogs = catalogService.listCatalogs(q, status != null ? CatalogStatus.valueOf(status.name()) : null, PageRequest.of(page, size));
+        return catalogDtoMapper.toPagedResponseDto(pagedCatalogs);
     }
 
     @Override
     public CatalogDto patchCatalog(UUID id, CatalogPatchRequestDto catalogPatchRequestDto) {
-        return null;
+        log.info("Received request to patch catalog with id: {}", id);
+        Catalog catalog = catalogMapper.toCatalog(catalogPatchRequestDto);
+        catalog = catalogService.patchCatalog(id, catalog);
+        return catalogDtoMapper.toDto(catalog);
     }
 
     @Override
-    public void removeProductFromCatalog(UUID id, UUID productId) {
-
+    public void removeProductsFromCatalog(UUID id, CatalogProductsRemoveRequestDto catalogProductsRemoveRequestDto) {
+        catalogService.removeProductsFromCatalog(id, catalogProductsRemoveRequestDto.getProductIds());
     }
 
     @Override
     public CatalogDto replaceCatalog(UUID id, CatalogUpdateRequestDto catalogUpdateRequestDto) {
-        return null;
+        log.info("Received request to replace catalog with id: {}", id);
+        Catalog catalog = catalogMapper.toCatalog(catalogUpdateRequestDto);
+        catalog = catalogService.replaceCatalog(id, catalog);
+        return catalogDtoMapper.toDto(catalog);
     }
 
     @Override
     public CatalogDto replaceCatalogProducts(UUID id, CatalogProductsReplaceRequestDto catalogProductsReplaceRequestDto) {
-        return null;
+        log.info("Received request to replace products of catalog with id: {}", id);
+        var products = catalogProductsReplaceRequestDto.getProducts().stream()
+                .map(productMapper::toDomain)
+                .toList();
+        Catalog catalog = catalogService.replaceCatalogProducts(id, products);
+        return catalogDtoMapper.toDto(catalog);
     }
 }

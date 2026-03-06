@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -37,9 +38,27 @@ public class ProductController implements ProductsApi {
     }
 
     @Override
+    public List<ProductDto> createProducts(ProductBulkCreateRequestDto productBulkCreateRequestDto) {
+        log.info("Received request to create products in bulk: {}", productBulkCreateRequestDto);
+        List<Product> products = productBulkCreateRequestDto.getItems().stream()
+                .map(productMapper::mapToProduct)
+                .toList();
+        List<Product> createdProducts = productService.createProductsForCatalog(products, productBulkCreateRequestDto.getCatalogId());
+        return createdProducts.stream()
+                .map(productDtoMapper::toDto)
+                .toList();
+    }
+
+    @Override
     public void deleteProduct(UUID id) {
         log.info("Received request to delete product with id: {}", id);
         productService.deleteProduct(id);
+    }
+
+    @Override
+    public void deleteProducts(ProductBulkDeleteRequestDto productBulkDeleteRequestDto) {
+        log.info("Received request to delete products in bulk: {}", productBulkDeleteRequestDto);
+        productService.deleteProductsFromCatalog(productBulkDeleteRequestDto.getProductIds(), productBulkDeleteRequestDto.getCatalogId());
     }
 
     @Override
@@ -59,7 +78,7 @@ public class ProductController implements ProductsApi {
 
         ProductStatus domainStatus = status != null ? ProductStatus.valueOf(status.name()) : null;
 
-        Page<Product> productsPage = productService.listProducts(q, domainStatus, pageable);
+        Page<Product> productsPage = productService.listProducts(q, domainStatus, catalogId, pageable);
 
         PagedProductResponseDto response = new PagedProductResponseDto();
         response.setItems(productsPage.getContent().stream().map(productDtoMapper::toDto).toList());
@@ -85,5 +104,13 @@ public class ProductController implements ProductsApi {
         Product product = productMapper.mapToProduct(productUpdateRequestDto);
         final Product replacedProduct = productService.replaceProduct(id, product);
         return productDtoMapper.toDto(replacedProduct);
+    }
+
+    @Override
+    public List<ProductDto> replaceProducts(ProductBulkReplaceRequestDto productBulkReplaceRequestDto) {
+        log.info("Received request to replace products in bulk: {}", productBulkReplaceRequestDto);
+        List<Product> products = productBulkReplaceRequestDto.getItems().stream().map(productMapper::mapToProduct).toList();
+        productService.replaceProductsForCatalog(products, productBulkReplaceRequestDto.getCatalogId());
+        return products.stream().map(productDtoMapper::toDto).toList();
     }
 }

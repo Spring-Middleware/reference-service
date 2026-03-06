@@ -114,16 +114,18 @@ import {{javaxPackage}}.annotation.Generated;
 <%={{ }}=%>
 {{/useRequestMappingOnInterface}}
 {{#vendorExtensions.x-middleware-endpoint}}
+{{=<% %>=}}
 @io.github.spring.middleware.annotation.MiddlewareContract(
-  name = "{{vendorExtensions.x-middleware-endpoint}}",
+  name = "<%vendorExtensions.x-middleware-endpoint%>",
   connection = @io.github.spring.middleware.annotation.MiddlewareContractConnection(
-    timeout = "${{{vendorExtensions.x-middleware-endpoint}}.timeout:30000}",
-    maxConnections = "${{{vendorExtensions.x-middleware-endpoint}}.maxConnections:50}",
-    maxConcurrentCalls = "${{{vendorExtensions.x-middleware-endpoint}}.maxConcurrentCalls:200}",
-    maxRetries = "${{{vendorExtensions.x-middleware-endpoint}}.maxRetries:3}",
-    retryBackoffMillis = "${{{vendorExtensions.x-middleware-endpoint}}.retryBackoffMillis:1000}"
+    timeout = "${<%vendorExtensions.x-middleware-endpoint%>.client.timeout:30000}",
+    maxConnections = "${<%vendorExtensions.x-middleware-endpoint%>.client.maxConnections:50}",
+    maxConcurrentCalls = "${<%vendorExtensions.x-middleware-endpoint%>.client.maxConcurrentCalls:200}",
+    maxRetries = "${<%vendorExtensions.x-middleware-endpoint%>.client.maxRetries:3}",
+    retryBackoffMillis = "${<%vendorExtensions.x-middleware-endpoint%>.client.retryBackoffMillis:1000}"
   )
 )
+<%={{ }}=%>
 {{/vendorExtensions.x-middleware-endpoint}}
 public interface {{classname}} {
 {{#jdk8-default-interface}}

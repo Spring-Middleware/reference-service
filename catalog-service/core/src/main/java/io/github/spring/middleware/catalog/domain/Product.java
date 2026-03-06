@@ -11,6 +11,6 @@ public class Product {
     private String name;
     private String description;
     private String sku;
-    private ProductStatus productStatus;
+    private ProductStatus status;
     private Money price;
 }

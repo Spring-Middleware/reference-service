@@ -42,7 +42,7 @@ paths:
         - name: catalogId
           in: query
           required: false
-          description: Optional filter by catalogId (if you model a reverse index)
+          description: Optional filter by catalogId (for catalog-service expansions)
           schema:
             type: string
             format: uuid
@@ -123,6 +123,69 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error403"
         "409":
           $ref: "product-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+  /api/v1/products/bulk:
+    post:
+      tags: [Products]
+      summary: Bulk create products
+      operationId: createProducts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "product-requests.yaml#/components/schemas/ProductBulkCreateRequest"
+      responses:
+        "201":
+          $ref: "product-responses.yaml#/components/responses/ProductListResponse"
+        "400":
+          $ref: "product-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "product-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+    put:
+      tags: [Products]
+      summary: Bulk replace products
+      operationId: replaceProducts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "product-requests.yaml#/components/schemas/ProductBulkReplaceRequest"
+      responses:
+        "200":
+          $ref: "product-responses.yaml#/components/responses/ProductListResponse"
+        "400":
+          $ref: "product-responses.yaml#/components/responses/Error400"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "product-responses.yaml#/components/responses/Error500"
+
+    delete:
+      tags: [Products]
+      summary: Bulk delete products
+      operationId: deleteProducts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "product-requests.yaml#/components/schemas/ProductBulkDeleteRequest"
+      responses:
+        "204":
+          description: Products deleted
+        "400":
+          $ref: "product-responses.yaml#/components/responses/Error400"
+        "403":
+          $ref: "product-responses.yaml#/components/responses/Error403"
         "500":
           $ref: "product-responses.yaml#/components/responses/Error500"
 
@@ -232,39 +295,6 @@ paths:
         "500":
           $ref: "product-responses.yaml#/components/responses/Error500"
 
-  /internal/v1/products:lookup:
-    post:
-      tags: [Internal]
-      summary: Bulk lookup products by ids (for catalog-service expansions)
-      operationId: lookupProducts
-      description: |
-        Returns product summaries for the provided ids. Designed for catalog-service to enrich a catalog with products
-        without N calls. Missing ids are returned in `missingIds`.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "product-requests.yaml#/components/schemas/ProductLookupRequest"
-            examples:
-              lookup:
-                value:
-                  productIds: ["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174001"]
-      responses:
-        "200":
-          description: Lookup result
-          content:
-            application/json:
-              schema:
-                $ref: "product-responses.yaml#/components/schemas/ProductLookupResponse"
-        "400":
-          $ref: "product-responses.yaml#/components/responses/Error400"
-        "401":
-          $ref: "product-responses.yaml#/components/responses/Error401"
-        "403":
-          $ref: "product-responses.yaml#/components/responses/Error403"
-        "500":
-          $ref: "product-responses.yaml#/components/responses/Error500"
 
 components:
   securitySchemes:

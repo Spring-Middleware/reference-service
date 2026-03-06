@@ -6,7 +6,6 @@ import io.github.spring.middleware.product.domain.ProductStatus;
 import io.github.spring.middleware.product.dto.MoneyDto;
 import io.github.spring.middleware.product.dto.ProductDto;
 import io.github.spring.middleware.product.dto.ProductStatusDto;
-import io.github.spring.middleware.product.dto.ProductSummaryDto;
 import org.mapstruct.Mapper;
 import org.openapitools.jackson.nullable.JsonNullable;
 
@@ -18,8 +17,6 @@ import java.time.ZoneOffset;
 public interface ProductDtoMapper {
 
     ProductDto toDto(Product product);
-
-    ProductSummaryDto toSummaryDto(Product product);
 
     MoneyDto toDto(Money money);
 

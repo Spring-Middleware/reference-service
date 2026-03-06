@@ -21,12 +21,22 @@ logging:
     root: ${LOG_LEVEL_ROOT:ERROR}
 
 middleware:
+  log:
+    apiKey: ${LOG_API_KEY}
+    request:
+      enabled: ${LOG_REQUEST_ENABLED:true}
+    response:
+      enabled: ${LOG_RESPONSE_ENABLED:true}
+    responseTime:
+      enabled: ${LOG_RESPONSE_TIME_ENABLED:false}
+    exclude:
+      urlPatterns:
+        - /api-docs/**
+        - /swagger-ui.html
+        - /swagger-ui/**
+
   client:
-    proxy:
-      # When running in Docker compose the registry service is reachable at hostname `registry` on port 8080
-      registryEndpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
-      maxRetries: ${PROXY_MAX_RETRIES:3}
-      waitBetweenRetries: ${PROXY_WAIT_BETWEEN_RETRIES:1000}
+    registryEndpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
 
   resourceRegister:
     clusterName: ${RESOURCE_CLUSTER_NAME:catalog}

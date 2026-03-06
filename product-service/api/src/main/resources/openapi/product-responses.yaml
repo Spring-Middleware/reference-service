@@ -38,20 +38,16 @@ components:
           schema:
             $ref: "product-schema.yaml#/components/schemas/Product"
 
-  schemas:
-    ProductLookupResponse:
-      type: object
-      additionalProperties: false
-      properties:
-        items:
-          type: array
-          items: { $ref: "product-schema.yaml#/components/schemas/ProductSummary" }
-        missingIds:
-          type: array
-          items: { type: string }
-          example: ["123e4567-e89b-12d3-a456-426614174999"]
-      required: [items, missingIds]
+    ProductListResponse:
+      description: List of Products
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "product-schema.yaml#/components/schemas/Product"
 
+  schemas:
     PagedProductResponse:
       type: object
       additionalProperties: false
@@ -64,4 +60,3 @@ components:
         totalItems: { type: integer, example: 123 }
         totalPages: { type: integer, example: 7 }
       required: [items, page, size, totalItems, totalPages]
-

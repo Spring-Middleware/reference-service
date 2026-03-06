@@ -7,7 +7,8 @@
     <parent>
         <groupId>io.github.spring-middleware</groupId>
         <artifactId>reference-service</artifactId>
-        <version>${reference.version}</version>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>io.github.spring-middleware</groupId>

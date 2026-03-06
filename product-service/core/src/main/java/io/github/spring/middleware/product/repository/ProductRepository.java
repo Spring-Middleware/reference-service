@@ -13,6 +13,11 @@ public interface ProductRepository extends MongoRepository<ProductEntity, UUID> 
 
     Page<ProductEntity> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    boolean existsBySku(String sku);
-}
+    Page<ProductEntity> findByCatalogId(UUID catalogId, Pageable pageable);
 
+    Page<ProductEntity> findByNameContainingIgnoreCaseAndCatalogId(String name, UUID catalogId, Pageable pageable);
+
+    boolean existsBySku(String sku);
+
+    boolean existsBySkuAndCatalogId(String sku, UUID catalogId);
+}

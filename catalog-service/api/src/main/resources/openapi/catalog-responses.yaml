@@ -8,40 +8,26 @@ components:
           schema:
             $ref: "catalog-schema.yaml#/components/schemas/Catalog"
 
+    CatalogWithProductsResponse:
+      description: Catalog response with optional product details.
+      content:
+        application/json:
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/CatalogWithProducts"
+
     PagedProductResponse:
-      type: object
-      additionalProperties: false
-      properties:
-        items:
-          type: array
-          items: { $ref: "catalog-schema.yaml#/components/schemas/ProductSummary" }
-        page: { type: integer, example: 0 }
-        size: { type: integer, example: 20 }
-        totalItems: { type: integer, example: 123 }
-        totalPages: { type: integer, example: 7 }
-      required: [ items, page, size, totalItems, totalPages ]
+      description: Paged products in this catalog
+      content:
+        application/json:
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/PagedProductResponse"
 
     PagedCatalogResponse:
-      type: object
-      additionalProperties: false
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "catalog-schema.yaml#/components/schemas/Catalog"
-        page:
-          type: integer
-          example: 0
-        size:
-          type: integer
-          example: 20
-        totalItems:
-          type: integer
-          example: 123
-        totalPages:
-          type: integer
-          example: 7
-      required: [ items, page, size, totalItems, totalPages ]
+      description: Paged catalogs
+      content:
+        application/json:
+          schema:
+            $ref: "catalog-schema.yaml#/components/schemas/PagedCatalogResponse"
 
     Error400:
       description: Bad Request
@@ -73,6 +59,3 @@ components:
         application/json:
           schema:
             $ref: "catalog-schema.yaml#/components/schemas/ErrorMessage"
-
-
-

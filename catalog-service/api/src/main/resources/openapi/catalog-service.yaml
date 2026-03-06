@@ -1,5 +1,5 @@
 openapi: 3.0.3
-x-middlewre-endpoint: catalog
+x-middleware-endpoint: catalog
 info:
   title: Catalog Service API
   version: 1.0.0
@@ -110,7 +110,7 @@ paths:
             enum: [ products ]
       responses:
         "200":
-          $ref: "catalog-responses.yaml#/components/responses/CatalogResponse"
+          $ref: "catalog-responses.yaml#/components/responses/CatalogWithProductsResponse"
         "404":
           $ref: "catalog-responses.yaml#/components/responses/Error404"
         "500":
@@ -207,11 +207,7 @@ paths:
           schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
       responses:
         "200":
-          description: Paged products in this catalog
-          content:
-            application/json:
-              schema:
-                $ref: "catalog-responses.yaml#/components/responses/PagedProductResponse"
+          $ref: "catalog-responses.yaml#/components/responses/PagedProductResponse"
         "404":
           $ref: "catalog-responses.yaml#/components/responses/Error404"
         "500":
@@ -287,20 +283,21 @@ paths:
         "500":
           $ref: "catalog-responses.yaml#/components/responses/Error500"
 
-  /api/v1/catalogs/{id}/products/{productId}:
     delete:
       tags: [ Catalogs ]
-      summary: Remove a product from a catalog
-      operationId: removeProductFromCatalog
+      summary: Remove products from a catalog (bulk)
+      operationId: removeProductsFromCatalog
       parameters:
         - name: id
           in: path
           required: true
           schema: { type: string, format: uuid }
-        - name: productId
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "catalog-requests.yaml#/components/schemas/CatalogProductsRemoveRequest"
       responses:
         "204":
           description: Removed

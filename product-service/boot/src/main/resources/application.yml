@@ -23,8 +23,27 @@ logging:
   level:
     io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:DEBUG}
     root: ${LOG_LEVEL_ROOT:ERROR}
+  exclude:
+    urlPatterns:
+      - /api-docs
+      - /swagger-ui.html
+      - /swagger-ui/**
 
 middleware:
+  log:
+    apiKey: ${LOG_API_KEY}
+    request:
+      enabled: ${LOG_REQUEST_ENABLED:true}
+    response:
+      enabled: ${LOG_RESPONSE_ENABLED:true}
+    responseTime:
+      enabled: ${LOG_RESPONSE_TIME_ENABLED:false}
+    exclude:
+      urlPatterns:
+        - /api-docs/**
+        - /swagger-ui.html
+        - /swagger-ui/**
+
   client:
     registryEndpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
 

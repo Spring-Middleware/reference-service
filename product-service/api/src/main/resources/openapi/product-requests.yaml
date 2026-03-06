@@ -4,6 +4,9 @@ components:
       type: object
       additionalProperties: false
       properties:
+        catalogId:
+          type: string
+          format: uuid
         sku:
           type: string
           minLength: 1
@@ -20,7 +23,7 @@ components:
           $ref: "product-schema.yaml#/components/schemas/ProductStatus"
         price:
           $ref: "product-schema.yaml#/components/schemas/Money"
-      required: [sku, name, price]
+      required: [catalogId, sku, name, status, price]
 
     ProductUpdateRequest:
       type: object
@@ -68,14 +71,95 @@ components:
         price:
           $ref: "product-schema.yaml#/components/schemas/Money"
 
-    ProductLookupRequest:
+    ProductCreateItem:
       type: object
       additionalProperties: false
       properties:
-        productIds:
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 80
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+          maxLength: 2000
+        status:
+          $ref: "product-schema.yaml#/components/schemas/ProductStatus"
+        price:
+          $ref: "product-schema.yaml#/components/schemas/Money"
+      required: [sku, name, status, price]
+
+    ProductBulkCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        catalogId:
+          type: string
+          format: uuid
+        items:
           type: array
+          items:
+            $ref: "#/components/schemas/ProductCreateItem"
           minItems: 1
           maxItems: 1000
-          items: { type: string, format: uuid }
-      required: [productIds]
+      required: [catalogId, items]
 
+    ProductBulkDeleteRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        catalogId:
+          type: string
+          format: uuid
+        productIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          maxItems: 1000
+      required: [catalogId, productIds]
+
+    ProductReplaceItem:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 80
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+          maxLength: 2000
+        status:
+          $ref: "product-schema.yaml#/components/schemas/ProductStatus"
+        price:
+          $ref: "product-schema.yaml#/components/schemas/Money"
+      required: [id, sku, name, status, price]
+
+    ProductBulkReplaceRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        catalogId:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductReplaceItem"
+          minItems: 1
+          maxItems: 500
+      required: [catalogId, items]

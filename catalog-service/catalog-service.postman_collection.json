@@ -1,0 +1,365 @@
+{
+	"info": {
+		"_postman_id": "b0c7406c-847e-4603-8860-262111111111",
+		"name": "Catalog Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List Catalogs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs?page=0&size=20",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "20"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Catalog",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"catalogId\", jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Summer Collection 2026\",\n  \"status\": \"ACTIVE\"\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Catalog by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs/{{catalogId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs",
+						"{{catalogId}}"
+					]
+				}
+			},
+			"response": []
+		},
+        {
+			"name": "Patch Catalog",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"status\": \"ACTIVE\"\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs/{{catalogId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs",
+						"{{catalogId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Products to Catalog",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Try to capture product ID if returned via expand or included"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"products\": [\n    {\n      \"name\": \"Beach Towel\",\n      \"sku\": \"TOWEL-001\",\n      \"price\": {\n        \"amount\": 15.50,\n        \"currency\": \"EUR\"\n      },\n      \"status\": \"ACTIVE\"\n    },\n    {\n      \"name\": \"Sun Hat\",\n      \"sku\": \"HAT-001\",\n      \"price\": {\n        \"amount\": 12.00,\n        \"currency\": \"EUR\"\n      },\n      \"status\": \"ACTIVE\"\n    }\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs/{{catalogId}}/products",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs",
+						"{{catalogId}}",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Catalog by ID with expansion",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.products && jsonData.products.length > 0) {",
+							"    pm.collectionVariables.set(\"productId\", jsonData.products[0].id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs/{{catalogId}}?expand=products",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs",
+						"{{catalogId}}"
+					],
+					"query": [
+						{
+							"key": "expand",
+							"value": "products"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Replace Catalog",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Summer Collection 2026 Updated\",\n  \"status\": \"INACTIVE\"\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs/{{catalogId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs",
+						"{{catalogId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Products in Catalog",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs/{{catalogId}}/products?page=0&size=20",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs",
+						"{{catalogId}}",
+						"products"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "20"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Replace Products in Catalog",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"products\": [\n    {\n      \"id\": \"{{productId}}\",\n      \"name\": \"Replaced Beach Towel\",\n      \"sku\": \"TOWEL-001-V2\",\n      \"price\": {\n        \"amount\": 18.00,\n        \"currency\": \"EUR\"\n      },\n      \"status\": \"ACTIVE\"\n    }\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs/{{catalogId}}/products",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs",
+						"{{catalogId}}",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Products from Catalog",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"productIds\": [\n    \"{{productId}}\"\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs/{{catalogId}}/products",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs",
+						"{{catalogId}}",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Catalog",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/v1/catalogs/{{catalogId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"catalogs",
+						"{{catalogId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "catalogId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "productId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

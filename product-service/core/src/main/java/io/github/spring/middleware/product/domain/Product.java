@@ -6,6 +6,7 @@ import java.util.UUID;
 public class Product {
 
     private UUID id;
+    private UUID catalogId;
     private String sku;
     private String name;
     private String description;
@@ -17,8 +18,9 @@ public class Product {
     public Product() {
     }
 
-    public Product(UUID id, String sku, String name, String description, ProductStatus status, Money price, Instant createdAt, Instant updatedAt) {
+    public Product(UUID id, UUID catalogId, String sku, String name, String description, ProductStatus status, Money price, Instant createdAt, Instant updatedAt) {
         this.id = id;
+        this.catalogId = catalogId;
         this.sku = sku;
         this.name = name;
         this.description = description;
@@ -34,6 +36,14 @@ public class Product {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public UUID getCatalogId() {
+        return catalogId;
+    }
+
+    public void setCatalogId(UUID catalogId) {
+        this.catalogId = catalogId;
     }
 
     public String getSku() {

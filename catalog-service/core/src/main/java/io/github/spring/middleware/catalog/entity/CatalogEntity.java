@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +30,12 @@ public class CatalogEntity {
     private CatalogStatus status;
 
     @CreatedDate
-    private OffsetDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
-    private OffsetDateTime updatedAt;
+    private Instant updatedAt;
 
-    private List<UUID> productIds;
+    private List<UUID> productIds = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -60,19 +61,19 @@ public class CatalogEntity {
         this.status = status;
     }
 
-    public OffsetDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public OffsetDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(OffsetDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 

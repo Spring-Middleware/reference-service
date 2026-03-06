@@ -7,7 +7,7 @@ components:
         products:
           type: array
           minItems: 1
-          maxItems: 500
+          maxItems: 100
           items:
             $ref: "catalog-schema.yaml#/components/schemas/ProductInput"
       required: [ products ]
@@ -60,3 +60,14 @@ components:
         status:
           $ref: "catalog-schema.yaml#/components/schemas/CatalogStatus"
 
+    CatalogProductsRemoveRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        productIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+      required: [ productIds ]

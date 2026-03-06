@@ -16,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @GraphQLService
@@ -39,6 +41,7 @@ public class ProductGraphqlController {
     public Page<Product> listProducts(
             @GraphQLArgument(name = "q") String q,
             @GraphQLArgument(name = "status") ProductStatus status,
+            @GraphQLArgument(name = "catalogId") UUID catalogId,
             @GraphQLArgument(name = "page") Integer page,
             @GraphQLArgument(name = "size") Integer size,
             @GraphQLArgument(name = "sort") String sort) {
@@ -48,7 +51,7 @@ public class ProductGraphqlController {
                 size != null ? size : 20,
                 sort != null ? Sort.by(sort.split(",")) : Sort.unsorted()
         );
-        return productService.listProducts(q, status, pageable);
+        return productService.listProducts(q, status, catalogId, pageable);
     }
 
     @GraphQLMutation(name = "createProduct")
@@ -77,6 +80,23 @@ public class ProductGraphqlController {
     public Boolean deleteProduct(@GraphQLArgument(name = "id") UUID id) {
         productService.deleteProduct(id);
         return true;
+    }
+
+    @GraphQLMutation(name = "createProductsForCatalog")
+    public List<Product> createProductsForCatalog(
+            @GraphQLArgument(name = "catalogId") UUID catalogId,
+            @GraphQLArgument(name = "inputs") List<ProductInput> inputs) {
+        List<Product> products = inputs.stream()
+                .map(productMapper::mapToProduct)
+                .collect(Collectors.toList());
+        return productService.createProductsForCatalog(products, catalogId);
+    }
+
+    @GraphQLMutation(name = "deleteProductsForCatalog")
+    public void deleteProductsForCatalog(
+            @GraphQLArgument(name = "productIds") List<UUID> productIds,
+            @GraphQLArgument(name = "catalogId") UUID catalogId) {
+        productService.deleteProductsFromCatalog(productIds, catalogId);
     }
 }
 

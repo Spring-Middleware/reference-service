@@ -43,6 +43,7 @@ services:
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=false
       - REGISTRY_SCANNER_ENABLED=true
       - REGISTRY_SCANNER_CRON=*/15 * * * * *
+      - LOG_API_KEY=${LOG_API_KEY}
     networks:
       middleware-net:
         aliases:
@@ -55,11 +56,12 @@ services:
       context: ./catalog-service
       dockerfile: Dockerfile
     image: catalog-service:latest
-    expose:
-      - "8080"
-      - "5005"
+    hostname: catalog
+    ports:
+      - "8070:8080"
+      - "5008:5005"
     environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - SERVER_CONTEXT_PATH=/catalog
@@ -69,9 +71,14 @@ services:
       - GRAPHQL_ENABLED=false
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/30 * * * * *
+      - LOG_API_KEY=${LOG_API_KEY}
+      - LOG_REQUEST_ENABLED=true
+      - LOG_RESPONSE_ENABLED=true
+      - LOG_RESPONSE_TIME_ENABLED=false
     depends_on:
       - mongo
       - registry
+      - product-service-debug
     networks:
       - middleware-net
 
@@ -80,6 +87,7 @@ services:
       context: ./product-service
       dockerfile: Dockerfile
     image: product-service:latest
+    hostname: product
     expose:
       - "8080"
       - "5005"
@@ -95,6 +103,10 @@ services:
       - SPRING_PROFILES_ACTIVE=local
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/30 * * * * *
+      - LOG_API_KEY=${LOG_API_KEY}
+      - LOG_REQUEST_ENABLED=true
+      - LOG_RESPONSE_ENABLED=true
+      - LOG_RESPONSE_TIME_ENABLED=false
     depends_on:
       - mongo
       - registry
@@ -106,8 +118,9 @@ services:
       context: ./product-service
       dockerfile: Dockerfile
     image: product-service:latest
+    hostname: product
     ports:
-      - "8082:8080"
+      - "8090:8080"
       - "5007:5007"
     environment:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
@@ -121,6 +134,10 @@ services:
       - SPRING_PROFILES_ACTIVE=local
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/30 * * * * *
+      - LOG_API_KEY=${LOG_API_KEY}
+      - LOG_REQUEST_ENABLED=true
+      - LOG_RESPONSE_ENABLED=true
+      - LOG_RESPONSE_TIME_ENABLED=false
     depends_on:
       - mongo
       - registry

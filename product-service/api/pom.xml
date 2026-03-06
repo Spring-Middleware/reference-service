@@ -1,55 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
 
     <parent>
         <groupId>io.github.spring-middleware</groupId>
         <artifactId>product-service</artifactId>
         <version>${product.version}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>io.github.spring-middleware</groupId>
     <artifactId>product-api</artifactId>
     <version>${product.version}</version>
+    <name>product-api</name>
+    <description>Product API contracts generated from OpenAPI</description>
 
+    <properties>
+        <swagger.annotations.version>2.2.22</swagger.annotations.version>
+        <jackson.databind.nullable.version>0.2.6</jackson.databind.nullable.version>
+        <openapi.generator.version>7.2.0</openapi.generator.version>
+        <build.helper.version>3.5.0</build.helper.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.github.spring-middleware</groupId>
             <artifactId>api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>2.2.22</version>
+            <version>${swagger.annotations.version}</version>
         </dependency>
+
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.6</version>
+            <version>${jackson.databind.nullable.version}</version>
         </dependency>
+
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
@@ -62,8 +81,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.2.0</version>
-
+                <version>${openapi.generator.version}</version>
                 <executions>
                     <execution>
                         <id>generate-product-api</id>
@@ -71,12 +89,8 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>
-                                ${project.basedir}/src/main/resources/openapi/product-service.yaml
-                            </inputSpec>
-                            <templateDirectory>
-                                ${project.basedir}/src/main/resources/openapi-templates
-                            </templateDirectory>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/product-service.yaml</inputSpec>
+                            <templateDirectory>${project.basedir}/src/main/resources/openapi-templates</templateDirectory>
 
                             <generatorName>spring</generatorName>
 
@@ -102,11 +116,11 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Añadir generated-sources como source folder -->
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>${build.helper.version}</version>
                 <executions>
                     <execution>
                         <id>add-source</id>
@@ -122,7 +136,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

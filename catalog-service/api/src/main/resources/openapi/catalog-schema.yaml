@@ -25,24 +25,13 @@ components:
           example: EUR
       required: [ amount, currency ]
 
-    Catalog:
+    CatalogBase:
       type: object
       additionalProperties: false
       properties:
         id: { type: string, format: uuid, example: "123e4567-e89b-12d3-a456-426614174000" }
         name: { type: string, example: "Summer 2026" }
         status: { $ref: "#/components/schemas/CatalogStatus" }
-        productIds:
-          type: array
-          description: Product identifiers contained in this catalog.
-          items: { type: string }
-          example: [ "123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002" ]
-        products:
-          type: array
-          description: Present only when `expand=products`.
-          items:
-            $ref: "#/components/schemas/ProductSummary"
-          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -51,7 +40,31 @@ components:
           type: string
           format: date-time
           example: "2026-03-02T12:30:00Z"
-      required: [ id, name, status, productIds, createdAt, updatedAt ]
+      required: [ id, name, status, createdAt, updatedAt ]
+
+    Catalog:
+      allOf:
+        - $ref: "#/components/schemas/CatalogBase"
+        - type: object
+          properties:
+            productIds:
+              type: array
+              description: Product identifiers contained in this catalog.
+              items: { type: string }
+              example: [ "123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002" ]
+          required: [ productIds ]
+
+    CatalogWithProducts:
+      allOf:
+        - $ref: "#/components/schemas/CatalogBase"
+        - type: object
+          properties:
+            products:
+              type: array
+              description: Present only when `expand=products`.
+              items:
+                $ref: "#/components/schemas/ProductSummary"
+              nullable: true
 
     ProductSummary:
       type: object
@@ -69,22 +82,26 @@ components:
       type: object
       additionalProperties: false
       properties:
-        code:
+        statusCode:
+          type: integer
+          format: int32
+          example: 500
+        statusMessage:
           type: string
-          example: UNKNOWN_ERROR
-        message:
+          example: "Internal Server Error"
+        errorCode:
           type: string
-          example: An unknown error occurred
-        requestId:
-          type: string
-          format: uuid
           nullable: true
-          example: 7b9e3c1a-7c40-4b93-9d2a-9b5d4ef7d2c1
+          example: "FRAMEWORK:UNKNOWN_ERROR"
+        errorMessage:
+          type: string
+          nullable: true
+          example: "An unknown error occurred"
         extensions:
           type: object
           nullable: true
           additionalProperties: true
-      required: [ code, message ]
+      required: [statusCode, statusMessage]
 
     ProductInput:
       type: object
@@ -107,3 +124,37 @@ components:
         price: { $ref: "#/components/schemas/Money" }
       required: [ id, name, sku, price ]
 
+    PagedCatalogResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Catalog"
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+        totalItems:
+          type: integer
+          example: 123
+        totalPages:
+          type: integer
+          example: 7
+      required: [ items, page, size, totalItems, totalPages ]
+
+    PagedProductResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/ProductSummary" }
+        page: { type: integer, example: 0 }
+        size: { type: integer, example: 20 }
+        totalItems: { type: integer, example: 123 }
+        totalPages: { type: integer, example: 7 }
+      required: [ items, page, size, totalItems, totalPages ]

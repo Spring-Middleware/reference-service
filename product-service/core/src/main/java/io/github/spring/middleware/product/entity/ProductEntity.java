@@ -19,6 +19,9 @@ public class ProductEntity {
     @Id
     private UUID id;
 
+    @Indexed
+    private UUID catalogId;
+
     @Indexed(unique = true)
     private String sku;
 

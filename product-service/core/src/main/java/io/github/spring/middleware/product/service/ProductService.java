@@ -12,16 +12,21 @@ public interface ProductService {
 
     Product createProduct(Product product);
 
+    List<Product> createProductsForCatalog(List<Product> products, UUID catalogId);
+
     Product getProduct(UUID id);
 
     Product replaceProduct(UUID id, Product product);
 
+    List<Product> replaceProductsForCatalog(List<Product> products, UUID catalogId);
+
     Product patchProduct(UUID id, Product product);
 
-    Page<Product> listProducts(String q, ProductStatus status, Pageable pageable);
+    Page<Product> listProducts(String q, ProductStatus status, UUID catalogId, Pageable pageable);
 
     void deleteProduct(UUID id);
 
-    List<Product> lookupProducts(List<UUID> ids);
+    void deleteProductsFromCatalog(List<UUID> ids, UUID catalogId);
+
 }
 

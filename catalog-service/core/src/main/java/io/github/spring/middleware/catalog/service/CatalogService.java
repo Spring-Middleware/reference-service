@@ -2,6 +2,7 @@ package io.github.spring.middleware.catalog.service;
 
 import io.github.spring.middleware.catalog.domain.Catalog;
 import io.github.spring.middleware.catalog.domain.CatalogStatus;
+import io.github.spring.middleware.catalog.domain.CatalogWithProducts;
 import io.github.spring.middleware.catalog.domain.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,7 @@ public interface CatalogService {
 
     Catalog createCatalog(Catalog catalog);
 
-    Catalog getCatalog(UUID id, boolean expandProducts);
+    CatalogWithProducts getCatalog(UUID id, boolean expandProducts);
 
     Page<Catalog> listCatalogs(String q, CatalogStatus status, Pageable pageable);
 
@@ -29,6 +30,5 @@ public interface CatalogService {
 
     Catalog replaceCatalogProducts(UUID id, List<Product> products);
 
-    void removeProductFromCatalog(UUID id, UUID productId);
-
+    void removeProductsFromCatalog(UUID id, List<UUID> productIds);
 }

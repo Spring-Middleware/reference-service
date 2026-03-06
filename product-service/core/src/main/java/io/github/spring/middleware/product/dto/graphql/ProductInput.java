@@ -2,12 +2,23 @@ package io.github.spring.middleware.product.dto.graphql;
 
 import io.github.spring.middleware.product.domain.ProductStatus;
 
+import java.util.UUID;
+
 public class ProductInput {
+    private UUID catalogId;
     private String sku;
     private String name;
     private String description;
     private ProductStatus status;
     private MoneyInput price;
+
+    public UUID getCatalogId() {
+        return catalogId;
+    }
+
+    public void setCatalogId(UUID catalogId) {
+        this.catalogId = catalogId;
+    }
 
     public String getSku() {
         return sku;
