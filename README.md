@@ -11,10 +11,13 @@
 If you just want to see the reference services running:
 
 ```bash
-# From the repository root
+# From the root of this module
+cd reference-service
+
+# Build all modules (catalog-service + product-service)
 mvn clean install
 
-# Start infrastructure (MongoDB, etc.)
+# Start local infrastructure (MongoDB, etc.)
 docker-compose -f docker-compose.local.yml up -d
 
 # In separate terminals, start each service
@@ -24,6 +27,9 @@ mvn spring-boot:run
 cd product-service/boot
 mvn spring-boot:run
 ```
+
+Make sure a compatible **Spring Middleware Registry Service** is running and
+reachable with the configuration in the services `application.yml`.
 
 Then call a catalog endpoint (see below) and observe how it calls Product Service
 through a declarative `@MiddlewareClient`.
@@ -291,6 +297,77 @@ mvn spring-boot:run
 
 Make sure the Registry Service is up and reachable with the configuration
 specified in the services `application.yml`.
+
+---
+
+## Example calls
+
+Once the stack is running (Registry, Mongo, Redis, Product, Catalog) you can hit the services directly.
+
+### Service base URLs
+
+**Local host (running services on your machine):**
+
+- Registry: `http://localhost:8080/registry`
+- Catalog Service: `http://localhost:8070/catalog`
+- Product Service (debug): `http://localhost:8090/product`
+
+**Inside Docker network (from other containers):**
+
+- Registry: `http://registry:8080/registry`
+- Catalog Service: `http://catalog:8080/catalog`
+- Product Service: `http://product:8080/product`
+
+### REST – Catalog → Product via `@MiddlewareClient`
+
+Catalog REST endpoints are served under the `/catalog` context path and the `/api/v1/catalogs` resource path.
+
+For a quick happy path, from your host machine:
+
+```bash
+# List catalogs
+curl -v "http://localhost:8070/catalog/api/v1/catalogs?page=0&size=20"
+
+# Create a catalog
+curl -v -X POST "http://localhost:8070/catalog/api/v1/catalogs" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Summer Collection 2026",
+    "status": "ACTIVE"
+  }'
+
+# Get catalog by ID (replace {id} with the returned id)
+curl -v "http://localhost:8070/catalog/api/v1/catalogs/{id}"
+
+# Get catalog with products expanded
+curl -v "http://localhost:8070/catalog/api/v1/catalogs/{id}?expand=products"
+```
+
+These calls:
+
+- hit **Catalog Service** on `localhost:8070/catalog`,
+- which in turn calls **Product Service** via a declarative `@MiddlewareClient`,
+- resolving the `product` cluster through the Registry at `http://localhost:8080/registry`.
+
+To see error propagation, request a non‑existing catalog or product ID and inspect the structured error payload.
+
+### GraphQL – Product Service
+
+Product Service exposes GraphQL under the `/product` context path (default Spring GraphQL endpoint `/graphql`). From your host machine:
+
+```bash
+curl -X POST "http://localhost:8090/product/graphql" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "{ products { id name } }"
+  }'
+```
+
+This will exercise:
+
+- the Product GraphQL schema,
+- Spring Middleware GraphQL error handling,
+- and schema registration into the Registry.
 
 ---
 
