@@ -5,6 +5,7 @@ import io.github.spring.middleware.catalog.domain.CatalogStatus;
 import io.github.spring.middleware.catalog.domain.CatalogWithProducts;
 import io.github.spring.middleware.catalog.domain.Product;
 import io.github.spring.middleware.catalog.entity.CatalogEntity;
+import io.github.spring.middleware.catalog.exception.CatalogErrorCodes;
 import io.github.spring.middleware.catalog.exception.CatalogNotFoundException;
 import io.github.spring.middleware.catalog.mapper.CatalogEntityMapper;
 import io.github.spring.middleware.catalog.mapper.ProductMapper;
@@ -55,7 +56,7 @@ public class CatalogServiceImpl implements CatalogService {
 
     @Override
     public CatalogWithProducts getCatalog(UUID id, boolean expandProducts) {
-        CatalogEntity catalogEntity = catalogRepository.findById(id).orElseThrow(() -> new CatalogNotFoundException(STR."Catalog with id \{id} not found"));
+        CatalogEntity catalogEntity = catalogRepository.findById(id).orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
         CatalogWithProducts catalogWithProducts = catalogEntityMapper.toWithProducts(catalogEntity);
         if (expandProducts) {
             List<ProductDto> productDtos = PaginationUtils.findAllPages((catalogId, p, s) -> productsApi.listProducts(null, null, catalogId, p, s, null).getItems(), catalogWithProducts.getId(), 0, 100);
@@ -86,7 +87,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public void deleteCatalog(UUID id) {
         CatalogEntity catalogEntity = catalogRepository.findById(id)
-                .orElseThrow(() -> new CatalogNotFoundException(STR."Catalog with id \{id} not found"));
+                .orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
         if (catalogEntity.getProductIds() == null || catalogEntity.getProductIds().isEmpty()) {
             catalogRepository.deleteById(id);
             return;
@@ -101,7 +102,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public Catalog patchCatalog(UUID id, Catalog catalog) {
         CatalogEntity entity = catalogRepository.findById(id)
-                .orElseThrow(() -> new CatalogNotFoundException(STR."Catalog with id \{id} not found"));
+                .orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
 
         if (catalog.getName() != null) entity.setName(catalog.getName());
         if (catalog.getStatus() != null) entity.setStatus(catalog.getStatus());
@@ -114,7 +115,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public Catalog replaceCatalog(UUID id, Catalog catalog) {
         CatalogEntity entity = catalogRepository.findById(id)
-                .orElseThrow(() -> new CatalogNotFoundException(STR."Catalog with id \{id} not found"));
+                .orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
 
         CatalogEntity mapped = catalogEntityMapper.toEntity(catalog);
         mapped.setId(id);
@@ -130,7 +131,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public Page<Product> listCatalogProducts(UUID id, Pageable pageable) {
         if (!catalogRepository.existsById(id)) {
-            throw new CatalogNotFoundException(STR."Catalog with id \{id} not found");
+            throw new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found");
         }
         var response = productsApi.listProducts(null, null, id, pageable.getPageNumber(), pageable.getPageSize(), null);
         List<Product> products = response.getItems().stream()
@@ -143,7 +144,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public Catalog addProductsToCatalog(UUID id, List<Product> products) {
         final CatalogEntity catalogEntity = catalogRepository.findById(id)
-                .orElseThrow(() -> new CatalogNotFoundException(STR."Catalog with id \{id} not found"));
+                .orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
 
         ProductBulkCreateRequestDto requestDto = new ProductBulkCreateRequestDto();
         requestDto.setCatalogId(catalogEntity.getId());
@@ -166,7 +167,7 @@ public class CatalogServiceImpl implements CatalogService {
     public Catalog replaceCatalogProducts(UUID id, List<Product> products) {
         // Not implemented in this iteration, assumed logical replacement
         final CatalogEntity catalogEntity = catalogRepository.findById(id)
-                .orElseThrow(() -> new CatalogNotFoundException(STR."Catalog with id \{id} not found"));
+                .orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
 
         final ProductBulkReplaceRequestDto requestDto = new ProductBulkReplaceRequestDto();
         requestDto.setCatalogId(catalogEntity.getId());
@@ -178,7 +179,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public void removeProductsFromCatalog(UUID id, List<UUID> productIds) {
         CatalogEntity entity = catalogRepository.findById(id)
-                .orElseThrow(() -> new CatalogNotFoundException(STR."Catalog with id \{id} not found"));
+                .orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
 
         if (productIds == null || productIds.isEmpty()) {
             return;

@@ -8,6 +8,7 @@ import io.github.spring.middleware.product.dto.*;
 import io.github.spring.middleware.product.mapper.ProductDtoMapper;
 import io.github.spring.middleware.product.mapper.ProductMapper;
 import io.github.spring.middleware.product.service.ProductService;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ public class ProductController implements ProductsApi {
     private final ProductDtoMapper productDtoMapper;
 
     @Override
+    @RolesAllowed("ROLE_CREATE_PRODUCT")
     public ProductDto createProduct(ProductCreateRequestDto productCreateRequestDto) {
         log.info("Received request to create product: {}", productCreateRequestDto);
         Product product = productMapper.mapToProduct(productCreateRequestDto);

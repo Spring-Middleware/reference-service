@@ -75,6 +75,8 @@ services:
       - LOG_REQUEST_ENABLED=true
       - LOG_RESPONSE_ENABLED=true
       - LOG_RESPONSE_TIME_ENABLED=false
+      - SECURITY_USERNAME=admin
+      - SECURITY_PASSWORD=${SECURITY_PASSWORD}
     depends_on:
       - mongo
       - registry

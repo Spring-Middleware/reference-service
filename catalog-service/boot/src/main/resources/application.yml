@@ -18,6 +18,8 @@ springdoc:
 logging:
   level:
     io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:DEBUG}
+    org.springframework.security: TRACE
+    org.springframework.security.web: TRACE
     root: ${LOG_LEVEL_ROOT:ERROR}
 
 middleware:
@@ -48,6 +50,28 @@ middleware:
 
   graphql:
     enabled: ${GRAPHQL_ENABLED:false}
+
+  security:
+    type: BASIC_AUTH
+    public-path:
+      - /api-docs/**
+      - /swagger-ui.html
+      - /swagger-ui/**
+
+    protected-paths:
+      - enabled: true
+        path: /api/*/catalogs/**
+        methods: [ GET ]
+        allowed-roles: [ GET_USER, ADMIN ]
+
+    basic:
+      credentials:
+        username: ${SECURITY_USERNAME}
+        password: ${SECURITY_PASSWORD}
+        roles: [ GET_USER, ADMIN ]
+
+  errors:
+    CATALOG_NOT_FOUND: 404
 
 redisson:
   # In Docker compose Redis service should be named `redis`
