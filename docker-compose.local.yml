@@ -56,6 +56,7 @@ services:
       context: ./catalog-service
       dockerfile: Dockerfile
     image: catalog-service:latest
+    container_name: catalog_local
     hostname: catalog
     ports:
       - "8070:8080"
@@ -77,6 +78,10 @@ services:
       - LOG_RESPONSE_TIME_ENABLED=false
       - SECURITY_USERNAME=admin
       - SECURITY_PASSWORD=${SECURITY_PASSWORD}
+      - OIDC_ISSUER_URI=http://localhost:8081/realms/spring-middleware
+      - OIDC_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
+      - OIDC_AUTHORITIES_CLAIM_PATH=$$.resource_access.catalog-service.roles[*]
+      - API_KEY_CATALOG_SERVICE=${API_KEY_CATALOG_SERVICE}
     depends_on:
       - mongo
       - registry
@@ -89,6 +94,7 @@ services:
       context: ./product-service
       dockerfile: Dockerfile
     image: product-service:latest
+    container_name: product_local
     hostname: product
     expose:
       - "8080"
@@ -120,6 +126,7 @@ services:
       context: ./product-service
       dockerfile: Dockerfile
     image: product-service:latest
+    container_name: product_debug_local
     hostname: product
     ports:
       - "8090:8080"
@@ -149,6 +156,7 @@ services:
 networks:
   middleware-net:
     driver: bridge
+    name: middleware-net
 
 volumes:
   mongo-data:

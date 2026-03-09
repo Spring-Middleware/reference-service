@@ -51,8 +51,43 @@ middleware:
   graphql:
     enabled: ${GRAPHQL_ENABLED:false}
 
+#  security:
+#    type: BASIC_AUTH
+#    public-path:
+#      - /api-docs/**
+#      - /swagger-ui.html
+#      - /swagger-ui/**
+#
+#    protected-paths:
+#      - enabled: true
+#        path: /api/*/catalogs/**
+#        methods: [ GET ]
+#        allowed-roles: [ GET_CATALOG, ADMIN ]
+#
+#    basic:
+#      credentials:
+#        username: ${SECURITY_USERNAME}
+#        password: ${SECURITY_PASSWORD}
+#        roles: [ GET_CATALOG, ADMIN ]
+
+#  security:
+#    type: JWT
+#    public-path:
+#      - /api-docs/**
+#      - /swagger-ui.html
+#      - /swagger-ui/**
+#
+#    protected-paths:
+#      - enabled: true
+#        path: /api/*/catalogs/**
+#        methods: [ GET ]
+#        allowed-roles: [ GET_CATALOG, ADMIN ]
+#
+#    jwt:
+#      secret: ${JWT_SECRET:dfwzsdzwh823zebdwdz772632gdsbddfr4}
+
   security:
-    type: BASIC_AUTH
+    type: OIDC
     public-path:
       - /api-docs/**
       - /swagger-ui.html
@@ -60,15 +95,44 @@ middleware:
 
     protected-paths:
       - enabled: true
+        path: /api/*/catalogs/*/products
+        methods: [ GET ]
+        allowed-roles: [ LIST_PRODUCTS, ADMIN ]
+
+      - enabled: true
         path: /api/*/catalogs/**
         methods: [ GET ]
-        allowed-roles: [ GET_USER, ADMIN ]
+        allowed-roles: [ GET_CATALOG, ADMIN ]
 
-    basic:
-      credentials:
-        username: ${SECURITY_USERNAME}
-        password: ${SECURITY_PASSWORD}
-        roles: [ GET_USER, ADMIN ]
+    oidc:
+      issuer-uri: ${OIDC_ISSUER_URI:http://localhost:8081/realms/spring-middleware}
+      jwk-set-uri: ${OIDC_JWK_SET_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs}
+      authorities-claim-path: ${OIDC_AUTHORITIES_CLAIM_PATH:$.resource_access.catalog-service.roles[*]}
+
+#  security:
+#    type: API_KEY
+#    public-path:
+#      - /api-docs/**
+#      - /swagger-ui.html
+#      - /swagger-ui/**
+#
+#    protected-paths:
+#      - enabled: true
+#        path: /api/*/catalogs/*/products
+#        methods: [ GET ]
+#        allowed-roles: [ LIST_PRODUCTS, ADMIN ]
+#
+#      - enabled: true
+#        path: /api/*/catalogs/**
+#        methods: [ GET ]
+#        allowed-roles: [ GET_CATALOG, ADMIN ]
+#
+#    api-key:
+#        header-name: X-API-KEY
+#        credentials:
+#          - key: ${API_KEY_CATALOG_SERVICE:default-api-key}
+#            enabled: true
+#            roles: [ GET_CATALOG, LIST_PRODUCTS ]
 
   errors:
     CATALOG_NOT_FOUND: 404
