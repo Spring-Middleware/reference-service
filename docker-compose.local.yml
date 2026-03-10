@@ -42,14 +42,32 @@ services:
       - GRAPHQL_ENABLED=false
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=false
       - REGISTRY_SCANNER_ENABLED=true
-      - REGISTRY_SCANNER_CRON=*/15 * * * * *
+      - REGISTRY_SCANNER_CRON=*/5 * * * * *
+      - REGISTRY_SCANNER_MAX_NO_AVIL=3
       - LOG_API_KEY=${LOG_API_KEY}
+      - JMS_PASSWORD=${JMS_PASSWORD}
     networks:
       middleware-net:
         aliases:
           - registry
     depends_on:
       - redis
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"     # AMQP port
+      - "15672:15672"   # Management UI
+    volumes:
+      - ./src/test/resources/definitions.json:/etc/rabbitmq/definitions.json
+    environment:
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit load_definitions \"/etc/rabbitmq/definitions.json\""
+    restart: always
+    networks:
+      - middleware-net
 
   catalog-service:
     build:
@@ -82,6 +100,7 @@ services:
       - OIDC_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
       - OIDC_AUTHORITIES_CLAIM_PATH=$$.resource_access.catalog-service.roles[*]
       - API_KEY_CATALOG_SERVICE=${API_KEY_CATALOG_SERVICE}
+      - JMS_PASSWORD=${JMS_PASSWORD}
     depends_on:
       - mongo
       - registry
@@ -115,6 +134,7 @@ services:
       - LOG_REQUEST_ENABLED=true
       - LOG_RESPONSE_ENABLED=true
       - LOG_RESPONSE_TIME_ENABLED=false
+      - JMS_PASSWORD=${JMS_PASSWORD}
     depends_on:
       - mongo
       - registry
@@ -147,6 +167,7 @@ services:
       - LOG_REQUEST_ENABLED=true
       - LOG_RESPONSE_ENABLED=true
       - LOG_RESPONSE_TIME_ENABLED=false
+      - JMS_PASSWORD=${JMS_PASSWORD}
     depends_on:
       - mongo
       - registry

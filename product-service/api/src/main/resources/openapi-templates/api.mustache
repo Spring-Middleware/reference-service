@@ -119,10 +119,21 @@ import {{javaxPackage}}.annotation.Generated;
   name = "<%vendorExtensions.x-middleware-endpoint%>",
   connection = @io.github.spring.middleware.annotation.MiddlewareContractConnection(
     timeout = "${<%vendorExtensions.x-middleware-endpoint%>.client.timeout:30000}",
-    maxConnections = "${<%vendorExtensions.x-middleware-endpoint%>.client.maxConnections:50}",
-    maxConcurrentCalls = "${<%vendorExtensions.x-middleware-endpoint%>.client.maxConcurrentCalls:200}",
-    maxRetries = "${<%vendorExtensions.x-middleware-endpoint%>.client.maxRetries:3}",
-    retryBackoffMillis = "${<%vendorExtensions.x-middleware-endpoint%>.client.retryBackoffMillis:1000}"
+    maxConnections = "${<%vendorExtensions.x-middleware-endpoint%>.client.max-connections:50}",
+    maxConcurrentCalls = "${<%vendorExtensions.x-middleware-endpoint%>.client.max-concurrent-calls:200}",
+    maxRetries = "${<%vendorExtensions.x-middleware-endpoint%>.client.max-retries:3}",
+    retryBackoffMillis = "${<%vendorExtensions.x-middleware-endpoint%>.client.retry-backoff-millis:1000}"
+  ),
+
+  circuitBreaker = @io.github.spring.middleware.annotation.MiddlewareCircuitBreaker(
+    enabled = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.enabled:true}",
+    failureRateThreshold = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.failure-rate-threshold:50}",
+    waitDurationInOpenStateMs = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.wait-duration-in-open-state-ms:10000}",
+    slidingWindowSize = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.sliding-window-size:20}",
+    minimumNumberOfCalls = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.minimum-number-of-calls:10}",
+    permittedNumberOfCallsInHalfOpenState = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.permitted-number-of-calls-in-half-open-state:3}",
+    statusShouldOpenBreaker = {"${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.status-should-open-breaker:5xx}"},
+    statusShouldIgnoreBreaker = {"${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.status-should-ignore-breaker:4xx}"}
   )
 )
 <%={{ }}=%>
@@ -262,6 +273,18 @@ public interface {{classname}} {
     })
     {{/swagger1AnnotationLibrary}}
     {{/implicitHeadersParams.0}}
+    {{=<% %>=}}
+    @io.github.spring.middleware.annotation.MiddlewareCircuitBreaker(
+        enabled = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.enabled:true}",
+        failureRateThreshold = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.failure-rate-threshold:50}",
+        waitDurationInOpenStateMs = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.wait-duration-in-open-state-ms:10000}",
+        slidingWindowSize = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.sliding-window-size:20}",
+        minimumNumberOfCalls = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.minimum-number-of-calls:10}",
+        permittedNumberOfCallsInHalfOpenState = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.permitted-number-of-calls-in-half-open-state:3}",
+        statusShouldOpenBreaker = {"${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.status-should-open-breaker:5xx}"},
+        statusShouldIgnoreBreaker = {"${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.status-should-ignore-breaker:4xx}"}
+    )
+    <%={{ }}=%>
     @RequestMapping(
         method = RequestMethod.{{httpMethod}},
         value = {{classname}}.PATH_{{#lambda.uppercase}}{{#lambda.snakecase}}{{{operationId}}}{{/lambda.snakecase}}{{/lambda.uppercase}}{{#singleContentTypes}}{{#hasProduces}},
