@@ -222,6 +222,8 @@ services:
       - middleware-net
 
   product-service-debug:
+    profiles:
+      - debug
     build:
       context: ./product-service
       dockerfile: Dockerfile

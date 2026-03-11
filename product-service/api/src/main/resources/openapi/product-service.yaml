@@ -1,5 +1,8 @@
 openapi: 3.0.3
 x-middleware-endpoint: product
+x-middleware-passthrough: true
+x-middleware-client-credentials: false
+x-middleware-api-key: false
 info:
   title: Product Service API
   version: 1.0.0

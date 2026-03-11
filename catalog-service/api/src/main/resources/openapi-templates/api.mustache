@@ -138,6 +138,27 @@ import {{javaxPackage}}.annotation.Generated;
 )
 <%={{ }}=%>
 {{/vendorExtensions.x-middleware-endpoint}}
+
+{{#vendorExtensions.x-middleware-passthrough}}
+@io.github.spring.middleware.annotation.security.MiddlewarePassthrough(
+   headerName = "${middleware.{{vendorExtensions.x-middleware-endpoint}}.security.passthrough.header:Authorization}"
+)
+{{/vendorExtensions.x-middleware-passthrough}}
+
+{{#vendorExtensions.x-middleware-api-key}}
+@io.github.spring.middleware.annotation.security.MiddlewareApiKey(
+    headerName = "${middleware.{{vendorExtensions.x-middleware-endpoint}}.api-key.header}",
+    value = "${middleware.{{vendorExtensions.x-middleware-endpoint}}.api-key.value}"
+)
+{{/vendorExtensions.x-middleware-api-key}}
+
+{{#vendorExtensions.x-middleware-client-credentials}}
+@io.github.spring.middleware.annotation.security.MiddlewareClientCredentials(
+    tokenUri = "${middleware.oauth.token-uri}",
+    clientId = "${middleware.oauth.client-id}",
+    clientSecret = "${middleware.oauth.client-secret}"
+)
+{{/vendorExtensions.x-middleware-client-credentials}}
 public interface {{classname}} {
 {{#jdk8-default-interface}}
     {{^isDelegate}}

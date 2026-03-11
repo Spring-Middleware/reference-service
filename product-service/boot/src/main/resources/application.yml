@@ -44,6 +44,9 @@ middleware:
         - /swagger-ui.html
         - /swagger-ui/**
 
+  security:
+
+
   client:
     registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
 
