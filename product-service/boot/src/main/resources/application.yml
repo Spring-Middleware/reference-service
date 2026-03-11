@@ -45,7 +45,7 @@ middleware:
         - /swagger-ui/**
 
   client:
-    registryEndpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
+    registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
 
   jms:
     profile: ${JMS_PROFILE:LOCAL}
@@ -58,10 +58,10 @@ middleware:
     rabbitmq:
       base-url: ${JMS_RABBITMQ_BASE_URL:http://rabbitmq:15672}
 
-  resourceRegister:
-    clusterName: ${RESOURCE_CLUSTER_NAME:product}
+  resource-register:
+    cluster-name: ${RESOURCE_CLUSTER_NAME:product}
 
-  publicServer:
+  public-server:
     # In Docker the public hostname will be the service name `registry` (or set via env)
     host: ${PUBLIC_SERVER_HOST:localhost}
     port: ${PUBLIC_SERVER_PORT:8080}

@@ -23,37 +23,6 @@ services:
         aliases:
           - redis
 
-  registry:
-    # Build context as passed by user, assuming files exist relative to execution context or built image exists
-    # build:
-    #   context: .
-    #   dockerfile: parent/registry/boot/Dockerfile.runtime
-    image: spring-base_registry:latest
-    container_name: registry_local
-    hostname: registry
-    ports:
-      - "8080:8080"
-      - "5005:5005"
-    environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-      - SPRING_PROFILES_ACTIVE=LOCAL
-      - REGISTRY_ENDPOINT=http://registry:8080/registry
-      - REDIS_ADDRESS=redis://redis:6379
-      - GRAPHQL_ENABLED=false
-      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=false
-      - REGISTRY_SCANNER_ENABLED=true
-      - REGISTRY_SCANNER_CRON=*/5 * * * * *
-      - REGISTRY_SCANNER_MAX_NO_AVIL=3
-      - LOG_API_KEY=${LOG_API_KEY}
-      - JMS_PASSWORD=${JMS_PASSWORD}
-    networks:
-      middleware-net:
-        aliases:
-          - registry
-    depends_on:
-      - redis
-      - rabbitmq
-
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: rabbitmq
@@ -68,6 +37,37 @@ services:
     restart: always
     networks:
       - middleware-net
+
+  registry:
+    # Build context as passed by user, assuming files exist relative to execution context or built image exists
+    # build:
+    #   context: .
+    #   dockerfile: parent/registry/boot/Dockerfile.runtime
+    image: spring-base_registry:latest
+    container_name: registry_local
+    hostname: registry
+    expose:
+      - "8080"
+      - "5005"
+    environment:
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - SPRING_PROFILES_ACTIVE=LOCAL
+      - REGISTRY_ENDPOINT=http://registry:8080/registry
+      - REDIS_ADDRESS=redis://redis:6379
+      - GRAPHQL_ENABLED=false
+      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=false
+      - REGISTRY_TOPOLOGY_RECONCILER_ENABLED=true
+      - REGISTRY_TOPOLOGY_RECONCILER_CRON=*/5 * * * * *
+      - REGISTRY_TOPOLOGY_RECONCILER_MAX_NO_AVAIL=3
+      - LOG_API_KEY=${LOG_API_KEY}
+      - JMS_PASSWORD=${JMS_PASSWORD}
+    networks:
+      middleware-net:
+        aliases:
+          - registry
+    depends_on:
+      - redis
+      - rabbitmq
 
   catalog-service:
     build:
@@ -89,7 +89,7 @@ services:
       - SPRING_PROFILES_ACTIVE=local
       - GRAPHQL_ENABLED=false
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
-      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/30 * * * * *
+      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
       - LOG_REQUEST_ENABLED=true
       - LOG_RESPONSE_ENABLED=true
@@ -104,17 +104,33 @@ services:
     depends_on:
       - mongo
       - registry
-      - product-service-debug
+      - nginx
     networks:
       - middleware-net
 
-  product-service:
+
+  nginx:
+    image: nginx:latest
+    hostname: product
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - product-service-1
+      - product-service-2
+      - product-service-3
+    networks:
+      middleware-net:
+        aliases:
+          - product
+
+  product-service-1:
     build:
       context: ./product-service
       dockerfile: Dockerfile
     image: product-service:latest
-    container_name: product_local
-    hostname: product
+    hostname: product-1
     expose:
       - "8080"
       - "5005"
@@ -129,7 +145,71 @@ services:
       - GRAPHQL_NAMESPACE=product
       - SPRING_PROFILES_ACTIVE=local
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
-      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/30 * * * * *
+      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
+      - LOG_API_KEY=${LOG_API_KEY}
+      - LOG_REQUEST_ENABLED=true
+      - LOG_RESPONSE_ENABLED=true
+      - LOG_RESPONSE_TIME_ENABLED=false
+      - JMS_PASSWORD=${JMS_PASSWORD}
+    depends_on:
+      - mongo
+      - registry
+    networks:
+      - middleware-net
+
+  product-service-2:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    image: product-service:latest
+    hostname: product-2
+    expose:
+      - "8080"
+      - "5005"
+    environment:
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
+      - SERVER_PORT=8080
+      - SERVER_CONTEXT_PATH=/product
+      - REGISTRY_ENDPOINT=http://registry:8080/registry
+      - MONGO_URI=mongodb://mongo:27017/product
+      - GRAPHQL_ENABLED=true
+      - GRAPHQL_CLUSTER_NAME=product
+      - GRAPHQL_NAMESPACE=product
+      - SPRING_PROFILES_ACTIVE=local
+      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
+      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
+      - LOG_API_KEY=${LOG_API_KEY}
+      - LOG_REQUEST_ENABLED=true
+      - LOG_RESPONSE_ENABLED=true
+      - LOG_RESPONSE_TIME_ENABLED=false
+      - JMS_PASSWORD=${JMS_PASSWORD}
+    depends_on:
+      - mongo
+      - registry
+    networks:
+      - middleware-net
+
+  product-service-3:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    image: product-service:latest
+    hostname: product-3
+    expose:
+      - "8080"
+      - "5005"
+    environment:
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
+      - SERVER_PORT=8080
+      - SERVER_CONTEXT_PATH=/product
+      - REGISTRY_ENDPOINT=http://registry:8080/registry
+      - MONGO_URI=mongodb://mongo:27017/product
+      - GRAPHQL_ENABLED=true
+      - GRAPHQL_CLUSTER_NAME=product
+      - GRAPHQL_NAMESPACE=product
+      - SPRING_PROFILES_ACTIVE=local
+      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
+      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
       - LOG_REQUEST_ENABLED=true
       - LOG_RESPONSE_ENABLED=true
@@ -147,7 +227,7 @@ services:
       dockerfile: Dockerfile
     image: product-service:latest
     container_name: product_debug_local
-    hostname: product
+    hostname: product-debug
     ports:
       - "8090:8080"
       - "5007:5007"
@@ -162,7 +242,7 @@ services:
       - GRAPHQL_NAMESPACE=product
       - SPRING_PROFILES_ACTIVE=local
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
-      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/30 * * * * *
+      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
       - LOG_REQUEST_ENABLED=true
       - LOG_RESPONSE_ENABLED=true
