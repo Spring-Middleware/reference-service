@@ -88,7 +88,7 @@ services:
       - REDIS_ADDRESS=redis://redis:6379
       - SPRING_PROFILES_ACTIVE=local
       - GRAPHQL_ENABLED=false
-      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
+      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=false
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
       - LOG_REQUEST_ENABLED=true
@@ -104,7 +104,6 @@ services:
     depends_on:
       - mongo
       - registry
-      - nginx
     networks:
       - middleware-net
 
@@ -221,6 +220,19 @@ services:
     networks:
       - middleware-net
 
+  wiremock:
+    image: wiremock/wiremock:latest
+    container_name: product
+    hostname: product
+    ports:
+      - "8089:8080"
+    volumes:
+      - ./wiremock:/home/wiremock
+    networks:
+      middleware-net:
+        aliases:
+          - product
+
   product-service-debug:
     profiles:
       - debug
@@ -229,7 +241,7 @@ services:
       dockerfile: Dockerfile
     image: product-service:latest
     container_name: product_debug_local
-    hostname: product-debug
+    hostname: product_debug
     ports:
       - "8090:8080"
       - "5007:5007"

@@ -1,0 +1,10 @@
+{
+  "id": "11111111-1111-1111-1111-111111111111",
+  "request": {
+    "method": "GET",
+    "urlPath": "/product/api/v1/products"
+  },
+  "response": {
+    "status": 500
+  }
+}

@@ -1,8 +1,5 @@
 openapi: 3.0.3
 x-middleware-endpoint: product
-x-middleware-passthrough: true
-x-middleware-client-credentials: false
-x-middleware-api-key: false
 info:
   title: Product Service API
   version: 1.0.0
@@ -13,23 +10,47 @@ info:
 servers:
   - url: http://localhost:8082
     description: Local
-    x-middleware-endpoint: product
 
 tags:
   - name: Products
     description: "Endpoints for managing products (CRUD operations)."
 
-  - name: Internal
-
-security:
-  - ServiceAuth: []
+#components:
+#  securitySchemes:
+#    APIKeyAuth:
+#      type: apiKey
+#      in: header
+#      name: X-API-KEY
+#      description: |
+#        API key authentication for service-to-service communication.
+#        Only catalog-service should be allowed.
+#
+#    PassthroughAuth:
+#      type: http
+#      scheme: bearer
+#      bearerFormat: JWT
+#      description: |
+#        Passthrough authentication for forwarded user credentials.
+#        For internal use only, should be validated and stripped by API gateway.
+#
+#    OAuth2:
+#      type: oauth2
+#      x-middleware-client: product
+#      flows:
+#        clientCredentials:
+#          tokenUrl: https://auth-server.example.com/oauth/token
+#          scopes:
+#            product.read: Grants read access
+#            product.write: Grants write access
 
 paths:
   /api/v1/products:
     get:
-      tags: [Products]
+      tags: [ Products ]
       summary: List products
       operationId: listProducts
+      security:
+        - OAuth2: [ product.read ]
       parameters:
         - name: q
           in: query
@@ -87,9 +108,11 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     post:
-      tags: [Products]
+      tags: [ Products ]
       summary: Create product
       operationId: createProduct
+      security:
+        - OAuth2: [ product.write ]
       requestBody:
         required: true
         content:
@@ -131,7 +154,7 @@ paths:
 
   /api/v1/products/bulk:
     post:
-      tags: [Products]
+      tags: [ Products ]
       summary: Bulk create products
       operationId: createProducts
       requestBody:
@@ -153,7 +176,7 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     put:
-      tags: [Products]
+      tags: [ Products ]
       summary: Bulk replace products
       operationId: replaceProducts
       requestBody:
@@ -173,7 +196,7 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     delete:
-      tags: [Products]
+      tags: [ Products ]
       summary: Bulk delete products
       operationId: deleteProducts
       requestBody:
@@ -194,7 +217,7 @@ paths:
 
   /api/v1/products/{id}:
     get:
-      tags: [Products]
+      tags: [ Products ]
       summary: Get product by id
       operationId: getProduct
       parameters:
@@ -216,7 +239,7 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     put:
-      tags: [Products]
+      tags: [ Products ]
       summary: Replace product
       operationId: replaceProduct
       parameters:
@@ -247,7 +270,7 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     patch:
-      tags: [Products]
+      tags: [ Products ]
       summary: Partially update product
       operationId: patchProduct
       parameters:
@@ -278,7 +301,7 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     delete:
-      tags: [Products]
+      tags: [ Products ]
       summary: Delete product
       operationId: deleteProduct
       parameters:
@@ -299,13 +322,4 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
 
-components:
-  securitySchemes:
-    ServiceAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: |
-        Service-to-service authentication (e.g., OAuth2 Client Credentials JWT or mTLS-fronted token).
-        Only catalog-service should be allowed.
 

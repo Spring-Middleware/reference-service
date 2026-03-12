@@ -113,52 +113,70 @@ import {{javaxPackage}}.annotation.Generated;
 @RequestMapping("${openapi.<%title%>.base-path:<%>defaultBasePath%>}")
 <%={{ }}=%>
 {{/useRequestMappingOnInterface}}
+
 {{#vendorExtensions.x-middleware-endpoint}}
 {{=<% %>=}}
 @io.github.spring.middleware.annotation.MiddlewareContract(
   name = "<%vendorExtensions.x-middleware-endpoint%>",
   connection = @io.github.spring.middleware.annotation.MiddlewareContractConnection(
-    timeout = "${<%vendorExtensions.x-middleware-endpoint%>.client.timeout:30000}",
-    maxConnections = "${<%vendorExtensions.x-middleware-endpoint%>.client.max-connections:50}",
-    maxConcurrentCalls = "${<%vendorExtensions.x-middleware-endpoint%>.client.max-concurrent-calls:200}",
-    maxRetries = "${<%vendorExtensions.x-middleware-endpoint%>.client.max-retries:3}",
-    retryBackoffMillis = "${<%vendorExtensions.x-middleware-endpoint%>.client.retry-backoff-millis:1000}"
+    timeout = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.timeout:30000}",
+    maxConnections = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.max-connections:50}",
+    maxConcurrentCalls = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.max-concurrent-calls:200}",
+    maxRetries = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.max-retries:3}",
+    retryBackoffMillis = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.retry-backoff-millis:1000}"
   ),
 
   circuitBreaker = @io.github.spring.middleware.annotation.MiddlewareCircuitBreaker(
-    enabled = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.enabled:true}",
-    failureRateThreshold = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.failure-rate-threshold:50}",
-    waitDurationInOpenStateMs = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.wait-duration-in-open-state-ms:10000}",
-    slidingWindowSize = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.sliding-window-size:20}",
-    minimumNumberOfCalls = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.minimum-number-of-calls:10}",
-    permittedNumberOfCallsInHalfOpenState = "${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.permitted-number-of-calls-in-half-open-state:3}",
-    statusShouldOpenBreaker = {"${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.status-should-open-breaker:5xx}"},
-    statusShouldIgnoreBreaker = {"${<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.status-should-ignore-breaker:4xx}"}
+    enabled = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.enabled:true}",
+    failureRateThreshold = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.failure-rate-threshold:50}",
+    waitDurationInOpenStateMs = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.wait-duration-in-open-state-ms:10000}",
+    slidingWindowSize = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.sliding-window-size:20}",
+    minimumNumberOfCalls = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.minimum-number-of-calls:10}",
+    permittedNumberOfCallsInHalfOpenState = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.permitted-number-of-calls-in-half-open-state:3}",
+    statusShouldOpenBreaker = {"${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.status-should-open-breaker:5xx}"},
+    statusShouldIgnoreBreaker = {"${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.status-should-ignore-breaker:4xx}"}
   )
 )
 <%={{ }}=%>
 {{/vendorExtensions.x-middleware-endpoint}}
 
-{{#vendorExtensions.x-middleware-passthrough}}
-@io.github.spring.middleware.annotation.security.MiddlewarePassthrough(
-   headerName = "${middleware.{{vendorExtensions.x-middleware-endpoint}}.security.passthrough.header:Authorization}"
-)
-{{/vendorExtensions.x-middleware-passthrough}}
 
-{{#vendorExtensions.x-middleware-api-key}}
-@io.github.spring.middleware.annotation.security.MiddlewareApiKey(
-    headerName = "${middleware.{{vendorExtensions.x-middleware-endpoint}}.api-key.header}",
-    value = "${middleware.{{vendorExtensions.x-middleware-endpoint}}.api-key.value}"
-)
-{{/vendorExtensions.x-middleware-api-key}}
-
-{{#vendorExtensions.x-middleware-client-credentials}}
+{{#hasAuthMethods}}
+{{#authMethods}}
+{{#isOAuth}}
 @io.github.spring.middleware.annotation.security.MiddlewareClientCredentials(
-    tokenUri = "${middleware.oauth.token-uri}",
-    clientId = "${middleware.oauth.client-id}",
-    clientSecret = "${middleware.oauth.client-secret}"
+    tokenUri = "${middleware.client.{{vendorExtensions.x-middleware-client}}.oauth.token-uri}",
+    clientId = "${middleware.client.{{vendorExtensions.x-middleware-client}}.oauth.client-id}",
+    clientSecret = "${middleware.client.{{vendorExtensions.x-middleware-client}}.oauth.client-secret}"
 )
-{{/vendorExtensions.x-middleware-client-credentials}}
+{{/isOAuth}}
+{{/authMethods}}
+{{/hasAuthMethods}}
+
+
+
+
+
+{{#hasAuthMethods}}
+{{#authMethods}}
+{{#isApiKey}}
+@io.github.spring.middleware.annotation.security.MiddlewareApiKey(
+    headerName = "{{keyParamName}}"
+)
+{{/isApiKey}}
+{{/authMethods}}
+{{/hasAuthMethods}}
+
+{{#hasAuthMethods}}
+{{#authMethods}}
+{{#isBasicBearer}}
+@io.github.spring.middleware.annotation.security.MiddlewarePassthrough(
+    headerName = "Authorization"
+)
+{{/isBasicBearer}}
+{{/authMethods}}
+{{/hasAuthMethods}}
+
 public interface {{classname}} {
 {{#jdk8-default-interface}}
     {{^isDelegate}}
@@ -306,6 +324,33 @@ public interface {{classname}} {
         statusShouldIgnoreBreaker = {"${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.status-should-ignore-breaker:4xx}"}
     )
     <%={{ }}=%>
+
+    {{#hasAuthMethods}}
+    {{#authMethods}}
+    {{#isApiKey}}
+    {{=<% %>=}}
+        @io.github.spring.middleware.annotation.security.MiddlewareApiKeyValue(
+            "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.api-key}"
+        )
+    <%={{ }}=%>
+    {{/isApiKey}}
+    {{/authMethods}}
+    {{/hasAuthMethods}}
+
+    {{#hasAuthMethods}}
+    {{#authMethods}}
+    {{#isOAuth}}
+    {{#scopes.0}}
+        @io.github.spring.middleware.annotation.security.MiddlewareRequiredScopes({
+            {{#scopes}}
+            "{{scope}}"{{^-last}},{{/-last}}
+            {{/scopes}}
+        })
+    {{/scopes.0}}
+    {{/isOAuth}}
+    {{/authMethods}}
+    {{/hasAuthMethods}}
+
     @RequestMapping(
         method = RequestMethod.{{httpMethod}},
         value = {{classname}}.PATH_{{#lambda.uppercase}}{{#lambda.snakecase}}{{{operationId}}}{{/lambda.snakecase}}{{/lambda.uppercase}}{{#singleContentTypes}}{{#hasProduces}},

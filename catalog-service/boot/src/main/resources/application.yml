@@ -50,6 +50,11 @@ middleware:
 
   client:
     registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
+    product:
+      timeout: 500
+      max-retries: 0
+      circuit-breaker:
+        wait-duration-in-open-state-ms: 10000
 
   resourceRegister:
     clusterName: ${RESOURCE_CLUSTER_NAME:catalog}
@@ -62,55 +67,59 @@ middleware:
   graphql:
     enabled: ${GRAPHQL_ENABLED:false}
 
+  registry-consistency-scheduler:
+    enabled: ${REGISTRY_CONSISTENCY_SCHEDULER_ENABLED:false}
+    cron: ${REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *}
+
   security:
-    type: BASIC_AUTH
+    type: OIDC # Options: BASIC, JWT, OIDC, API_KEY
     public-path:
       - /api-docs/**
       - /swagger-ui.html
       - /swagger-ui/**
 
     protected-paths:
-      - enabled: true
+      - type: ROLES
         path: /api/*/catalogs/*/products
         methods: [ POST ]
         allowed-roles: [ ADD_PRODUCTS_TO_CATALOG, ADMIN ]
 
-      - enabled: true
+      - type: NONE
         path: /api/*/catalogs/*/products
         methods: [ GET ]
         allowed-roles: [ LIST_CATALOG_PRODUCTS, ADMIN ]
 
-      - enabled: true
+      - type: ROLES
         path: /api/*/catalogs/*/products
         methods: [ DELETE ]
         allowed-roles: [ REMOVE_PRODUCTS_FROM_CATALOG, ADMIN ]
 
-      - enabled: true
+      - type: ROLES
         path: /api/*/catalogs/*/products
         methods: [ PUT ]
         allowed-roles: [ REPLACE_PRODUCTS_FROM_CATALOG, ADMIN ]
 
-      - enabled: true
+      - type: ROLES
         path: /api/*/catalogs/*
         methods: [ GET ]
         allowed-roles: [ GET_CATALOG, ADMIN ]
 
-      - enabled: true
+      - type: ROLES
         path: /api/*/catalogs/*
         methods: [ PATCH, PUT ]
         allowed-roles: [ UPDATE_CATALOG, ADMIN ]
 
-      - enabled: true
+      - type: ROLES
         path: /api/*/catalogs/*
         methods: [ DELETE ]
         allowed-roles: [ DELETE_CATALOG, ADMIN ]
 
-      - enabled: true
+      - type: ROLES
         path: /api/*/catalogs
         methods: [ POST ]
         allowed-roles: [ CREATE_CATALOG, ADMIN ]
 
-      - enabled: true
+      - type: ROLES
         path: /api/*/catalogs
         methods: [ GET ]
         allowed-roles: [ LIST_CATALOGS, ADMIN ]

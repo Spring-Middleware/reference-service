@@ -1,0 +1,26 @@
+{
+  "id": "22222222-2222-2222-2222-222222222222",
+  "request": {
+    "method": "GET",
+    "urlPath": "/product/api/v1/products"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "id": "3e2f6c64-6c6c-4d6e-8e1a-9b6d8e4a2c11",
+          "name": "Recovered Product",
+          "catalogId": "10c6a38f-9636-4e12-b4a7-aea37edd92a0"
+        }
+      ],
+      "page": 0,
+      "size": 20,
+      "totalItems": 1,
+      "totalPages": 1
+    }
+  }
+}
