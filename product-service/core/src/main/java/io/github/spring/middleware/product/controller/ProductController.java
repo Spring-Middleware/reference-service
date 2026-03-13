@@ -1,10 +1,18 @@
 package io.github.spring.middleware.product.controller;
 
 import io.github.spring.middleware.annotation.Register;
-import io.github.spring.middleware.product.api.ProductsApi;
+import io.github.spring.middleware.product.api.ProductApi;
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductStatus;
-import io.github.spring.middleware.product.dto.*;
+import io.github.spring.middleware.product.dto.PagedProductResponseDto;
+import io.github.spring.middleware.product.dto.ProductBulkCreateRequestDto;
+import io.github.spring.middleware.product.dto.ProductBulkDeleteRequestDto;
+import io.github.spring.middleware.product.dto.ProductBulkReplaceRequestDto;
+import io.github.spring.middleware.product.dto.ProductCreateRequestDto;
+import io.github.spring.middleware.product.dto.ProductDto;
+import io.github.spring.middleware.product.dto.ProductPatchRequestDto;
+import io.github.spring.middleware.product.dto.ProductStatusDto;
+import io.github.spring.middleware.product.dto.ProductUpdateRequestDto;
 import io.github.spring.middleware.product.mapper.ProductDtoMapper;
 import io.github.spring.middleware.product.mapper.ProductMapper;
 import io.github.spring.middleware.product.service.ProductService;
@@ -24,7 +32,7 @@ import java.util.UUID;
 @RestController
 @Register(name = "product")
 @AllArgsConstructor
-public class ProductController implements ProductsApi {
+public class ProductController implements ProductApi {
 
     private final ProductService productService;
     private final ProductMapper productMapper;

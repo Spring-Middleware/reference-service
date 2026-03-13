@@ -25,14 +25,14 @@ export const options = {
       vus: 1,
       iterations: 1,
       exec: 'waitForHalfOpen',
-      startTime: '21s',
+      startTime: '20s',
     },
 
     // Fase 3: probar recuperación
     recovery_test: {
       executor: 'constant-vus',
       vus: 1,
-      duration: '8s',
+      duration: '10s',
       exec: 'recoveryTest',
       startTime: `${20 + WAIT_DURATION_OPEN_SECONDS}s`,
     },
@@ -67,10 +67,16 @@ export function openCircuit() {
 }
 
 export function waitForHalfOpen() {
-  console.log(
-    `[WAIT] Esperando ${WAIT_DURATION_OPEN_SECONDS}s para que el circuit-breaker pase de OPEN a HALF_OPEN`
-  );
-  sleep(WAIT_DURATION_OPEN_SECONDS);
+   console.log(`[WAIT] start`);
+   console.log(`[WAIT] start`);
+   sleep(1);
+   console.log(`[WAIT] 1s`);
+   sleep(1);
+   console.log(`[WAIT] 2s`);
+   sleep(1);
+   console.log(`[WAIT] 3s`);
+   sleep(WAIT_DURATION_OPEN_SECONDS - 3);
+   console.log(`[WAIT] end`);
 }
 
 export function recoveryTest() {
@@ -87,5 +93,5 @@ export function recoveryTest() {
     'status es 200 en recuperación': (r) => r.status === 200,
   });
 
-  sleep(1);
+  sleep(0.5);
 }

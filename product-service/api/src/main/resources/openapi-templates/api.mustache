@@ -119,11 +119,11 @@ import {{javaxPackage}}.annotation.Generated;
 @io.github.spring.middleware.annotation.MiddlewareContract(
   name = "<%vendorExtensions.x-middleware-endpoint%>",
   connection = @io.github.spring.middleware.annotation.MiddlewareContractConnection(
-    timeout = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.timeout:30000}",
-    maxConnections = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.max-connections:50}",
-    maxConcurrentCalls = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.max-concurrent-calls:200}",
-    maxRetries = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.max-retries:3}",
-    retryBackoffMillis = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.retry-backoff-millis:1000}"
+    timeout = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.connection.timeout:30000}",
+    maxConnections = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.connection.max-connections:50}",
+    maxConcurrentCalls = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.connection.max-concurrent-calls:200}",
+    maxRetries = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.connection.max-retries:3}",
+    retryBackoffMillis = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.connection.retry-backoff-millis:1000}"
   ),
 
   circuitBreaker = @io.github.spring.middleware.annotation.MiddlewareCircuitBreaker(
@@ -135,37 +135,38 @@ import {{javaxPackage}}.annotation.Generated;
     permittedNumberOfCallsInHalfOpenState = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.permitted-number-of-calls-in-half-open-state:3}",
     statusShouldOpenBreaker = {"${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.status-should-open-breaker:5xx}"},
     statusShouldIgnoreBreaker = {"${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.circuit-breaker.status-should-ignore-breaker:4xx}"}
-  )
+  ),
+
+  security = "${middleware.client.<%vendorExtensions.x-middleware-endpoint%>.security.type:}"
+
 )
 <%={{ }}=%>
 {{/vendorExtensions.x-middleware-endpoint}}
-
 
 {{#hasAuthMethods}}
 {{#authMethods}}
 {{#isOAuth}}
 @io.github.spring.middleware.annotation.security.MiddlewareClientCredentials(
-    tokenUri = "${middleware.client.{{vendorExtensions.x-middleware-client}}.oauth.token-uri}",
-    clientId = "${middleware.client.{{vendorExtensions.x-middleware-client}}.oauth.client-id}",
-    clientSecret = "${middleware.client.{{vendorExtensions.x-middleware-client}}.oauth.client-secret}"
+    tokenUri = "${middleware.client.{{vendorExtensions.x-middleware-client}}.security.oauth2.token-uri}",
+    clientId = "${middleware.client.{{vendorExtensions.x-middleware-client}}.security.oauth2.client-id}",
+    clientSecret = "${middleware.client.{{vendorExtensions.x-middleware-client}}.security.oauth2.client-secret}"
 )
 {{/isOAuth}}
 {{/authMethods}}
 {{/hasAuthMethods}}
 
 
-
-
-
 {{#hasAuthMethods}}
 {{#authMethods}}
 {{#isApiKey}}
 @io.github.spring.middleware.annotation.security.MiddlewareApiKey(
-    headerName = "{{keyParamName}}"
+    headerName = "{{keyParamName}}",
+    value = "${middleware.client.{{vendorExtensions.x-middleware-client}}.security.api-key}"
 )
 {{/isApiKey}}
 {{/authMethods}}
 {{/hasAuthMethods}}
+
 
 {{#hasAuthMethods}}
 {{#authMethods}}
@@ -314,14 +315,14 @@ public interface {{classname}} {
     {{/implicitHeadersParams.0}}
     {{=<% %>=}}
     @io.github.spring.middleware.annotation.MiddlewareCircuitBreaker(
-        enabled = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.enabled:true}",
-        failureRateThreshold = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.failure-rate-threshold:50}",
-        waitDurationInOpenStateMs = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.wait-duration-in-open-state-ms:10000}",
-        slidingWindowSize = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.sliding-window-size:20}",
-        minimumNumberOfCalls = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.minimum-number-of-calls:10}",
-        permittedNumberOfCallsInHalfOpenState = "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.permitted-number-of-calls-in-half-open-state:3}",
-        statusShouldOpenBreaker = {"${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.status-should-open-breaker:5xx}"},
-        statusShouldIgnoreBreaker = {"${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.status-should-ignore-breaker:4xx}"}
+        enabled = "${middleware.client.<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.enabled:true}",
+        failureRateThreshold = "${middleware.client.<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.failure-rate-threshold:50}",
+        waitDurationInOpenStateMs = "${middleware.client.<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.wait-duration-in-open-state-ms:10000}",
+        slidingWindowSize = "${middleware.client.<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.sliding-window-size:20}",
+        minimumNumberOfCalls = "${middleware.client.<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.minimum-number-of-calls:10}",
+        permittedNumberOfCallsInHalfOpenState = "${middleware.client.<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.permitted-number-of-calls-in-half-open-state:3}",
+        statusShouldOpenBreaker = {"${middleware.client.<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.status-should-open-breaker:5xx}"},
+        statusShouldIgnoreBreaker = {"${middleware.client.<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.circuit-breaker.status-should-ignore-breaker:4xx}"}
     )
     <%={{ }}=%>
 
@@ -330,7 +331,7 @@ public interface {{classname}} {
     {{#isApiKey}}
     {{=<% %>=}}
         @io.github.spring.middleware.annotation.security.MiddlewareApiKeyValue(
-            "${<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.<%operationId%>.api-key}"
+            "${middleware.client.<%#lambda.lowercase%><%tags.0.name%><%/lambda.lowercase%>.security.<%operationId%>.api-key}"
         )
     <%={{ }}=%>
     {{/isApiKey}}

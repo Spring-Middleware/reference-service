@@ -12,45 +12,49 @@ servers:
     description: Local
 
 tags:
-  - name: Products
+  - name: Product
     description: "Endpoints for managing products (CRUD operations)."
 
-#components:
-#  securitySchemes:
-#    APIKeyAuth:
-#      type: apiKey
-#      in: header
-#      name: X-API-KEY
-#      description: |
-#        API key authentication for service-to-service communication.
-#        Only catalog-service should be allowed.
-#
-#    PassthroughAuth:
-#      type: http
-#      scheme: bearer
-#      bearerFormat: JWT
-#      description: |
-#        Passthrough authentication for forwarded user credentials.
-#        For internal use only, should be validated and stripped by API gateway.
-#
-#    OAuth2:
-#      type: oauth2
-#      x-middleware-client: product
-#      flows:
-#        clientCredentials:
-#          tokenUrl: https://auth-server.example.com/oauth/token
-#          scopes:
-#            product.read: Grants read access
-#            product.write: Grants write access
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      x-middleware-client: product
+      description: |
+        API key authentication for service-to-service communication.
+        Only catalog-service should be allowed.
+
+    PassthroughAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Passthrough authentication for forwarded user credentials.
+        For internal use only, should be validated and stripped by API gateway.
+
+    OAuth2:
+      type: oauth2
+      x-middleware-client: product
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth-server.example.com/oauth/token
+          scopes:
+            product.read: Grants read access
+            product.write: Grants write access
 
 paths:
   /api/v1/products:
     get:
-      tags: [ Products ]
+      tags: [ Product ]
       summary: List products
       operationId: listProducts
       security:
-        - OAuth2: [ product.read ]
+        - ApiKeyAuth: []
+        - PassthroughAuth: []
+        - OAuth2:
+            - product.read
       parameters:
         - name: q
           in: query
@@ -108,11 +112,14 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     post:
-      tags: [ Products ]
+      tags: [ Product ]
       summary: Create product
       operationId: createProduct
       security:
-        - OAuth2: [ product.write ]
+        - ApiKeyAuth: []
+        - PassthroughAuth: []
+        - OAuth2:
+            - product.write
       requestBody:
         required: true
         content:
@@ -154,9 +161,14 @@ paths:
 
   /api/v1/products/bulk:
     post:
-      tags: [ Products ]
+      tags: [ Product ]
       summary: Bulk create products
       operationId: createProducts
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - product.write
       requestBody:
         required: true
         content:
@@ -176,9 +188,14 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     put:
-      tags: [ Products ]
+      tags: [ Product ]
       summary: Bulk replace products
       operationId: replaceProducts
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - product.write
       requestBody:
         required: true
         content:
@@ -196,9 +213,14 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     delete:
-      tags: [ Products ]
+      tags: [ Product ]
       summary: Bulk delete products
       operationId: deleteProducts
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - product.write
       requestBody:
         required: true
         content:
@@ -217,9 +239,14 @@ paths:
 
   /api/v1/products/{id}:
     get:
-      tags: [ Products ]
+      tags: [ Product ]
       summary: Get product by id
       operationId: getProduct
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - product.read
       parameters:
         - name: id
           in: path
@@ -239,9 +266,14 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     put:
-      tags: [ Products ]
+      tags: [ Product ]
       summary: Replace product
       operationId: replaceProduct
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - product.write
       parameters:
         - name: id
           in: path
@@ -270,9 +302,14 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     patch:
-      tags: [ Products ]
+      tags: [ Product ]
       summary: Partially update product
       operationId: patchProduct
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - product.write
       parameters:
         - name: id
           in: path
@@ -301,9 +338,14 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error500"
 
     delete:
-      tags: [ Products ]
+      tags: [ Product ]
       summary: Delete product
       operationId: deleteProduct
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - product.write
       parameters:
         - name: id
           in: path
@@ -320,6 +362,3 @@ paths:
           $ref: "product-responses.yaml#/components/responses/Error404"
         "500":
           $ref: "product-responses.yaml#/components/responses/Error500"
-
-
-

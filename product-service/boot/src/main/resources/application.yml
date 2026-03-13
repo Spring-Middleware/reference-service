@@ -22,6 +22,8 @@ springdoc:
 logging:
   level:
     io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:DEBUG}
+    org.springframework.security: TRACE
+    org.springframework.security.web: TRACE
     root: ${LOG_LEVEL_ROOT:ERROR}
   exclude:
     urlPatterns:
@@ -30,6 +32,7 @@ logging:
       - /swagger-ui/**
 
 middleware:
+
   log:
     apiKey: ${LOG_API_KEY}
     request:
@@ -45,7 +48,56 @@ middleware:
         - /swagger-ui/**
 
   security:
+    type: ${SECURITY_TYPE:OIDC} #options: NONE, BASIC_AUTH, JWT, OIDC, API_KEY
 
+    public-paths:
+      - /api-docs/**
+      - /swagger-ui.html
+      - /swagger-ui/**
+
+    protected-paths:
+      - type: ROLES
+        path: /api/v1/products/bulk
+        methods: [ POST, PUT, DELETE ]
+        allowed-roles: [ ADMIN , PRODUCT_WRITER ]
+
+      - type: ROLES
+        path: /api/v1/products
+        methods: [ GET ]
+        allowed-roles: [ ADMIN, PRODUCT_WRITER, PRODUCT_READER ]
+
+      - type: ROLES
+        path: /api/*/products/*
+        methods: [ PUT, DELETE, PATCH ]
+        allowed-roles: [ ADMIN, PRODUCT_WRITER ]
+
+      - type: ROLES
+        path: /api/*/products/*
+        methods: [ GET ]
+        allowed-roles: [ ADMIN, PRODUCT_WRITER, PRODUCT_READER ]
+
+      - type: ROLES
+        path: /api/*/products
+        methods: [ POST ]
+        allowed-roles: [ ADMIN, PRODUCT_WRITER ]
+
+    api-key:
+      header-name: ${API_KEY_HEADER_NAME:X-API-KEY}
+      credentials:
+        - key: ${API_KEY_PRODUCT_ADMIN:default-api-key}
+          enabled: true
+          roles: [ ADMIN ]
+        - key: ${API_KEY_PRODUCT_WRITER:product-writer-key}
+          enabled: true
+          roles: [ PRODUCT_WRITER ]
+        - key: ${API_KEY_PRODUCT_READER:product-reader-key}
+          enabled: true
+          roles: [ PRODUCT_READER ]
+
+    oidc:
+      issuer-uri: ${OIDC_ISSUER_URI}
+      jwk-set-uri: ${OIDC_JWK_SET_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs}
+      authorities-claim-path: ${OIDC_AUTHORITIES_CLAIM_PATH:$.resource_access.product-service.roles[*]}
 
   client:
     registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}

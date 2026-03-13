@@ -51,8 +51,22 @@ middleware:
   client:
     registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
     product:
-      timeout: 500
-      max-retries: 0
+      security:
+        type: OAUTH2_CLIENT_CREDENTIALS # Options: NONE, PASSTHROUGH, API_KEY, OAUTH2_CLIENT_CREDENTIALS
+
+        api-key: ${API_KEY_PRODUCT_SERVICE:default-product-api-key}
+        listProducts:
+          api-key: ${API_KEY_PRODUCT_SERVICE:default-product-list-api-key}
+
+        oauth2:
+          client-id: ${OAUTH2_CLIENT_ID_PRODUCT_SERVICE:product-service}
+          client-secret: ${OAUTH2_CLIENT_SECRET_PRODUCT_SERVICE}
+          token-uri: ${OAUTH2_TOKEN_URI_PRODUCT_SERVICE:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token}
+
+      connection:
+        timeout: 500
+        max-retries: 0
+
       circuit-breaker:
         wait-duration-in-open-state-ms: 10000
 
@@ -68,12 +82,12 @@ middleware:
     enabled: ${GRAPHQL_ENABLED:false}
 
   registry-consistency-scheduler:
-    enabled: ${REGISTRY_CONSISTENCY_SCHEDULER_ENABLED:false}
-    cron: ${REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *}
+    enabled: ${REGISTRY_CONSISTENCY_SCHEDULER_ENABLED:true}
+    cron: ${REGISTRY_CONSISTENCY_SCHEDULER_CRON:*/10 * * * * *}
 
   security:
     type: OIDC # Options: BASIC, JWT, OIDC, API_KEY
-    public-path:
+    public-paths:
       - /api-docs/**
       - /swagger-ui.html
       - /swagger-ui/**
@@ -84,7 +98,7 @@ middleware:
         methods: [ POST ]
         allowed-roles: [ ADD_PRODUCTS_TO_CATALOG, ADMIN ]
 
-      - type: NONE
+      - type: ROLES
         path: /api/*/catalogs/*/products
         methods: [ GET ]
         allowed-roles: [ LIST_CATALOG_PRODUCTS, ADMIN ]
@@ -98,6 +112,16 @@ middleware:
         path: /api/*/catalogs/*/products
         methods: [ PUT ]
         allowed-roles: [ REPLACE_PRODUCTS_FROM_CATALOG, ADMIN ]
+
+      - type: ROLES
+        path: /api/*/catalogs/*
+        methods: [ GET ]
+        query-params:
+          - name: expand
+            required: true
+            values:
+              - products
+        allowed-roles: [ LIST_CATALOG_PRODUCTS, ADMIN ]
 
       - type: ROLES
         path: /api/*/catalogs/*
