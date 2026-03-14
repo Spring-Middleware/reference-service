@@ -48,9 +48,10 @@ middleware:
         - /swagger-ui/**
 
   security:
-    type: ${SECURITY_TYPE:OIDC} #options: NONE, BASIC_AUTH, JWT, OIDC, API_KEY
+    type: ${SECURITY_TYPE:BASIC_AUTH} #options: NONE, BASIC_AUTH, JWT, OAUTH2, API_KEY
 
     public-paths:
+      - /graphql
       - /api-docs/**
       - /swagger-ui.html
       - /swagger-ui/**
@@ -94,10 +95,17 @@ middleware:
           enabled: true
           roles: [ PRODUCT_READER ]
 
-    oidc:
-      issuer-uri: ${OIDC_ISSUER_URI}
-      jwk-set-uri: ${OIDC_JWK_SET_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs}
-      authorities-claim-path: ${OIDC_AUTHORITIES_CLAIM_PATH:$.resource_access.product-service.roles[*]}
+    oauth2:
+      issuer-uri: ${OAUTH2_ISSUER_URI_ISSUER_URI}
+      jwk-set-uri: ${OAUTH2_ISSUER_URI_JWK_SET_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs}
+      authorities-claim-path: ${OAUTH2_ISSUER_URI_AUTHORITIES_CLAIM_PATH:$.resource_access.product-service.roles[*]}
+
+    basic-auth:
+      credentials:
+        - username: ${BASIC_AUTH_PRODUCT_ADMIN:admin}
+          password: ${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD:admin}
+          roles: [ ADMIN ]
+
 
   client:
     registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
@@ -123,8 +131,8 @@ middleware:
 
   graphql:
     enabled: ${GRAPHQL_ENABLED:false}
-    clusterName: ${GRAPHQL_CLUSTER_NAME:product}
-    namespace: ${GRAPHQL_NAMESPACE:product}
+    clusterName: ${GRAPHQL_PRODUCT_CLUSTER_NAME:product}
+    namespace: ${GRAPHQL_PRODUCT_NAMESPACE:product}
 
   registry-consistency-scheduler:
     enabled: ${REGISTRY_CONSISTENCY_SCHEDULER_ENABLED:true}

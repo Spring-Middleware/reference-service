@@ -4,6 +4,8 @@ import io.github.spring.middleware.catalog.domain.Catalog;
 import io.github.spring.middleware.catalog.dto.CatalogCreateRequestDto;
 import io.github.spring.middleware.catalog.dto.CatalogPatchRequestDto;
 import io.github.spring.middleware.catalog.dto.CatalogUpdateRequestDto;
+import io.github.spring.middleware.catalog.dto.graphql.CatalogInput;
+import io.github.spring.middleware.catalog.dto.graphql.CatalogPatchInput;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
@@ -14,5 +16,10 @@ public interface CatalogMapper {
     Catalog toCatalog(CatalogUpdateRequestDto catalogUpdateRequestDto);
 
     Catalog toCatalog(CatalogPatchRequestDto catalogPatchRequestDto);
+
+    // New GraphQL input mappings
+    Catalog toCatalog(CatalogInput input);
+
+    Catalog toCatalog(CatalogPatchInput input);
 
 }

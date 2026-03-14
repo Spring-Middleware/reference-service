@@ -83,23 +83,26 @@ services:
     environment:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
+      - SECURITY_TYPE=BASIC_AUTH
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - SERVER_CONTEXT_PATH=/catalog
       - MONGO_URI=mongodb://mongo:27017/catalog
       - REDIS_ADDRESS=redis://redis:6379
       - SPRING_PROFILES_ACTIVE=local
-      - GRAPHQL_ENABLED=false
+      - GRAPHQL_ENABLED=true
+      - GRAPHQL_CATALOG_CLUSTER_NAME=catalog
+      - GRAPHQL_CATALOG_NAMESPACE=catalog
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
       - LOG_REQUEST_ENABLED=true
       - LOG_RESPONSE_ENABLED=true
       - LOG_RESPONSE_TIME_ENABLED=false
-      - SECURITY_USERNAME=admin
-      - SECURITY_PASSWORD=${SECURITY_PASSWORD}
-      - OIDC_ISSUER_URI=http://localhost:8081/realms/spring-middleware
-      - OIDC_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
-      - OIDC_AUTHORITIES_CLAIM_PATH=$$.resource_access.catalog-service.roles[*]
+      - BASIC_AUTH_CATALOG_ADMIN=admin
+      - BASIC_AUTH_CATALOG_ADMIN_PASSWORD=${BASIC_AUTH_CATALOG_ADMIN_PASSWORD}
+      - OAUTH2_ISSUER_URI=http://localhost:8081/realms/spring-middleware
+      - OAUTH2_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
+      - OAUTH2_AUTHORITIES_CLAIM_PATH=$$.resource_access.catalog-service.roles[*]
       - API_KEY_PRODUCT_SERVICE=${API_KEY_PRODUCT_ADMIN}
       - API_KEY_CATALOG_SERVICE=${API_KEY_CATALOG_SERVICE}
       - OAUTH2_CLIENT_SECRET_PRODUCT_SERVICE=${OAUTH2_CLIENT_SECRET_PRODUCT_SERVICE}
@@ -141,11 +144,12 @@ services:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
       - SERVER_CONTEXT_PATH=/product
+      - SECURITY_TYPE=BASIC_AUTH
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - MONGO_URI=mongodb://mongo:27017/product
       - GRAPHQL_ENABLED=true
-      - GRAPHQL_CLUSTER_NAME=product
-      - GRAPHQL_NAMESPACE=product
+      - GRAPHQL_PRODUCT_CLUSTER_NAME=product
+      - GRAPHQL_PRODUCT_NAMESPACE=product
       - SPRING_PROFILES_ACTIVE=local
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
@@ -154,13 +158,14 @@ services:
       - LOG_RESPONSE_ENABLED=true
       - LOG_RESPONSE_TIME_ENABLED=false
       - JMS_PASSWORD=${JMS_PASSWORD}
-      - OIDC_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
-      - OIDC_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
-      - OIDC_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
+      - OAUTH2_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
+      - OAUTH2_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
+      - OAUTH2_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
       - API_KEY_PRODUCT_ADMIN=${API_KEY_PRODUCT_ADMIN}
       - API_KEY_PRODUCT_WRITER=${API_KEY_PRODUCT_WRITER}
       - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
       - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
+      - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
     depends_on:
       - mongo
       - registry
@@ -180,11 +185,12 @@ services:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
       - SERVER_CONTEXT_PATH=/product
+      - SECURITY_TYPE=BASIC_AUTH
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - MONGO_URI=mongodb://mongo:27017/product
       - GRAPHQL_ENABLED=true
-      - GRAPHQL_CLUSTER_NAME=product
-      - GRAPHQL_NAMESPACE=product
+      - GRAPHQL_PRODUCT_CLUSTER_NAME=product
+      - GRAPHQL_PRODUCT_NAMESPACE=product
       - SPRING_PROFILES_ACTIVE=local
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
@@ -193,13 +199,14 @@ services:
       - LOG_RESPONSE_ENABLED=true
       - LOG_RESPONSE_TIME_ENABLED=false
       - JMS_PASSWORD=${JMS_PASSWORD}
-      - OIDC_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
-      - OIDC_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
-      - OIDC_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
+      - OAUTH2_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
+      - OAUTH2_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
+      - OAUTH2_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
       - API_KEY_PRODUCT_ADMIN=${API_KEY_PRODUCT_ADMIN}
       - API_KEY_PRODUCT_WRITER=${API_KEY_PRODUCT_WRITER}
       - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
       - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
+      - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
     depends_on:
       - mongo
       - registry
@@ -219,11 +226,12 @@ services:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
       - SERVER_CONTEXT_PATH=/product
+      - SECURITY_TYPE=BASIC_AUTH
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - MONGO_URI=mongodb://mongo:27017/product
       - GRAPHQL_ENABLED=true
-      - GRAPHQL_CLUSTER_NAME=product
-      - GRAPHQL_NAMESPACE=product
+      - GRAPHQL_PRODUCT_CLUSTER_NAME=product
+      - GRAPHQL_PRODUCT_NAMESPACE=product
       - SPRING_PROFILES_ACTIVE=local
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
@@ -232,13 +240,14 @@ services:
       - LOG_RESPONSE_ENABLED=true
       - LOG_RESPONSE_TIME_ENABLED=false
       - JMS_PASSWORD=${JMS_PASSWORD}
-      - OIDC_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
-      - OIDC_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
-      - OIDC_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
+      - OAUTH2_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
+      - OAUTH2_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
+      - OAUTH2_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
       - API_KEY_PRODUCT_ADMIN=${API_KEY_PRODUCT_ADMIN}
       - API_KEY_PRODUCT_WRITER=${API_KEY_PRODUCT_WRITER}
       - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
       - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
+      - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
     depends_on:
       - mongo
       - registry
@@ -271,13 +280,13 @@ services:
     environment:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
-      - SECURITY_TYPE=OIDC
+      - SECURITY_TYPE=BASIC_AUTH
       - SERVER_CONTEXT_PATH=/product
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - MONGO_URI=mongodb://mongo:27017/product
       - GRAPHQL_ENABLED=true
-      - GRAPHQL_CLUSTER_NAME=product
-      - GRAPHQL_NAMESPACE=product
+      - GRAPHQL_PRODUCT_CLUSTER_NAME=product
+      - GRAPHQL_PRODUCT_NAMESPACE=product
       - SPRING_PROFILES_ACTIVE=local
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
@@ -286,13 +295,14 @@ services:
       - LOG_RESPONSE_ENABLED=true
       - LOG_RESPONSE_TIME_ENABLED=false
       - JMS_PASSWORD=${JMS_PASSWORD}
-      - OIDC_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
-      - OIDC_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
-      - OIDC_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
+      - OAUTH2_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
+      - OAUTH2_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
+      - OAUTH2_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
       - API_KEY_PRODUCT_ADMIN=${API_KEY_PRODUCT_ADMIN}
       - API_KEY_PRODUCT_WRITER=${API_KEY_PRODUCT_WRITER}
       - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
       - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
+      - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
     depends_on:
       - mongo
       - registry

@@ -52,7 +52,7 @@ middleware:
     registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
     product:
       security:
-        type: OAUTH2_CLIENT_CREDENTIALS # Options: NONE, PASSTHROUGH, API_KEY, OAUTH2_CLIENT_CREDENTIALS
+        type: PASSTHROUGH # Options: NONE, PASSTHROUGH, API_KEY, OAUTH2_CLIENT_CREDENTIALS
 
         api-key: ${API_KEY_PRODUCT_SERVICE:default-product-api-key}
         listProducts:
@@ -79,15 +79,18 @@ middleware:
     port: ${PUBLIC_SERVER_PORT:8080}
 
   graphql:
-    enabled: ${GRAPHQL_ENABLED:false}
+    enabled: ${GRAPHQL_ENABLED:true}
+    clusterName: ${GRAPHQL_CATALOG_CLUSTER_NAME:catalog}
+    namespace: ${GRAPHQL_CATALOG_NAMESPACE:catalog}
 
   registry-consistency-scheduler:
     enabled: ${REGISTRY_CONSISTENCY_SCHEDULER_ENABLED:true}
     cron: ${REGISTRY_CONSISTENCY_SCHEDULER_CRON:*/10 * * * * *}
 
   security:
-    type: OIDC # Options: BASIC, JWT, OIDC, API_KEY
+    type: ${SECURITY_TYPE:BASIC_AUTH} # Options: NONE, BASIC_AUTH, JWT, OUAHT2, API_KEY
     public-paths:
+      - /graphql
       - /api-docs/**
       - /swagger-ui.html
       - /swagger-ui/**
@@ -148,19 +151,19 @@ middleware:
         methods: [ GET ]
         allowed-roles: [ LIST_CATALOGS, ADMIN ]
 
-    basic:
+    basic-auth:
       credentials:
-        username: ${SECURITY_USERNAME}
-        password: ${SECURITY_PASSWORD}
-        roles: [ ADMIN ]
+        - username: ${BASIC_AUTH_CATALOG_ADMIN}
+          password: ${BASIC_AUTH_CATALOG_ADMIN_PASSWORD}
+          roles: [ ADMIN ]
 
     jwt:
       secret: ${JWT_SECRET:dfwzsdzwh823zebdwdz772632gdsbddfr4}
 
-    oidc:
-      issuer-uri: ${OIDC_ISSUER_URI:http://localhost:8081/realms/spring-middleware}
-      jwk-set-uri: ${OIDC_JWK_SET_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs}
-      authorities-claim-path: ${OIDC_AUTHORITIES_CLAIM_PATH:$.resource_access.catalog-service.roles[*]}
+    oauth2:
+      issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8081/realms/spring-middleware}
+      jwk-set-uri: ${OAUTH2_ISSUER_URI_JWK_SET_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs}
+      authorities-claim-path: ${OAUTH2_ISSUER_URI_AUTHORITIES_CLAIM_PATH:$.resource_access.catalog-service.roles[*]}
 
     api-key:
       header-name: X-API-KEY
@@ -177,9 +180,6 @@ redisson:
   address: ${REDIS_ADDRESS:redis://localhost:6379}
   database: ${REDIS_DATABASE:0}
 
-product:
-  client:
-    timeout: 500
-    max-retries: 3
+
 
 

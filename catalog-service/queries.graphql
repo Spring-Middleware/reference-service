@@ -1,0 +1,18 @@
+query {
+    catalogWithProducts(id: "10c6a38f-9636-4e12-b4a7-aea37edd92a0") {
+        id
+        name
+        status
+        products {
+            id
+            name
+            description
+            price {
+                amount
+                currency
+            }
+            sku
+            status
+        }
+    }
+}

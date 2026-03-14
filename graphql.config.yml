@@ -2,11 +2,17 @@ schema: product-service/schema.graphql
 documents: product-service/**/*.graphql
 extensions:
   endpoints:
-    default:
+    product:
       url: http://localhost:8090/product/graphql
       headers:
         user-agent: "JS GraphQL"
       introspect: true
+    catalog:
+        url: http://localhost:8070/catalog/graphql
+        headers:
+            user-agent: "JS GraphQL"
+            Authorization: "Basic YWRtaW46NDMxMzA5Mzg="
+        introspect: true
 
 
 
