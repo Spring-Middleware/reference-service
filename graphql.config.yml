@@ -11,7 +11,7 @@ extensions:
         url: http://localhost:8070/catalog/graphql
         headers:
             user-agent: "JS GraphQL"
-            Authorization: "Basic YWRtaW46NDMxMzA5Mzg="
+            Authorization: "Basic ${BASIC_CATALOG_AUTH_TOKEN}"
         introspect: true
 
 
