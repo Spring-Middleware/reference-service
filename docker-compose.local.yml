@@ -38,6 +38,33 @@ services:
     networks:
       - middleware-net
 
+
+  graphql-gateway:
+    image: spring-base_graphql-gateway:latest
+    container_name: graphql_gateway_local
+    hostname: graphql-gateway
+    expose:
+      - "8060:8080"
+    ports:
+      - "5009:5005"
+    environment:
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+      - SPRING_PROFILES_ACTIVE=LOCAL
+      - REGISTRY_ENDPOINT=http://registry:8080/registry
+      - GRAPHQL_ENABLED=false
+      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=false
+      - LOG_API_KEY=${LOG_API_KEY}
+      - JMS_PASSWORD=${JMS_PASSWORD}
+    networks:
+      middleware-net:
+        aliases:
+          - graphql-gateway
+    depends_on:
+      - registry
+      - catalog-service
+      - product-service-debug
+
+
   registry:
     # Build context as passed by user, assuming files exist relative to execution context or built image exists
     # build:
@@ -46,9 +73,8 @@ services:
     image: spring-base_registry:latest
     container_name: registry_local
     hostname: registry
-    expose:
-      - "8080"
     ports:
+      - "8080:8080"
       - "5005:5005"
     environment:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
@@ -60,6 +86,7 @@ services:
       - REGISTRY_TOPOLOGY_RECONCILER_ENABLED=true
       - REGISTRY_TOPOLOGY_RECONCILER_CRON=*/5 * * * * *
       - REGISTRY_TOPOLOGY_RECONCILER_MAX_NO_AVAIL=3
+      - REGISTRY_TOPOLOGY_RECONCILER_REGISTER_RESOURCE_PATH=/resources/register
       - LOG_API_KEY=${LOG_API_KEY}
       - JMS_PASSWORD=${JMS_PASSWORD}
     networks:
@@ -114,12 +141,56 @@ services:
     networks:
       - middleware-net
 
+  product-service-debug:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    image: product-service:latest
+    container_name: product_service_debug
+    hostname: product
+    ports:
+      - "8090:8080"
+      - "5007:5007"
+    environment:
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
+      - SERVER_PORT=8080
+      - SECURITY_TYPE=BASIC_AUTH
+      - SERVER_CONTEXT_PATH=/product
+      - REGISTRY_ENDPOINT=http://registry:8080/registry
+      - MONGO_URI=mongodb://mongo:27017/product
+      - GRAPHQL_ENABLED=true
+      - GRAPHQL_PRODUCT_CLUSTER_NAME=product
+      - GRAPHQL_PRODUCT_NAMESPACE=product
+      - SPRING_PROFILES_ACTIVE=local
+      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
+      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
+      - LOG_API_KEY=${LOG_API_KEY}
+      - LOG_REQUEST_ENABLED=true
+      - LOG_RESPONSE_ENABLED=true
+      - LOG_RESPONSE_TIME_ENABLED=false
+      - JMS_PASSWORD=${JMS_PASSWORD}
+      - OAUTH2_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
+      - OAUTH2_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
+      - OAUTH2_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
+      - API_KEY_PRODUCT_ADMIN=${API_KEY_PRODUCT_ADMIN}
+      - API_KEY_PRODUCT_WRITER=${API_KEY_PRODUCT_WRITER}
+      - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
+      - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
+      - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
+    depends_on:
+      - mongo
+      - registry
+    networks:
+      middleware-net:
+        aliases:
+          - product
+
 
   nginx:
     image: nginx:latest
     hostname: product
     ports:
-      - "8080:8080"
+      - "8080"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -262,50 +333,6 @@ services:
       - "8089:8080"
     volumes:
       - ./wiremock:/home/wiremock
-    networks:
-      middleware-net:
-        aliases:
-          - product
-
-  product-service-debug:
-    build:
-      context: ./product-service
-      dockerfile: Dockerfile
-    image: product-service:latest
-    container_name: product_service_debug
-    hostname: product
-    ports:
-      - "8090:8080"
-      - "5007:5007"
-    environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
-      - SERVER_PORT=8080
-      - SECURITY_TYPE=BASIC_AUTH
-      - SERVER_CONTEXT_PATH=/product
-      - REGISTRY_ENDPOINT=http://registry:8080/registry
-      - MONGO_URI=mongodb://mongo:27017/product
-      - GRAPHQL_ENABLED=true
-      - GRAPHQL_PRODUCT_CLUSTER_NAME=product
-      - GRAPHQL_PRODUCT_NAMESPACE=product
-      - SPRING_PROFILES_ACTIVE=local
-      - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
-      - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
-      - LOG_API_KEY=${LOG_API_KEY}
-      - LOG_REQUEST_ENABLED=true
-      - LOG_RESPONSE_ENABLED=true
-      - LOG_RESPONSE_TIME_ENABLED=false
-      - JMS_PASSWORD=${JMS_PASSWORD}
-      - OAUTH2_ISSUER_URI=http://keycloak:8080/realms/spring-middleware
-      - OAUTH2_JWK_SET_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs
-      - OAUTH2_AUTHORITIES_CLAIM_PATH=$$.resource_access.product-service.roles[*]
-      - API_KEY_PRODUCT_ADMIN=${API_KEY_PRODUCT_ADMIN}
-      - API_KEY_PRODUCT_WRITER=${API_KEY_PRODUCT_WRITER}
-      - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
-      - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
-      - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
-    depends_on:
-      - mongo
-      - registry
     networks:
       middleware-net:
         aliases:

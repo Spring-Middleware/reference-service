@@ -52,6 +52,7 @@ middleware:
 
     public-paths:
       - /graphql
+      - /resources/register
       - /api-docs/**
       - /swagger-ui.html
       - /swagger-ui/**

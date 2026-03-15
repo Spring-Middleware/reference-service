@@ -91,6 +91,7 @@ middleware:
     type: ${SECURITY_TYPE:BASIC_AUTH} # Options: NONE, BASIC_AUTH, JWT, OUAHT2, API_KEY
     public-paths:
       - /graphql
+      - /resources/register
       - /api-docs/**
       - /swagger-ui.html
       - /swagger-ui/**

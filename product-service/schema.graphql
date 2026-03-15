@@ -8,60 +8,19 @@ schema {
 "Indicates an Input Object is a OneOf Input Object."
 directive @oneOf on INPUT_OBJECT
 
-type Catalog {
-    createdAt: Instant
-    id: UUID
-    name: String
-    productIds: [UUID]
-    status: CatalogStatus
-    updatedAt: Instant
-}
-
-type CatalogDto {
-    createdAt: OffsetDateTime!
-    id: UUID!
-    name: String!
-    productIds: [String]!
-    status: CatalogStatusDto!
-    updatedAt: OffsetDateTime!
-}
-
-type CatalogWithProducts {
-    createdAt: Instant
-    id: UUID
-    name: String
-    products: [Product]
-    status: CatalogStatus
-    updatedAt: Instant
-}
-
 type Money {
-    amount: Float!
+    amount: BigDecimal
     currency: String
 }
 
 "Mutation root"
 type Mutation {
-    addProductsToCatalog(catalogId: UUID, inputs: [CatalogProductInputInput]): CatalogDto
-    createCatalog(input: CatalogInputInput): CatalogDto
-    deleteCatalog(id: UUID): Boolean
-    patchCatalog(id: UUID, input: CatalogPatchInputInput): CatalogDto
-    removeProductsFromCatalog(catalogId: UUID, productIds: [UUID]): Boolean
-    replaceCatalog(id: UUID, input: CatalogInputInput): CatalogDto
-    replaceCatalogProducts(catalogId: UUID, inputs: [CatalogProductInputInput]): CatalogDto
-}
-
-type Page_Catalog {
-    content: [Catalog]
-    first: Boolean!
-    last: Boolean!
-    number: Int!
-    numberOfElements: Int!
-    pageable: Pageable
-    size: Int!
-    sort: Sort
-    totalElements: Long!
-    totalPages: Int!
+    createProduct(input: ProductInputInput): Product
+    createProductsForCatalog(catalogId: UUID, inputs: [ProductInputInput]): [Product]
+    deleteProduct(id: UUID): Boolean
+    deleteProductsForCatalog(catalogId: UUID, productIds: [UUID]): Boolean!
+    patchProduct(id: UUID, input: ProductInputInput): Product
+    replaceProduct(id: UUID, input: ProductInputInput): Product
 }
 
 type Page_Product {
@@ -87,20 +46,21 @@ type Pageable {
 }
 
 type Product {
+    catalogId: UUID
+    createdAt: Instant
     description: String
     id: UUID
     name: String
     price: Money
     sku: String
     status: ProductStatus
+    updatedAt: Instant
 }
 
 "Query root"
 type Query {
-    catalog(id: UUID): Catalog
-    catalogProducts(catalogId: UUID, page: Int, size: Int): Page_Product
-    catalogWithProducts(id: UUID): CatalogWithProducts
-    catalogs(page: Int, q: String, size: Int, sort: String, status: CatalogStatus): Page_Catalog
+    product(id: UUID): Product
+    products(catalogId: UUID, page: Int, q: String, size: Int, sort: String, status: ProductStatus): Page_Product
 }
 
 type Sort {
@@ -108,16 +68,6 @@ type Sort {
     empty: Boolean!
     sorted: Boolean!
     unsorted: Boolean!
-}
-
-enum CatalogStatus {
-    ACTIVE
-    INACTIVE
-}
-
-enum CatalogStatusDto {
-    ACTIVE
-    INACTIVE
 }
 
 enum Direction {
@@ -140,27 +90,19 @@ scalar Instant
 "A 64-bit signed integer"
 scalar Long
 
-"Built-in scalar representing a date-time with a UTC offset"
-scalar OffsetDateTime
-
 "UUID String"
 scalar UUID
 
-input CatalogInputInput {
-    name: String
-    status: CatalogStatus
+input MoneyInputInput {
+    amount: BigDecimal
+    currency: String
 }
 
-input CatalogPatchInputInput {
-    name: String
-    status: CatalogStatus
-}
-
-input CatalogProductInputInput {
+input ProductInputInput {
+    catalogId: UUID
     description: String
     name: String
-    priceAmount: BigDecimal
-    priceCurrency: String
+    price: MoneyInputInput
     sku: String
     status: ProductStatus
 }
