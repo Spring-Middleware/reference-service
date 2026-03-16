@@ -10,11 +10,16 @@ import io.github.spring.middleware.product.dto.ProductDto;
 import io.github.spring.middleware.product.dto.ProductReplaceItemDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.springframework.data.domain.Page;
+
+import java.time.OffsetDateTime;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
+    @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "offsetDateTimeToInstant")
+    @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "offsetDateTimeToInstant")
     Product toDomain(ProductDto productDTO);
 
     Product toDomain(ProductInputDto productInputDto);
@@ -33,5 +38,10 @@ public interface ProductMapper {
     PagedProductResponseDto toPagedResponseDto(Page<Product> product);
 
     ProductSummaryDto toSummaryDto(Product product);
+
+    @Named("offsetDateTimeToInstant")
+    default java.time.Instant offsetDateTimeToInstant(OffsetDateTime offsetDateTime) {
+        return offsetDateTime != null ? offsetDateTime.toInstant() : null;
+    }
 
 }

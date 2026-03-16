@@ -4,6 +4,8 @@ package io.github.spring.middleware.product.controller;
 import io.github.spring.middleware.graphql.annotations.GraphQLService;
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductStatus;
+import io.github.spring.middleware.product.dto.graphql.DigitalProductInput;
+import io.github.spring.middleware.product.dto.graphql.PhysicalProductInput;
 import io.github.spring.middleware.product.dto.graphql.ProductInput;
 import io.github.spring.middleware.product.mapper.ProductMapper;
 import io.github.spring.middleware.product.service.ProductService;
@@ -54,22 +56,44 @@ public class ProductGraphqlController {
         return productService.listProducts(q, status, catalogId, pageable);
     }
 
-    @GraphQLMutation(name = "createProduct")
-    public Product createProduct(@GraphQLArgument(name = "input") ProductInput input) {
+    @GraphQLMutation(name = "createDigitalProduct")
+    public Product createDigitalProduct(@GraphQLArgument(name = "input") DigitalProductInput input) {
         Product product = productMapper.mapToProduct(input);
         return productService.createProduct(product);
     }
 
-    @GraphQLMutation(name = "replaceProduct")
-    public Product replaceProduct(
+    @GraphQLMutation(name = "createPhysicalProduct")
+    public Product createPhysicalProduct(@GraphQLArgument(name = "input") ProductInput input) {
+        Product product = productMapper.mapToProduct(input);
+        return productService.createProduct(product);
+    }
+
+    @GraphQLMutation(name = "replaceDigitalProduct")
+    public Product replaceDigitalProduct(
+            @GraphQLArgument(name = "id") UUID id,
+            @GraphQLArgument(name = "input") DigitalProductInput input) {
+        Product product = productMapper.mapToProduct(input);
+        return productService.replaceProduct(id, product);
+    }
+
+    @GraphQLMutation(name = "replacePhysicalProduct")
+    public Product replacePhysicalProduct(
             @GraphQLArgument(name = "id") UUID id,
             @GraphQLArgument(name = "input") ProductInput input) {
         Product product = productMapper.mapToProduct(input);
         return productService.replaceProduct(id, product);
     }
 
-    @GraphQLMutation(name = "patchProduct")
-    public Product patchProduct(
+    @GraphQLMutation(name = "patchDigitalProduct")
+    public Product patchDigitalProduct(
+            @GraphQLArgument(name = "id") UUID id,
+            @GraphQLArgument(name = "input") DigitalProductInput input) {
+        Product product = productMapper.mapToProduct(input);
+        return productService.patchProduct(id, product);
+    }
+
+    @GraphQLMutation(name = "patchPhysicalProduct")
+    public Product patchPhysicalProduct(
             @GraphQLArgument(name = "id") UUID id,
             @GraphQLArgument(name = "input") ProductInput input) {
         Product product = productMapper.mapToProduct(input);
@@ -82,10 +106,21 @@ public class ProductGraphqlController {
         return true;
     }
 
-    @GraphQLMutation(name = "createProductsForCatalog")
-    public List<Product> createProductsForCatalog(
+    @GraphQLMutation(name = "createDigitalProductsForCatalog")
+    public List<Product> createDigitalProductsForCatalog(
             @GraphQLArgument(name = "catalogId") UUID catalogId,
-            @GraphQLArgument(name = "inputs") List<ProductInput> inputs) {
+            @GraphQLArgument(name = "inputs") List<DigitalProductInput> inputs) {
+        return createProducts(inputs, catalogId);
+    }
+
+    @GraphQLMutation(name = "createPhysicalProductsForCatalog")
+    public List<Product> createPhysicalProductsForCatalog(
+            @GraphQLArgument(name = "catalogId") UUID catalogId,
+            @GraphQLArgument(name = "inputs") List<PhysicalProductInput> inputs) {
+        return createProducts(inputs, catalogId);
+    }
+
+    private List<Product> createProducts(List<? extends ProductInput> inputs, UUID catalogId) {
         List<Product> products = inputs.stream()
                 .map(productMapper::mapToProduct)
                 .collect(Collectors.toList());

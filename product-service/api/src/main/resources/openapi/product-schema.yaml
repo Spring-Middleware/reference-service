@@ -5,6 +5,11 @@ components:
       enum: [ACTIVE, INACTIVE, DISCONTINUED]
       example: ACTIVE
 
+    ProductType:
+      type: string
+      enum: [PHYSICAL, DIGITAL]
+      example: PHYSICAL
+
     Money:
       type: object
       additionalProperties: false
@@ -20,28 +25,42 @@ components:
           example: EUR
       required: [amount, currency]
 
-    Product:
+    Dimensions:
+      type: object
+      additionalProperties: false
+      properties:
+        length:
+          type: number
+          format: double
+          example: 30.0
+        width:
+          type: number
+          format: double
+          example: 20.0
+        height:
+          type: number
+          format: double
+          example: 10.0
+      required: [length, width, height]
+
+    # 1) Tipo base sin campos específicos
+    BaseProduct:
       type: object
       additionalProperties: false
       properties:
         id:
           type: string
           format: uuid
-          example: "123e4567-e89b-12d3-a456-426614174000"
         catalogId:
           type: string
           format: uuid
-          example: "123e4567-e89b-12d3-a456-426614174000"
         sku:
           type: string
-          example: "TSHIRT-BLUE-M"
         name:
           type: string
-          example: "T-Shirt Blue (M)"
         description:
           type: string
           nullable: true
-          example: "100% cotton"
         status:
           $ref: "#/components/schemas/ProductStatus"
         price:
@@ -49,13 +68,69 @@ components:
         createdAt:
           type: string
           format: date-time
-          example: "2026-03-02T12:00:00Z"
         updatedAt:
           type: string
           format: date-time
-          example: "2026-03-02T12:30:00Z"
-      required: [id, catalogId, sku, name, status, price, createdAt, updatedAt]
+        productType:
+          $ref: "#/components/schemas/ProductType"
+      required:
+        - id
+        - catalogId
+        - sku
+        - name
+        - status
+        - price
+        - createdAt
+        - updatedAt
+        - productType
 
+    # 2) Subtipo físico
+    PhysicalProduct:
+      x-discriminator-value: PHYSICAL
+      allOf:
+        - $ref: "#/components/schemas/BaseProduct"
+        - type: object
+          properties:
+            dimensions:
+              $ref: "#/components/schemas/Dimensions"
+            stockQuantity:
+              type: integer
+              format: int32
+            shippable:
+              type: boolean
+          required: []  # aquí decides si son obligatorios
+
+    # 3) Subtipo digital
+    DigitalProduct:
+      x-discriminator-value: DIGITAL
+      allOf:
+        - $ref: "#/components/schemas/BaseProduct"
+        - type: object
+          properties:
+            fileSize:
+              type: integer
+              format: int64
+            fileFormat:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+          required: []  # igual, según tu dominio
+
+    # 4) Tipo “Product” de la API (polimórfico)
+    Product:
+      oneOf:
+        - $ref: "#/components/schemas/PhysicalProduct"
+        - $ref: "#/components/schemas/DigitalProduct"
+      properties:
+        productType:
+          $ref: "#/components/schemas/ProductType"
+      required: [productType]
+      discriminator:
+        propertyName: productType
+        mapping:
+          PHYSICAL: "#/components/schemas/PhysicalProduct"
+          DIGITAL: "#/components/schemas/DigitalProduct"
 
     ErrorMessage:
       type: object
@@ -64,21 +139,16 @@ components:
         statusCode:
           type: integer
           format: int32
-          example: 500
         statusMessage:
           type: string
-          example: "Internal Server Error"
         errorCode:
           type: string
           nullable: true
-          example: "FRAMEWORK:UNKNOWN_ERROR"
         errorMessage:
           type: string
           nullable: true
-          example: "An unknown error occurred"
         extensions:
           type: object
           nullable: true
           additionalProperties: true
       required: [statusCode, statusMessage]
-

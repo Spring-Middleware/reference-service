@@ -1,9 +1,13 @@
 package io.github.spring.middleware.product.mapper;
 
+import io.github.spring.middleware.product.domain.DigitalProduct;
 import io.github.spring.middleware.product.domain.Money;
+import io.github.spring.middleware.product.domain.PhysicalProduct;
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductStatus;
+import io.github.spring.middleware.product.dto.DigitalProductDto;
 import io.github.spring.middleware.product.dto.MoneyDto;
+import io.github.spring.middleware.product.dto.PhysicalProductDto;
 import io.github.spring.middleware.product.dto.ProductDto;
 import io.github.spring.middleware.product.dto.ProductStatusDto;
 import org.mapstruct.Mapper;
@@ -16,7 +20,22 @@ import java.time.ZoneOffset;
 @Mapper(componentModel = "spring")
 public interface ProductDtoMapper {
 
-    ProductDto toDto(Product product);
+    default ProductDto toDto(Product product) {
+        if (product == null) {
+            return null;
+        }
+        switch (product.getProductType()) {
+            case DIGITAL:
+                return toDigitalDto((DigitalProduct) product);
+            case PHYSICAL:
+            default:
+                return toPhysicalDto((PhysicalProduct) product);
+        }
+    }
+
+    PhysicalProductDto toPhysicalDto(PhysicalProduct product);
+
+    DigitalProductDto toDigitalDto(DigitalProduct product);
 
     MoneyDto toDto(Money money);
 

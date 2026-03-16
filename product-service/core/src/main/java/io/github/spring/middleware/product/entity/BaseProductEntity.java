@@ -2,6 +2,7 @@ package io.github.spring.middleware.product.entity;
 
 import io.github.spring.middleware.product.domain.Money;
 import io.github.spring.middleware.product.domain.ProductStatus;
+import io.github.spring.middleware.product.domain.ProductType;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 @Data
 @Document(collection = "products")
-public class ProductEntity {
+public abstract class BaseProductEntity {
 
     @Id
     private UUID id;
@@ -33,9 +34,12 @@ public class ProductEntity {
 
     private Money price;
 
+    private ProductType productType;
+
     @CreatedDate
     private Instant createdAt;
 
     @LastModifiedDate
     private Instant updatedAt;
 }
+

@@ -1,0 +1,15 @@
+query {
+    product(id: "f21d76fc-b072-471c-8dc3-1582e9ac9226") {
+        id
+        name
+        description
+        price {
+            amount
+            currency
+        }
+        sku
+        status
+        createdAt
+        updatedAt
+    }
+}

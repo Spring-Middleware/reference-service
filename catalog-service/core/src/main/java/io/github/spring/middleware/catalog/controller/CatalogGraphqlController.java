@@ -100,28 +100,25 @@ public class CatalogGraphqlController {
     }
 
     @GraphQLMutation(name = "createCatalog")
-    public CatalogDto createCatalog(@GraphQLArgument(name = "input") CatalogInput input) {
+    public Catalog createCatalog(@GraphQLArgument(name = "input") CatalogInput input) {
         Catalog catalog = catalogMapper.toCatalog(input);
-        Catalog created = catalogService.createCatalog(catalog);
-        return catalogDtoMapper.toDto(created);
+        return catalogService.createCatalog(catalog);
     }
 
     @GraphQLMutation(name = "replaceCatalog")
-    public CatalogDto replaceCatalog(
+    public Catalog replaceCatalog(
             @GraphQLArgument(name = "id") UUID id,
             @GraphQLArgument(name = "input") CatalogInput input) {
         Catalog catalog = catalogMapper.toCatalog(input);
-        Catalog replaced = catalogService.replaceCatalog(id, catalog);
-        return catalogDtoMapper.toDto(replaced);
+        return catalogService.replaceCatalog(id, catalog);
     }
 
     @GraphQLMutation(name = "patchCatalog")
-    public CatalogDto patchCatalog(
+    public Catalog patchCatalog(
             @GraphQLArgument(name = "id") UUID id,
             @GraphQLArgument(name = "input") CatalogPatchInput input) {
         Catalog catalog = catalogMapper.toCatalog(input);
-        Catalog patched = catalogService.patchCatalog(id, catalog);
-        return catalogDtoMapper.toDto(patched);
+        return catalogService.patchCatalog(id, catalog);
     }
 
     @GraphQLMutation(name = "deleteCatalog")
@@ -148,25 +145,23 @@ public class CatalogGraphqlController {
     }
 
     @GraphQLMutation(name = "addProductsToCatalog")
-    public CatalogDto addProductsToCatalog(
+    public Catalog addProductsToCatalog(
             @GraphQLArgument(name = "catalogId") UUID catalogId,
             @GraphQLArgument(name = "inputs") List<CatalogProductInput> inputs) {
         var products = inputs.stream()
                 .map(this::mapCatalogProductInputToDomain)
                 .toList();
-        Catalog catalog = catalogService.addProductsToCatalog(catalogId, products);
-        return catalogDtoMapper.toDto(catalog);
+        return catalogService.addProductsToCatalog(catalogId, products);
     }
 
     @GraphQLMutation(name = "replaceCatalogProducts")
-    public CatalogDto replaceCatalogProducts(
+    public Catalog replaceCatalogProducts(
             @GraphQLArgument(name = "catalogId") UUID catalogId,
             @GraphQLArgument(name = "inputs") List<CatalogProductInput> inputs) {
         var products = inputs.stream()
                 .map(this::mapCatalogProductInputToDomain)
                 .toList();
-        Catalog catalog = catalogService.replaceCatalogProducts(catalogId, products);
-        return catalogDtoMapper.toDto(catalog);
+        return catalogService.replaceCatalogProducts(catalogId, products);
     }
 
     @GraphQLMutation(name = "removeProductsFromCatalog")

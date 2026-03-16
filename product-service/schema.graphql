@@ -8,6 +8,30 @@ schema {
 "Indicates an Input Object is a OneOf Input Object."
 directive @oneOf on INPUT_OBJECT
 
+union Product = DigitalProduct | PhysicalProduct
+
+type DigitalProduct {
+    catalogId: UUID
+    createdAt: Instant
+    description: String
+    downloadUrl: URI
+    fileFormat: String
+    fileSize: Long
+    id: UUID
+    name: String
+    price: Money
+    productType: ProductType
+    sku: String
+    status: ProductStatus
+    updatedAt: Instant
+}
+
+type Dimensions {
+    height: Float
+    length: Float
+    width: Float
+}
+
 type Money {
     amount: BigDecimal
     currency: String
@@ -15,12 +39,16 @@ type Money {
 
 "Mutation root"
 type Mutation {
-    createProduct(input: ProductInputInput): Product
-    createProductsForCatalog(catalogId: UUID, inputs: [ProductInputInput]): [Product]
+    createDigitalProduct(input: DigitalProductInputInput): Product
+    createDigitalProductsForCatalog(catalogId: UUID, inputs: [DigitalProductInputInput]): [Product]
+    createPhysicalProduct(input: ProductInputInput): Product
+    createPhysicalProductsForCatalog(catalogId: UUID, inputs: [PhysicalProductInputInput]): [Product]
     deleteProduct(id: UUID): Boolean
     deleteProductsForCatalog(catalogId: UUID, productIds: [UUID]): Boolean!
-    patchProduct(id: UUID, input: ProductInputInput): Product
-    replaceProduct(id: UUID, input: ProductInputInput): Product
+    patchDigitalProduct(id: UUID, input: DigitalProductInputInput): Product
+    patchPhysicalProduct(id: UUID, input: ProductInputInput): Product
+    replaceDigitalProduct(id: UUID, input: DigitalProductInputInput): Product
+    replacePhysicalProduct(id: UUID, input: ProductInputInput): Product
 }
 
 type Page_Product {
@@ -45,15 +73,19 @@ type Pageable {
     unpaged: Boolean!
 }
 
-type Product {
+type PhysicalProduct {
     catalogId: UUID
     createdAt: Instant
     description: String
+    dimensions: Dimensions
     id: UUID
     name: String
     price: Money
+    productType: ProductType
+    shippable: Boolean
     sku: String
     status: ProductStatus
+    stockQuantity: Int
     updatedAt: Instant
 }
 
@@ -81,6 +113,11 @@ enum ProductStatus {
     INACTIVE
 }
 
+enum ProductType {
+    DIGITAL
+    PHYSICAL
+}
+
 "An arbitrary precision signed decimal"
 scalar BigDecimal
 
@@ -90,12 +127,47 @@ scalar Instant
 "A 64-bit signed integer"
 scalar Long
 
+"URI String"
+scalar URI
+
 "UUID String"
 scalar UUID
+
+input DigitalProductInputInput {
+    catalogId: UUID
+    description: String
+    downloadUrl: URI
+    fileFormat: String
+    fileSize: Long
+    name: String
+    price: MoneyInputInput
+    productType: ProductType
+    sku: String
+    status: ProductStatus
+}
+
+input DimensionsInputInput {
+    depth: Float
+    height: Float
+    width: Float
+}
 
 input MoneyInputInput {
     amount: BigDecimal
     currency: String
+}
+
+input PhysicalProductInputInput {
+    catalogId: UUID
+    description: String
+    dimensions: DimensionsInputInput
+    name: String
+    price: MoneyInputInput
+    productType: ProductType
+    shippable: Boolean
+    sku: String
+    status: ProductStatus
+    stockQuantity: Int
 }
 
 input ProductInputInput {
@@ -103,6 +175,7 @@ input ProductInputInput {
     description: String
     name: String
     price: MoneyInputInput
+    productType: ProductType
     sku: String
     status: ProductStatus
 }

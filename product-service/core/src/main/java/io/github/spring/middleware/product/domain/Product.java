@@ -1,9 +1,12 @@
 package io.github.spring.middleware.product.domain;
 
+import io.leangen.graphql.annotations.types.GraphQLUnion;
+
 import java.time.Instant;
 import java.util.UUID;
 
-public class Product {
+@GraphQLUnion(name = "Product", possibleTypes = {PhysicalProduct.class, DigitalProduct.class})
+public abstract class Product {
 
     private UUID id;
     private UUID catalogId;
@@ -101,4 +104,6 @@ public class Product {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public abstract ProductType getProductType();
 }

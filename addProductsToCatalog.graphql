@@ -1,0 +1,27 @@
+mutation {
+    addProductsToCatalog(catalogId: "10c6a38f-9636-4e12-b4a7-aea37edd92a0", inputs: [
+        {
+            name: "Product 1",
+            description: "Description for Product 1",
+            priceAmount: 19.99,
+            priceCurrency: "USD",
+            sku: "PROD-001",
+            status: ACTIVE
+        },{
+            name: "Product 2",
+            description: "Description for Product 2",
+            priceAmount: 29.99,
+            priceCurrency: "USD",
+            sku: "PROD-002",
+            status: ACTIVE
+        }
+    ]) {
+        id
+        name
+        status
+        createdAt
+        updatedAt
+        productIds
+    }
+}
+

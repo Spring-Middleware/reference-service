@@ -2,6 +2,7 @@ package io.github.spring.middleware.catalog.domain;
 
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -13,4 +14,6 @@ public class Product {
     private String sku;
     private ProductStatus status;
     private Money price;
+    private Instant createdAt;
+    private Instant updatedAt;
 }

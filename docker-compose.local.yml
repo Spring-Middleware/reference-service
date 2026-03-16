@@ -43,12 +43,11 @@ services:
     image: spring-base_graphql-gateway:latest
     container_name: graphql_gateway_local
     hostname: graphql-gateway
-    expose:
-      - "8060:8080"
     ports:
+      - "8060:8080"
       - "5009:5005"
     environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - SPRING_PROFILES_ACTIVE=LOCAL
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - GRAPHQL_ENABLED=false
@@ -63,6 +62,7 @@ services:
       - registry
       - catalog-service
       - product-service-debug
+      - rabbitmq
 
 
   registry:
@@ -154,7 +154,7 @@ services:
     environment:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
-      - SECURITY_TYPE=BASIC_AUTH
+      - SECURITY_TYPE=OAUTH2
       - SERVER_CONTEXT_PATH=/product
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - MONGO_URI=mongodb://mongo:27017/product

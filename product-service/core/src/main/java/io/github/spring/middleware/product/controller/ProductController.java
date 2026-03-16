@@ -39,7 +39,6 @@ public class ProductController implements ProductApi {
     private final ProductDtoMapper productDtoMapper;
 
     @Override
-    @RolesAllowed("ROLE_CREATE_PRODUCT")
     public ProductDto createProduct(ProductCreateRequestDto productCreateRequestDto) {
         log.info("Received request to create product: {}", productCreateRequestDto);
         Product product = productMapper.mapToProduct(productCreateRequestDto);

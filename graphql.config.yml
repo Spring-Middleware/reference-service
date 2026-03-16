@@ -13,6 +13,12 @@ extensions:
             user-agent: "JS GraphQL"
             Authorization: "Basic ${BASIC_CATALOG_AUTH_TOKEN}"
         introspect: true
+    gateway:
+        url: http://localhost:8060/graphql
+        headers:
+            user-agent: "JS GraphQL"
+            Authorization: "Basic ${BASIC_REGISTRY_AUTH_TOKEN}"
+        introspect: true
 
 
 

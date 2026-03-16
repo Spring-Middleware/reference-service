@@ -1,6 +1,7 @@
 components:
   schemas:
-    ProductCreateRequest:
+    # --- CREATE ---
+    BaseProductCreateRequest:
       type: object
       additionalProperties: false
       properties:
@@ -23,9 +24,52 @@ components:
           $ref: "product-schema.yaml#/components/schemas/ProductStatus"
         price:
           $ref: "product-schema.yaml#/components/schemas/Money"
-      required: [catalogId, sku, name, status, price]
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
+      required: [catalogId, sku, name, status, price, productType]
 
-    ProductUpdateRequest:
+    PhysicalProductCreateRequest:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductCreateRequest"
+        - type: object
+          properties:
+            dimensions:
+              $ref: "product-schema.yaml#/components/schemas/Dimensions"
+            stockQuantity:
+              type: integer
+              format: int32
+            shippable:
+              type: boolean
+
+    DigitalProductCreateRequest:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductCreateRequest"
+        - type: object
+          properties:
+            fileSize:
+              type: integer
+              format: int64
+            fileFormat:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+
+    ProductCreateRequest:
+      oneOf:
+        - $ref: "#/components/schemas/PhysicalProductCreateRequest"
+        - $ref: "#/components/schemas/DigitalProductCreateRequest"
+      properties:
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
+      discriminator:
+        propertyName: productType
+        mapping:
+          PHYSICAL: "#/components/schemas/PhysicalProductCreateRequest"
+          DIGITAL: "#/components/schemas/DigitalProductCreateRequest"
+
+    # --- UPDATE (PUT) ---
+    BaseProductUpdateRequest:
       type: object
       additionalProperties: false
       properties:
@@ -45,9 +89,52 @@ components:
           $ref: "product-schema.yaml#/components/schemas/ProductStatus"
         price:
           $ref: "product-schema.yaml#/components/schemas/Money"
-      required: [sku, name, status, price]
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
+      required: [sku, name, status, price, productType]
 
-    ProductPatchRequest:
+    PhysicalProductUpdateRequest:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductUpdateRequest"
+        - type: object
+          properties:
+            dimensions:
+              $ref: "product-schema.yaml#/components/schemas/Dimensions"
+            stockQuantity:
+              type: integer
+              format: int32
+            shippable:
+              type: boolean
+
+    DigitalProductUpdateRequest:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductUpdateRequest"
+        - type: object
+          properties:
+            fileSize:
+              type: integer
+              format: int64
+            fileFormat:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+
+    ProductUpdateRequest:
+      oneOf:
+        - $ref: "#/components/schemas/PhysicalProductUpdateRequest"
+        - $ref: "#/components/schemas/DigitalProductUpdateRequest"
+      properties:
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
+      discriminator:
+        propertyName: productType
+        mapping:
+          PHYSICAL: "#/components/schemas/PhysicalProductUpdateRequest"
+          DIGITAL: "#/components/schemas/DigitalProductUpdateRequest"
+
+    # --- PATCH ---
+    BaseProductPatchRequest:
       type: object
       additionalProperties: false
       description: Only provided fields will be updated.
@@ -70,8 +157,51 @@ components:
           $ref: "product-schema.yaml#/components/schemas/ProductStatus"
         price:
           $ref: "product-schema.yaml#/components/schemas/Money"
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
 
-    ProductCreateItem:
+    PhysicalProductPatchRequest:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductPatchRequest"
+        - type: object
+          properties:
+            dimensions:
+              $ref: "product-schema.yaml#/components/schemas/Dimensions"
+            stockQuantity:
+              type: integer
+              format: int32
+            shippable:
+              type: boolean
+
+    DigitalProductPatchRequest:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductPatchRequest"
+        - type: object
+          properties:
+            fileSize:
+              type: integer
+              format: int64
+            fileFormat:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+
+    ProductPatchRequest:
+      oneOf:
+        - $ref: "#/components/schemas/PhysicalProductPatchRequest"
+        - $ref: "#/components/schemas/DigitalProductPatchRequest"
+      properties:
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
+      discriminator:
+        propertyName: productType
+        mapping:
+          PHYSICAL: "#/components/schemas/PhysicalProductPatchRequest"
+          DIGITAL: "#/components/schemas/DigitalProductPatchRequest"
+
+    # --- BULK CREATE ---
+    BaseProductCreateItem:
       type: object
       additionalProperties: false
       properties:
@@ -91,7 +221,49 @@ components:
           $ref: "product-schema.yaml#/components/schemas/ProductStatus"
         price:
           $ref: "product-schema.yaml#/components/schemas/Money"
-      required: [sku, name, status, price]
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
+      required: [sku, name, status, price, productType]
+
+    PhysicalProductCreateItem:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductCreateItem"
+        - type: object
+          properties:
+            dimensions:
+              $ref: "product-schema.yaml#/components/schemas/Dimensions"
+            stockQuantity:
+              type: integer
+              format: int32
+            shippable:
+              type: boolean
+
+    DigitalProductCreateItem:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductCreateItem"
+        - type: object
+          properties:
+            fileSize:
+              type: integer
+              format: int64
+            fileFormat:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+
+    ProductCreateItem:
+      oneOf:
+        - $ref: "#/components/schemas/PhysicalProductCreateItem"
+        - $ref: "#/components/schemas/DigitalProductCreateItem"
+      properties:
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
+      discriminator:
+        propertyName: productType
+        mapping:
+          PHYSICAL: "#/components/schemas/PhysicalProductCreateItem"
+          DIGITAL: "#/components/schemas/DigitalProductCreateItem"
 
     ProductBulkCreateRequest:
       type: object
@@ -108,6 +280,7 @@ components:
           maxItems: 1000
       required: [catalogId, items]
 
+    # --- BULK DELETE ---
     ProductBulkDeleteRequest:
       type: object
       additionalProperties: false
@@ -124,7 +297,8 @@ components:
           maxItems: 1000
       required: [catalogId, productIds]
 
-    ProductReplaceItem:
+    # --- BULK REPLACE ---
+    BaseProductReplaceItem:
       type: object
       additionalProperties: false
       properties:
@@ -147,7 +321,49 @@ components:
           $ref: "product-schema.yaml#/components/schemas/ProductStatus"
         price:
           $ref: "product-schema.yaml#/components/schemas/Money"
-      required: [id, sku, name, status, price]
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
+      required: [id, sku, name, status, price, productType]
+
+    PhysicalProductReplaceItem:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductReplaceItem"
+        - type: object
+          properties:
+            dimensions:
+              $ref: "product-schema.yaml#/components/schemas/Dimensions"
+            stockQuantity:
+              type: integer
+              format: int32
+            shippable:
+              type: boolean
+
+    DigitalProductReplaceItem:
+      allOf:
+        - $ref: "#/components/schemas/BaseProductReplaceItem"
+        - type: object
+          properties:
+            fileSize:
+              type: integer
+              format: int64
+            fileFormat:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+
+    ProductReplaceItem:
+      oneOf:
+        - $ref: "#/components/schemas/PhysicalProductReplaceItem"
+        - $ref: "#/components/schemas/DigitalProductReplaceItem"
+      properties:
+        productType:
+          $ref: "product-schema.yaml#/components/schemas/ProductType"
+      discriminator:
+        propertyName: productType
+        mapping:
+          PHYSICAL: "#/components/schemas/PhysicalProductReplaceItem"
+          DIGITAL: "#/components/schemas/DigitalProductReplaceItem"
 
     ProductBulkReplaceRequest:
       type: object

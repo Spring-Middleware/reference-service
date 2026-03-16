@@ -2,7 +2,7 @@ package io.github.spring.middleware.product.service;
 
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductStatus;
-import io.github.spring.middleware.product.entity.ProductEntity;
+import io.github.spring.middleware.product.entity.BaseProductEntity;
 import io.github.spring.middleware.product.exceptions.ProductAlreadyExistsException;
 import io.github.spring.middleware.product.exceptions.ProductNotFoundException;
 import io.github.spring.middleware.product.mapper.ProductEntityMapper;
@@ -37,11 +37,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> createProductsForCatalog(List<Product> products, UUID catalogId) {
-        List<ProductEntity> entities = products.stream().map(product -> {
+        List<BaseProductEntity> entities = products.stream().map(product -> {
             if (productRepository.existsBySku(product.getSku())) {
                 throw new ProductAlreadyExistsException(STR."Product with SKU \{product.getSku()} already exists");
             }
-            ProductEntity entity = productEntityMapper.toEntity(product);
+            BaseProductEntity entity = productEntityMapper.toEntity(product);
             entity.setCatalogId(catalogId);
             if (entity.getId() == null) {
                 entity.setId(UUID.randomUUID());
@@ -52,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
             return entity;
         }).collect(Collectors.toList());
 
-        List<ProductEntity> savedEntities = productRepository.saveAll(entities);
+        List<BaseProductEntity> savedEntities = productRepository.saveAll(entities);
         return savedEntities.stream()
                 .map(productEntityMapper::toDomain)
                 .collect(Collectors.toList());
@@ -60,42 +60,42 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProduct(UUID id) {
-        ProductEntity entity = productRepository.findById(id)
+        BaseProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(STR."Product with \{id} not found"));
         return productEntityMapper.toDomain(entity);
     }
 
     @Override
     public Product replaceProduct(UUID id, Product product) {
-        ProductEntity entity = productRepository.findById(id)
+        BaseProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(STR."Product with \{id} not found"));
 
         if (!entity.getSku().equals(product.getSku()) && productRepository.existsBySku(product.getSku())) {
             throw new ProductAlreadyExistsException(STR."Product with SKU \{product.getSku()} already exists");
         }
 
-        ProductEntity mappedEntity = productEntityMapper.toEntity(product);
+        BaseProductEntity mappedEntity = productEntityMapper.toEntity(product);
         mappedEntity.setId(id); // Ensure ID is preserved
         mappedEntity.setCreatedAt(entity.getCreatedAt()); // Preserve creation date
         mappedEntity.setUpdatedAt(Instant.now());
 
-        ProductEntity saved = productRepository.save(mappedEntity);
+        BaseProductEntity saved = productRepository.save(mappedEntity);
         return productEntityMapper.toDomain(saved);
     }
 
     @Override
     public List<Product> replaceProductsForCatalog(List<Product> products, UUID catalogId) {
-        List<ProductEntity> existingEntities = PaginationUtils.findAllPages((id, page, size) -> productRepository.findByCatalogId(id, PageRequest.of(page, size)).getContent(), catalogId,0, 100);
-        List<UUID> existingIds = existingEntities.stream().map(ProductEntity::getId).collect(Collectors.toList());
+        List<BaseProductEntity> existingEntities = PaginationUtils.findAllPages((id, page, size) -> productRepository.findByCatalogId(id, PageRequest.of(page, size)).getContent(), catalogId,0, 100);
+        List<UUID> existingIds = existingEntities.stream().map(BaseProductEntity::getId).collect(Collectors.toList());
 
-        List<ProductEntity> entitiesToSave = products.stream().map(product -> {
+        List<BaseProductEntity> entitiesToSave = products.stream().map(product -> {
             if (product.getId() != null && !existingIds.contains(product.getId())) {
                 throw new ProductNotFoundException(STR."Product with ID \{product.getId()} not found in catalog \{catalogId}");
             }
             if (productRepository.existsBySkuAndCatalogId(product.getSku(), catalogId)) {
                 throw new ProductAlreadyExistsException(STR."Product with SKU \{product.getSku()} already exists in catalog \{catalogId}");
             }
-            ProductEntity entity = productEntityMapper.toEntity(product);
+            BaseProductEntity entity = productEntityMapper.toEntity(product);
             entity.setCatalogId(catalogId);
             if (entity.getId() == null) {
                 entity.setId(UUID.randomUUID());
@@ -104,14 +104,14 @@ public class ProductServiceImpl implements ProductService {
                 entity.setCreatedAt(existingEntities.stream()
                         .filter(e -> e.getId().equals(entity.getId()))
                         .findFirst()
-                        .map(ProductEntity::getCreatedAt)
+                        .map(BaseProductEntity::getCreatedAt)
                         .orElse(Instant.now()));
             }
             entity.setUpdatedAt(Instant.now());
             return entity;
         }).collect(Collectors.toList());
 
-        List<ProductEntity> savedEntities = productRepository.saveAll(entitiesToSave);
+        List<BaseProductEntity> savedEntities = productRepository.saveAll(entitiesToSave);
         return savedEntities.stream()
                 .map(productEntityMapper::toDomain)
                 .collect(Collectors.toList());
@@ -119,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product patchProduct(UUID id, Product product) {
-        ProductEntity entity = productRepository.findById(id)
+        BaseProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(STR."Product with \{id} not found"));
 
         if (product.getSku() != null) {
@@ -135,13 +135,13 @@ public class ProductServiceImpl implements ProductService {
 
         entity.setUpdatedAt(Instant.now());
 
-        ProductEntity saved = productRepository.save(entity);
+        BaseProductEntity saved = productRepository.save(entity);
         return productEntityMapper.toDomain(saved);
     }
 
     @Override
     public Page<Product> listProducts(String q, ProductStatus status, UUID catalogId, Pageable pageable) {
-        Page<ProductEntity> page;
+        Page<BaseProductEntity> page;
         if (q != null && !q.isBlank()) {
             if (catalogId != null) {
                 page = productRepository.findByNameContainingIgnoreCaseAndCatalogId(q, catalogId, pageable);
@@ -175,7 +175,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProductsFromCatalog(List<UUID> ids, UUID catalogId) {
         List<UUID> existingIds = productRepository.findAllById(ids).stream()
                 .filter(productEntity -> productEntity.getCatalogId().equals(catalogId))
-                .map(ProductEntity::getId)
+                .map(BaseProductEntity::getId)
                 .collect(Collectors.toList());
 
         List<UUID> notFoundIds = ids.stream()

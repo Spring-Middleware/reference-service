@@ -97,7 +97,7 @@ middleware:
           roles: [ PRODUCT_READER ]
 
     oauth2:
-      issuer-uri: ${OAUTH2_ISSUER_URI_ISSUER_URI}
+      #issuer-uri: ${OAUTH2_ISSUER_URI_ISSUER_URI}
       jwk-set-uri: ${OAUTH2_ISSUER_URI_JWK_SET_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs}
       authorities-claim-path: ${OAUTH2_ISSUER_URI_AUTHORITIES_CLAIM_PATH:$.resource_access.product-service.roles[*]}
 
