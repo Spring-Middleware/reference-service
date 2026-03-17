@@ -114,6 +114,51 @@ boot   →  core   →  api
 - `core` – Business logic and middleware integrations (Mongo, mappings, etc.)
 - `boot` – Spring Boot application (controllers, configuration, wiring)
 
+### GraphQL in a real platform
+
+In a typical platform deployment you don’t expose multiple GraphQL endpoints
+per microservice directly to clients. Instead, the platform offers a **single
+front GraphQL endpoint** (gateway/router), for example:
+
+```text
+https://api.my-platform.com/graphql
+```
+
+That front endpoint:
+
+- receives **all GraphQL queries and mutations** from clients,
+- uses the **Registry** and the registered schemas to know which service
+  implements each type/field,
+- routes the operation internally to the responsible microservice (for example,
+  `product-service` or `catalog-service`),
+- aggregates the results and returns **a single GraphQL response** to the client.
+
+In this repository, `product-service` is responsible for registering its GraphQL
+schema into the Registry. A GraphQL gateway (not implemented here, but planned
+in Spring Middleware) can consume that information and build a composed schema,
+exposed through that single front endpoint.
+
+### GraphQL topology: platform vs. local
+
+This project is designed to fit into that **single-endpoint topology**, while
+still making local development easy with direct service endpoints.
+
+- **In a platform environment**:
+  - Public endpoint: `https://<gateway-host>/graphql`
+  - The gateway/router receives the operation and, with the help of the Registry,
+    routes it to `product-service`, `catalog-service`, etc.
+  - Clients only know this front endpoint, not the internal services.
+
+- **In a local environment (this repo)**:
+  - You call the GraphQL endpoint of `product-service` directly,
+    for example `http://localhost:8090/product/graphql`.
+  - This is simpler for debugging and testing service changes.
+  - The design remains compatible with a future front GraphQL endpoint.
+
+The rest of this README uses direct local URLs to simplify testing, but the
+architecture is intended for a **unified GraphQL endpoint** in a real platform
+deployment.
+
 ### Services in this demo
 
 #### Registry (external dependency)
@@ -312,6 +357,19 @@ Once the stack is running (Registry, Mongo, Redis, Product, Catalog) you can hit
 - Catalog Service: `http://localhost:8070/catalog`
 - Product Service (debug): `http://localhost:8090/product`
 
+In a real platform deployment you typically **do not expose** the internal
+GraphQL endpoints of each microservice directly. Instead, a GraphQL gateway
+(or an API Gateway with GraphQL support) exposes a **single front endpoint**,
+for example:
+
+```text
+https://api.my-platform.com/graphql
+```
+
+That unified endpoint is responsible for routing operations internally to
+`product-service`, `catalog-service` and other services registered in the
+Registry. The URLs above are intended for **local development and debugging**.
+
 **Inside Docker network (from other containers):**
 
 - Registry: `http://registry:8080/registry`
@@ -353,7 +411,13 @@ To see error propagation, request a non‑existing catalog or product ID and ins
 
 ### GraphQL – Product Service
 
-Product Service exposes GraphQL under the `/product` context path (default Spring GraphQL endpoint `/graphql`). From your host machine:
+Product Service exposes GraphQL under the `/product` context path (default Spring GraphQL endpoint `/graphql`).
+In a **local environment** you can call it directly, but in a **real platform
+setup** clients usually hit a **single front GraphQL endpoint** (for example
+`https://api.my-platform.com/graphql`) which routes internally to this service
+and others.
+
+From your host machine:
 
 ```bash
 curl -X POST "http://localhost:8090/product/graphql" \
@@ -368,6 +432,10 @@ This will exercise:
 - the Product GraphQL schema,
 - Spring Middleware GraphQL error handling,
 - and schema registration into the Registry.
+
+In a platform deployment, an equivalent query would be sent to the front
+`/graphql` endpoint of the gateway/router, which relies on the Registry and the
+registered schemas to delegate resolution to `product-service`.
 
 ---
 
@@ -398,13 +466,16 @@ This will exercise:
    - it should be a structured error JSON,
    - it should preserve relevant metadata (request id, error code, etc.).
 
-### 4. GraphQL schema registration
+### 4. GraphQL through a front endpoint (optional)
 
-1. Start `product-service`.
-2. Ensure its GraphQL schema files (e.g. `schema.graphql`, `queries.graphql`)
-   are loaded by the application.
-3. Check the Registry to see the schema namespace and locations associated
-   with the product service.
+In this repository, tests are performed by calling the GraphQL endpoint of
+`product-service` directly (`http://localhost:8090/product/graphql`) to keep
+local development simple.
+
+In a real platform with a front GraphQL gateway, the same queries and mutations
+would be sent to the **unified endpoint** (`/graphql`) exposed by that gateway.
+It would use the Registry and the GraphQL schemas registered by services (such
+as `product-service`) to route and resolve each operation.
 
 ---
 

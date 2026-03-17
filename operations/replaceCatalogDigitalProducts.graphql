@@ -3,18 +3,6 @@ mutation ReplaceCatalogDigitalProducts {
         catalogId: "4ac84f87-e596-4d87-a2e0-d7f14bc43c17"
         inputs: [
             {
-                id: "b8b47f51-d952-43a0-b444-b7987cc56903"
-                name: "Curso Java Avanzado 2026"
-                description: "Versión actualizada del curso avanzado de Java"
-                priceAmount: 129.90
-                priceCurrency: "EUR"
-                sku: "DIGI-JAVA-AVANZADO-2026"
-                status: ACTIVE
-                fileFormat: "EXE"
-                fileSize: 1600
-                downloadUrl: "https://downloads.example.com/cursos/java-avanzado-2026"
-            }
-            {
                 id: "67634d95-8585-45c7-a177-8a29d1b9ffa6"
                 name: "Product 1 (Updated)"
                 description: "Updated description for Product 1"

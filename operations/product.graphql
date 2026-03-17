@@ -5,6 +5,7 @@ query {
              id
             name
             description
+            productType
             price {
                 amount
                 currency

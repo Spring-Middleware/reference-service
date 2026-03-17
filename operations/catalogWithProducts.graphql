@@ -11,6 +11,7 @@ query {
                 id
                 name
                 description
+                productType
                 price {
                     amount
                     currency
@@ -26,6 +27,7 @@ query {
                 id
                 name
                 description
+                productType
                 price {
                     amount
                     currency
