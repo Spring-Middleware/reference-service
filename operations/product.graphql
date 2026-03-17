@@ -1,0 +1,31 @@
+query {
+    product(id: "67634d95-8585-45c7-a177-8a29d1b9ffa6") {
+        __typename
+        ... on DigitalProduct {
+             id
+            name
+            description
+            price {
+                amount
+                currency
+            }
+            sku
+            status
+            createdAt
+            updatedAt
+        }
+        ... on PhysicalProduct {
+             id
+            name
+            description
+            price {
+                amount
+                currency
+            }
+            sku
+            status
+            createdAt
+            updatedAt
+        }
+    }
+}

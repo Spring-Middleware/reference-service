@@ -1,0 +1,44 @@
+mutation {
+    replaceCatalogPhysicalProducts(
+        catalogId: "4ac84f87-e596-4d87-a2e0-d7f14bc43c17"
+        inputs: [
+            {
+                id: "843b51ad-5444-4b77-890e-0aeb7c24ba10"
+                name: "Teclado Mecánico (Actualizado)"
+                description: "Teclado mecánico con switches lineales silenciosos"
+                priceAmount: 89.99
+                priceCurrency: "EUR"
+                sku: "KEYB-001-NEW"
+                status: ACTIVE
+                stockQuantity: 45
+                dimensions: {
+                    length: 15.0
+                    width: 45.0
+                    height: 5.0
+                }
+            }
+            {
+                id: "1031d5b5-c615-4036-ac19-ab9ffd99ca91"
+                name: "Monitor 27'' 4K (Actualizado)"
+                description: "Monitor 27 pulgadas 4K UHD con HDR"
+                priceAmount: 329.99
+                priceCurrency: "EUR"
+                sku: "MON-0274K-HDR"
+                status: ACTIVE
+                stockQuantity: 18
+                dimensions: {
+                    length: 20.0
+                    width: 60.0
+                    height: 35.0
+                }
+            }
+        ]
+    ) {
+        id
+        name
+        status
+        createdAt
+        updatedAt
+        productIds
+    }
+}

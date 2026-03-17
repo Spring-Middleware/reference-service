@@ -56,18 +56,6 @@ public class ProductGraphqlController {
         return productService.listProducts(q, status, catalogId, pageable);
     }
 
-    @GraphQLMutation(name = "createDigitalProduct")
-    public Product createDigitalProduct(@GraphQLArgument(name = "input") DigitalProductInput input) {
-        Product product = productMapper.mapToProduct(input);
-        return productService.createProduct(product);
-    }
-
-    @GraphQLMutation(name = "createPhysicalProduct")
-    public Product createPhysicalProduct(@GraphQLArgument(name = "input") ProductInput input) {
-        Product product = productMapper.mapToProduct(input);
-        return productService.createProduct(product);
-    }
-
     @GraphQLMutation(name = "replaceDigitalProduct")
     public Product replaceDigitalProduct(
             @GraphQLArgument(name = "id") UUID id,
@@ -100,12 +88,6 @@ public class ProductGraphqlController {
         return productService.patchProduct(id, product);
     }
 
-    @GraphQLMutation(name = "deleteProduct")
-    public Boolean deleteProduct(@GraphQLArgument(name = "id") UUID id) {
-        productService.deleteProduct(id);
-        return true;
-    }
-
     @GraphQLMutation(name = "createDigitalProductsForCatalog")
     public List<Product> createDigitalProductsForCatalog(
             @GraphQLArgument(name = "catalogId") UUID catalogId,
@@ -127,11 +109,5 @@ public class ProductGraphqlController {
         return productService.createProductsForCatalog(products, catalogId);
     }
 
-    @GraphQLMutation(name = "deleteProductsForCatalog")
-    public void deleteProductsForCatalog(
-            @GraphQLArgument(name = "productIds") List<UUID> productIds,
-            @GraphQLArgument(name = "catalogId") UUID catalogId) {
-        productService.deleteProductsFromCatalog(productIds, catalogId);
-    }
 }
 

@@ -1,7 +1,7 @@
 package io.github.spring.middleware.catalog.controller;
 
 import io.github.spring.middleware.annotation.RegisterSchema;
-import io.github.spring.middleware.catalog.api.CatalogsApi;
+import io.github.spring.middleware.catalog.api.CatalogApi;
 import io.github.spring.middleware.catalog.domain.Catalog;
 import io.github.spring.middleware.catalog.domain.CatalogStatus;
 import io.github.spring.middleware.catalog.domain.CatalogWithProducts;
@@ -21,7 +21,7 @@ import java.util.UUID;
 @RestController
 @RegisterSchema("catalog")
 @RequiredArgsConstructor
-public class CatalogController implements CatalogsApi {
+public class CatalogController implements CatalogApi {
 
     private final CatalogService catalogService;
 

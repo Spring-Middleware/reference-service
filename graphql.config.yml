@@ -17,7 +17,6 @@ extensions:
         url: http://localhost:8060/graphql
         headers:
             user-agent: "JS GraphQL"
-            Authorization: "Basic ${BASIC_REGISTRY_AUTH_TOKEN}"
         introspect: true
 
 

@@ -52,7 +52,7 @@ middleware:
     registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
     product:
       security:
-        type: PASSTHROUGH # Options: NONE, PASSTHROUGH, API_KEY, OAUTH2_CLIENT_CREDENTIALS
+        type: OAUTH2_CLIENT_CREDENTIALS # Options: NONE, PASSTHROUGH, API_KEY, OAUTH2_CLIENT_CREDENTIALS
 
         api-key: ${API_KEY_PRODUCT_SERVICE:default-product-api-key}
         listProducts:
@@ -88,7 +88,7 @@ middleware:
     cron: ${REGISTRY_CONSISTENCY_SCHEDULER_CRON:*/10 * * * * *}
 
   security:
-    type: ${SECURITY_TYPE:BASIC_AUTH} # Options: NONE, BASIC_AUTH, JWT, OUAHT2, API_KEY
+    type: ${SECURITY_TYPE:OAUTH2} # Options: NONE, BASIC_AUTH, JWT, OUAHT2, API_KEY
     public-paths:
       - /graphql
       - /resources/register

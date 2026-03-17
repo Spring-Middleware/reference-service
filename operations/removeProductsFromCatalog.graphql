@@ -1,0 +1,9 @@
+mutation {
+    removeProductsFromCatalog(
+        catalogId: "4ac84f87-e596-4d87-a2e0-d7f14bc43c17"
+        productIds: [
+            "843b51ad-5444-4b77-890e-0aeb7c24ba10"
+            "b8b47f51-d952-43a0-b444-b7987cc56903"
+        ]
+    )
+}

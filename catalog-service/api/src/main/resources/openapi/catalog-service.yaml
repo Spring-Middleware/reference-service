@@ -12,12 +12,12 @@ servers:
     description: Local
 
 tags:
-  - name: Catalogs
+  - name: Catalog
 
 paths:
   /api/v1/catalogs:
     get:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: List catalogs
       operationId: listCatalogs
       parameters:
@@ -65,7 +65,7 @@ paths:
           $ref: "catalog-responses.yaml#/components/responses/Error500"
 
     post:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: Create catalog
       operationId: createCatalog
       requestBody:
@@ -90,7 +90,7 @@ paths:
 
   /api/v1/catalogs/{id}:
     get:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: Get catalog by id
       operationId: getCatalog
       parameters:
@@ -117,7 +117,7 @@ paths:
           $ref: "catalog-responses.yaml#/components/responses/Error500"
 
     put:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: Replace catalog
       operationId: replaceCatalog
       parameters:
@@ -144,7 +144,7 @@ paths:
           $ref: "catalog-responses.yaml#/components/responses/Error500"
 
     patch:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: Partially update catalog
       operationId: patchCatalog
       parameters:
@@ -171,7 +171,7 @@ paths:
           $ref: "catalog-responses.yaml#/components/responses/Error500"
 
     delete:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: Delete catalog
       operationId: deleteCatalog
       parameters:
@@ -189,7 +189,7 @@ paths:
 
   /api/v1/catalogs/{id}/products:
     get:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: List products in a catalog
       operationId: listCatalogProducts
       parameters:
@@ -214,7 +214,7 @@ paths:
           $ref: "catalog-responses.yaml#/components/responses/Error500"
 
     post:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: Add new products to a catalog (bulk). Internally calls product-service.
       operationId: addProductsToCatalog
       parameters:
@@ -257,7 +257,7 @@ paths:
           $ref: "catalog-responses.yaml#/components/responses/Error500"
 
     put:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: Replace products of a catalog (bulk)
       operationId: replaceCatalogProducts
       parameters:
@@ -284,7 +284,7 @@ paths:
           $ref: "catalog-responses.yaml#/components/responses/Error500"
 
     delete:
-      tags: [ Catalogs ]
+      tags: [ Catalog ]
       summary: Remove products from a catalog (bulk)
       operationId: removeProductsFromCatalog
       parameters:

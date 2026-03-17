@@ -1,0 +1,46 @@
+query {
+    catalogWithProducts(id: "4ac84f87-e596-4d87-a2e0-d7f14bc43c17") {
+        id
+        name
+        status
+        createdAt
+        updatedAt
+        products {
+            __typename
+            ... on DigitalProduct {
+                id
+                name
+                description
+                price {
+                    amount
+                    currency
+                }
+                fileFormat
+                status
+                createdAt
+                updatedAt
+                fileSize
+                downloadUrl
+            }
+            ... on PhysicalProduct {
+                id
+                name
+                description
+                price {
+                    amount
+                    currency
+                }
+                status
+                createdAt
+                updatedAt
+                dimensions {
+                    length
+                    width
+                    height
+                }
+                stockQuantity
+
+            }
+        }
+    }
+}

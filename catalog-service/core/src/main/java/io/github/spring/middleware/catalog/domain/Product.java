@@ -1,12 +1,14 @@
 package io.github.spring.middleware.catalog.domain;
 
+import io.leangen.graphql.annotations.types.GraphQLUnion;
 import lombok.Data;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Data
-public class Product {
+@GraphQLUnion(name = "Product", possibleTypes = {PhysicalProduct.class, DigitalProduct.class})
+public abstract class Product {
 
     private UUID id;
     private String name;
@@ -16,4 +18,7 @@ public class Product {
     private Money price;
     private Instant createdAt;
     private Instant updatedAt;
+
+    public abstract ProductType getProductType();
+
 }

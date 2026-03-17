@@ -110,7 +110,7 @@ services:
     environment:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
-      - SECURITY_TYPE=BASIC_AUTH
+      - SECURITY_TYPE=OAUTH2
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - SERVER_CONTEXT_PATH=/catalog
       - MONGO_URI=mongodb://mongo:27017/catalog

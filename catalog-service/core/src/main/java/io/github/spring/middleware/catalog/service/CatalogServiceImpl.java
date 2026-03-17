@@ -4,13 +4,17 @@ import io.github.spring.middleware.catalog.domain.Catalog;
 import io.github.spring.middleware.catalog.domain.CatalogStatus;
 import io.github.spring.middleware.catalog.domain.CatalogWithProducts;
 import io.github.spring.middleware.catalog.domain.Product;
+import io.github.spring.middleware.catalog.domain.ProductType;
 import io.github.spring.middleware.catalog.entity.CatalogEntity;
+import io.github.spring.middleware.catalog.entity.ProductIdWithType;
 import io.github.spring.middleware.catalog.exception.CatalogErrorCodes;
 import io.github.spring.middleware.catalog.exception.CatalogNotFoundException;
 import io.github.spring.middleware.catalog.mapper.CatalogEntityMapper;
 import io.github.spring.middleware.catalog.mapper.ProductMapper;
 import io.github.spring.middleware.catalog.repository.CatalogRepository;
 import io.github.spring.middleware.product.api.ProductApi;
+import io.github.spring.middleware.product.dto.DigitalProductDto;
+import io.github.spring.middleware.product.dto.PhysicalProductDto;
 import io.github.spring.middleware.product.dto.ProductBulkCreateRequestDto;
 import io.github.spring.middleware.product.dto.ProductBulkDeleteRequestDto;
 import io.github.spring.middleware.product.dto.ProductBulkReplaceRequestDto;
@@ -22,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -88,13 +93,13 @@ public class CatalogServiceImpl implements CatalogService {
     public void deleteCatalog(UUID id) {
         CatalogEntity catalogEntity = catalogRepository.findById(id)
                 .orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
-        if (catalogEntity.getProductIds() == null || catalogEntity.getProductIds().isEmpty()) {
+        if (catalogEntity.getProductIdWithTypes() == null || catalogEntity.getProductIdWithTypes().isEmpty()) {
             catalogRepository.deleteById(id);
             return;
         }
         ProductBulkDeleteRequestDto requestDto = new ProductBulkDeleteRequestDto();
         requestDto.setCatalogId(catalogEntity.getId());
-        requestDto.setProductIds(catalogEntity.getProductIds());
+        requestDto.setProductIds(catalogEntity.getProductIdWithTypes().stream().map(ProductIdWithType::productId).toList());
         productApi.deleteProducts(requestDto);
         catalogRepository.deleteById(id);
     }
@@ -122,7 +127,7 @@ public class CatalogServiceImpl implements CatalogService {
         mapped.setCreatedAt(entity.getCreatedAt());
         mapped.setUpdatedAt(Instant.now());
         // Preserve products
-        mapped.setProductIds(entity.getProductIds());
+        mapped.setProductIdWithTypes(entity.getProductIdWithTypes());
 
         CatalogEntity savedEntity = catalogRepository.save(mapped);
         return catalogEntityMapper.toDomain(savedEntity);
@@ -142,7 +147,7 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
-    public Catalog addProductsToCatalog(UUID id, List<Product> products) {
+    public Catalog addProductsToCatalog(UUID id, List<? extends Product> products) {
         final CatalogEntity catalogEntity = catalogRepository.findById(id)
                 .orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
 
@@ -153,18 +158,23 @@ public class CatalogServiceImpl implements CatalogService {
         List<ProductDto> productDtos = productApi.createProducts(requestDto);
 
         // Add new IDs to the existing list
-        List<UUID> newIds = productDtos.stream().map(ProductDto::getId).toList();
-        if (catalogEntity.getProductIds() == null) {
-            catalogEntity.setProductIds(new java.util.ArrayList<>());
+        if (catalogEntity.getProductIdWithTypes() == null) {
+            catalogEntity.setProductIdWithTypes(new ArrayList<>());
         }
-        catalogEntity.getProductIds().addAll(newIds);
-
+        productDtos.stream().forEach(productDto -> {
+            if (productDto instanceof DigitalProductDto digitalProductDto) {
+                catalogEntity.getProductIdWithTypes().add(new ProductIdWithType(digitalProductDto.getId(), ProductType.DIGITAL));
+            }
+            if (productDto instanceof PhysicalProductDto physicalProductDto) {
+                catalogEntity.getProductIdWithTypes().add(new ProductIdWithType(physicalProductDto.getId(), ProductType.PHYSICAL));
+            }
+        });
         CatalogEntity savedEntity = catalogRepository.save(catalogEntity);
         return catalogEntityMapper.toDomain(savedEntity);
     }
 
     @Override
-    public Catalog replaceCatalogProducts(UUID id, List<Product> products) {
+    public Catalog replaceCatalogProducts(UUID id, List<? extends Product> products) {
         // Not implemented in this iteration, assumed logical replacement
         final CatalogEntity catalogEntity = catalogRepository.findById(id)
                 .orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
@@ -189,8 +199,8 @@ public class CatalogServiceImpl implements CatalogService {
         requestDto.setCatalogId(id);
         requestDto.setProductIds(productIds);
         productApi.deleteProducts(requestDto);
-        if (entity.getProductIds() != null) {
-            entity.getProductIds().removeAll(productIds);
+        if (entity.getProductIdWithTypes() != null) {
+            entity.getProductIdWithTypes().removeIf(productIdWithType -> productIds.contains(productIdWithType.productId()));
             catalogRepository.save(entity);
         }
     }

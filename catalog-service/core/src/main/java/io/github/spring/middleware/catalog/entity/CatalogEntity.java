@@ -1,6 +1,7 @@
 package io.github.spring.middleware.catalog.entity;
 
 import io.github.spring.middleware.catalog.domain.CatalogStatus;
+import io.github.spring.middleware.catalog.domain.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +35,7 @@ public class CatalogEntity {
     @LastModifiedDate
     private Instant updatedAt;
 
-    private List<UUID> productIds = new ArrayList<>();
+    private List<ProductIdWithType> productIdWithTypes = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -77,18 +77,19 @@ public class CatalogEntity {
         this.updatedAt = updatedAt;
     }
 
-    public void addProductId(UUID productId) {
-        if (this.productIds == null) {
-            this.productIds = new ArrayList<>();
+    public void addProductId(UUID productId, ProductType productType) {
+        if (this.productIdWithTypes == null) {
+            this.productIdWithTypes = new ArrayList<>();
         }
-        this.productIds.add(productId);
+        ProductIdWithType productIdWithType = new ProductIdWithType(productId, productType);
+        this.productIdWithTypes.add(productIdWithType);
     }
 
     public void removeProductId(UUID productId) {
-        if (productIds == null) {
+        if (productId == null) {
             return;
         }
-        this.productIds.remove(productId);
+        this.productIdWithTypes.removeIf(p -> p.productId().equals(productId));
     }
 
     @Override
@@ -106,14 +107,7 @@ public class CatalogEntity {
 
     @Override
     public String toString() {
-        return "CatalogEntity{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", status=" + status +
-                ", productIds=" + productIds +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        return STR."CatalogEntity{id='\{id}', name='\{name}', status=\{status}, productIdWithType=\{productIdWithTypes}, createdAt=\{createdAt}, updatedAt=\{updatedAt}}";
     }
 }
 

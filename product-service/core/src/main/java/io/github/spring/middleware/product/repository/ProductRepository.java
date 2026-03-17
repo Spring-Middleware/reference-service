@@ -1,5 +1,6 @@
 package io.github.spring.middleware.product.repository;
 
+import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.entity.BaseProductEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,5 +20,5 @@ public interface ProductRepository extends MongoRepository<BaseProductEntity, UU
 
     boolean existsBySku(String sku);
 
-    boolean existsBySkuAndCatalogId(String sku, UUID catalogId);
+    BaseProductEntity findBySkuAndCatalogId(String sku, UUID catalogId);
 }

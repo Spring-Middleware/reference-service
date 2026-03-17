@@ -92,7 +92,8 @@ public class ProductServiceImpl implements ProductService {
             if (product.getId() != null && !existingIds.contains(product.getId())) {
                 throw new ProductNotFoundException(STR."Product with ID \{product.getId()} not found in catalog \{catalogId}");
             }
-            if (productRepository.existsBySkuAndCatalogId(product.getSku(), catalogId)) {
+            BaseProductEntity existingProductWithSku = productRepository.findBySkuAndCatalogId(product.getSku(), catalogId);
+            if (existingProductWithSku != null && !existingProductWithSku.getId().equals(product.getId())) {
                 throw new ProductAlreadyExistsException(STR."Product with SKU \{product.getSku()} already exists in catalog \{catalogId}");
             }
             BaseProductEntity entity = productEntityMapper.toEntity(product);

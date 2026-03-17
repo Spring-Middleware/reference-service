@@ -26,9 +26,9 @@ public interface CatalogService {
 
     Page<Product> listCatalogProducts(UUID id, Pageable pageable);
 
-    Catalog addProductsToCatalog(UUID id, List<Product> products);
+    Catalog addProductsToCatalog(UUID id, List<? extends Product> products);
 
-    Catalog replaceCatalogProducts(UUID id, List<Product> products);
+    Catalog replaceCatalogProducts(UUID id, List<? extends Product> products);
 
     void removeProductsFromCatalog(UUID id, List<UUID> productIds);
 }

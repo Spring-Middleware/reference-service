@@ -37,3 +37,6 @@ build/
 
 ### Secrets ###
 .env
+
+#flattened-pom
+.flattened-pom.xml

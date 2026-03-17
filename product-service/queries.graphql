@@ -1,15 +1,78 @@
 query {
-    product(id: "f21d76fc-b072-471c-8dc3-1582e9ac9226") {
-        createdAt
-        description
-        id
-        name
-        price {
-            amount
-            currency
+    digital: product(id: "b8b47f51-d952-43a0-b444-b7987cc56903") {
+        __typename
+        ... on DigitalProduct {
+            createdAt
+            description
+            fileFormat
+            fileSize
+            id
+            name
+            price {
+                amount
+                currency
+            }
+            downloadUrl
+            sku
+            status
+            updatedAt
         }
-        sku
-        status
-        updatedAt
+        ... on PhysicalProduct {
+            createdAt
+            description
+            dimensions {
+                height
+                length
+                width
+            }
+            id
+            name
+            price {
+                amount
+                currency
+            }
+            sku
+            status
+            stockQuantity
+            updatedAt
+        }
+    }
+    physical: product(id: "843b51ad-5444-4b77-890e-0aeb7c24ba10") {
+        __typename
+        ... on DigitalProduct {
+            createdAt
+            description
+            fileFormat
+            fileSize
+            id
+            name
+            price {
+                amount
+                currency
+            }
+            downloadUrl
+            sku
+            status
+            updatedAt
+        }
+        ... on PhysicalProduct {
+            createdAt
+            description
+            dimensions {
+                height
+                length
+                width
+            }
+            id
+            name
+            price {
+                amount
+                currency
+            }
+            sku
+            status
+            stockQuantity
+            updatedAt
+        }
     }
 }

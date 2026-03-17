@@ -103,7 +103,30 @@ components:
           additionalProperties: true
       required: [statusCode, statusMessage]
 
-    ProductInput:
+    ProductType:
+      type: string
+      enum: [ PHYSICAL, DIGITAL ]
+      example: PHYSICAL
+
+    Dimensions:
+      type: object
+      additionalProperties: false
+      properties:
+        length:
+          type: number
+          format: double
+          example: 30.0
+        width:
+          type: number
+          format: double
+          example: 20.0
+        height:
+          type: number
+          format: double
+          example: 10.0
+      required: [ length, width, height ]
+
+    BaseProductInput:
       type: object
       additionalProperties: false
       properties:
@@ -111,9 +134,10 @@ components:
         name: { type: string, example: "T-Shirt Blue" }
         status: { $ref: "#/components/schemas/ProductStatus" }
         price: { $ref: "#/components/schemas/Money" }
-      required: [ name, sku, price ]
+        productType: "#/components/schemas/ProductType"
+      required: [ name, price ]
 
-    ProductWithIdInput:
+    BaseProductWithIdInput:
       type: object
       additionalProperties: false
       properties:
@@ -122,7 +146,102 @@ components:
         name: { type: string, example: "T-Shirt Blue" }
         status: { $ref: "#/components/schemas/ProductStatus" }
         price: { $ref: "#/components/schemas/Money" }
-      required: [ id, name, sku, price ]
+        productType: "#/components/schemas/ProdcutType"
+      required: [ id, name, price ]
+
+    PhysicalProductInput:
+      x-discriminator-value: PHYSICAL
+      allOf:
+        - $ref: "#/components/schemas/BaseProductInput"
+        - type: object
+          properties:
+            dimensions:
+              $ref: "#/components/schemas/Dimensions"
+            stockQuantity:
+              type: integer
+              format: int32
+            shippable:
+              type: boolean
+          required: []
+
+    PhysicalProductWithIdInput:
+      x-discriminator-value: PHYSICAL
+      allOf:
+        - $ref: "#/components/schemas/BaseProductWithIdInput"
+        - type: object
+          properties:
+            dimensions:
+              $ref: "#/components/schemas/Dimensions"
+            stockQuantity:
+              type: integer
+              format: int32
+            shippable:
+              type: boolean
+          required: []
+
+    DigitalProductInput:
+      x-discriminator-value: DIGITAL
+      allOf:
+        - $ref: "#/components/schemas/BaseProductInput"
+        - type: object
+          properties:
+            fileSize:
+              type: integer
+              format: int64
+            fileFormat:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+              example: "https://example.com/downloads/digital-product-123.zip"
+          required: []
+
+    DigitalProductWithIdInput:
+      x-discriminator-value: DIGITAL
+      allOf:
+          - $ref: "#/components/schemas/BaseProductWithIdInput"
+          - type: object
+            properties:
+                fileSize:
+                  type: integer
+                  format: int64
+                fileFormat:
+                  type: string
+                downloadUrl:
+                  type: string
+                  format: uri
+                example: "https://example.com/downloads/digital-product-123.zip"
+            required: []
+
+    ProductInput:
+      type: object
+      additionalProperties: false
+      properties:
+        productType: { $ref: "#/components/schemas/ProductType" }
+      oneOf:
+          - $ref: "#/components/schemas/PhysicalProductInput"
+          - $ref: "#/components/schemas/DigitalProductInput"
+      required: [ productType ]
+      discriminator:
+        propertyName: productType
+        mapping:
+          PHYSICAL: "#/components/schemas/PhysicalProductInput"
+          DIGITAL: "#/components/schemas/DigitalProductInput"
+
+    ProductWithIdInput:
+      type: object
+      additionalProperties: false
+      oneOf:
+        - $ref: "#/components/schemas/PhysicalProductWithIdInput"
+        - $ref: "#/components/schemas/DigitalProductWithIdInput"
+      properties:
+        productType: { $ref: "#/components/schemas/ProductType" }
+      required: [ id, productType ]
+      discriminator:
+        propertyName: productType
+        mapping:
+          PHYSICAL: "#/components/schemas/PhysicalProductWithIdInput"
+          DIGITAL: "#/components/schemas/DigitalProductWithIdInput"
 
     PagedCatalogResponse:
       type: object
@@ -152,7 +271,7 @@ components:
       properties:
         items:
           type: array
-          items: { $ref: "#/components/schemas/ProductSummary" }
+          items: { $ref: "#/components/schemas/ProductWithIdInput" }
         page: { type: integer, example: 0 }
         size: { type: integer, example: 20 }
         totalItems: { type: integer, example: 123 }

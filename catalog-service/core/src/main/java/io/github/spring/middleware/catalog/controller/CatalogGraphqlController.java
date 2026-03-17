@@ -5,9 +5,12 @@ import io.github.spring.middleware.catalog.domain.CatalogStatus;
 import io.github.spring.middleware.catalog.domain.CatalogWithProducts;
 import io.github.spring.middleware.catalog.domain.Product;
 import io.github.spring.middleware.catalog.dto.*;
+import io.github.spring.middleware.catalog.dto.graphql.CatalogDigitalProductUpdateInput;
 import io.github.spring.middleware.catalog.dto.graphql.CatalogInput;
 import io.github.spring.middleware.catalog.dto.graphql.CatalogPatchInput;
-import io.github.spring.middleware.catalog.dto.graphql.CatalogProductInput;
+import io.github.spring.middleware.catalog.dto.graphql.CatalogDigitalProductInput;
+import io.github.spring.middleware.catalog.dto.graphql.CatalogPhysicalProductInput;
+import io.github.spring.middleware.catalog.dto.graphql.CatalogPhysicalProductUpdateInput;
 import io.github.spring.middleware.catalog.mapper.CatalogDtoMapper;
 import io.github.spring.middleware.catalog.mapper.CatalogMapper;
 import io.github.spring.middleware.catalog.mapper.ProductMapper;
@@ -48,7 +51,6 @@ public class CatalogGraphqlController {
 
     @GraphQLQuery(name = "catalog")
     public Catalog getCatalog(@GraphQLArgument(name = "id") UUID id) {
-        // By default do not expand products; this mirrors a lightweight get
         CatalogWithProducts catalogWithProducts = catalogService.getCatalog(id, false);
         // Map CatalogWithProducts to basic Catalog view
         Catalog catalog = new Catalog();
@@ -127,39 +129,42 @@ public class CatalogGraphqlController {
         return true;
     }
 
-    private Product mapCatalogProductInputToDomain(CatalogProductInput input) {
-        var dto = new ProductInputDto();
-        dto.setName(input.getName());
-        dto.setSku(input.getSku());
-        if (input.getStatus() != null) {
-            dto.setStatus(io.github.spring.middleware.catalog.dto.ProductStatusDto.valueOf(input.getStatus().name()));
-        }
-        var moneyDto = new MoneyDto();
-        BigDecimal amount = input.getPriceAmount();
-        if (amount != null) {
-            moneyDto.setAmount(amount.doubleValue());
-        }
-        moneyDto.setCurrency(input.getPriceCurrency());
-        dto.setPrice(moneyDto);
-        return productMapper.toDomain(dto);
-    }
-
-    @GraphQLMutation(name = "addProductsToCatalog")
-    public Catalog addProductsToCatalog(
+    @GraphQLMutation(name = "addDigitalProductsToCatalog")
+    public Catalog addDigitalProductsToCatalog(
             @GraphQLArgument(name = "catalogId") UUID catalogId,
-            @GraphQLArgument(name = "inputs") List<CatalogProductInput> inputs) {
+            @GraphQLArgument(name = "inputs") List<CatalogDigitalProductInput> inputs) {
         var products = inputs.stream()
-                .map(this::mapCatalogProductInputToDomain)
+                .map(catalogMapper::toDigitalProduct)
                 .toList();
         return catalogService.addProductsToCatalog(catalogId, products);
     }
 
-    @GraphQLMutation(name = "replaceCatalogProducts")
-    public Catalog replaceCatalogProducts(
+    @GraphQLMutation(name = "addPhysicalProductsToCatalog")
+    public Catalog addPhysicalProductsToCatalog(
             @GraphQLArgument(name = "catalogId") UUID catalogId,
-            @GraphQLArgument(name = "inputs") List<CatalogProductInput> inputs) {
+            @GraphQLArgument(name = "inputs") List<CatalogPhysicalProductInput> inputs) {
         var products = inputs.stream()
-                .map(this::mapCatalogProductInputToDomain)
+                .map(catalogMapper::toPhysicalProduct)
+                .toList();
+        return catalogService.addProductsToCatalog(catalogId, products);
+    }
+
+    @GraphQLMutation(name = "replaceCatalogDigitalProducts")
+    public Catalog replaceCatalogDigitalProducts(
+            @GraphQLArgument(name = "catalogId") UUID catalogId,
+            @GraphQLArgument(name = "inputs") List<CatalogDigitalProductUpdateInput> inputs) {
+        var products = inputs.stream()
+                .map(catalogMapper::toDigitalProduct)
+                .toList();
+        return catalogService.replaceCatalogProducts(catalogId, products);
+    }
+
+    @GraphQLMutation(name = "replaceCatalogPhysicalProducts")
+    public Catalog replaceCatalogPhysicalProducts(
+            @GraphQLArgument(name = "catalogId") UUID catalogId,
+            @GraphQLArgument(name = "inputs") List<CatalogPhysicalProductUpdateInput> inputs) {
+        var products = inputs.stream()
+                .map(catalogMapper::toPhysicalProduct)
                 .toList();
         return catalogService.replaceCatalogProducts(catalogId, products);
     }
