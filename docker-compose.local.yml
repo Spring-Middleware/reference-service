@@ -54,15 +54,16 @@ services:
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=false
       - LOG_API_KEY=${LOG_API_KEY}
       - JMS_PASSWORD=${JMS_PASSWORD}
+      - JMS_RABBITMQ_GRAPHQL_SCANNER_CHECK_INTERVAL_MS=10000
+      - JMS_RABBITMQ_GRAPHQL_SCANNER_ENABLED=true
     networks:
       middleware-net:
         aliases:
           - graphql-gateway
     depends_on:
       - registry
-      - catalog-service
-      - product-service-debug
       - rabbitmq
+
 
 
   registry:
@@ -89,6 +90,8 @@ services:
       - REGISTRY_TOPOLOGY_RECONCILER_REGISTER_RESOURCE_PATH=/resources/register
       - LOG_API_KEY=${LOG_API_KEY}
       - JMS_PASSWORD=${JMS_PASSWORD}
+      - JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL_MS=10000
+      - JMS_RABBITMQ_REGISTRY_CHECK_ENABLED=true
     networks:
       middleware-net:
         aliases:

@@ -70,13 +70,9 @@ type Mutation {
     addDigitalProductsToCatalog(catalogId: UUID, inputs: [CatalogDigitalProductInputInput]): Catalog
     addPhysicalProductsToCatalog(catalogId: UUID, inputs: [CatalogPhysicalProductInputInput]): Catalog
     createCatalog(input: CatalogInputInput): Catalog
-    createDigitalProduct(input: DigitalProductInputInput): Product
     createDigitalProductsForCatalog(catalogId: UUID, inputs: [DigitalProductInputInput]): [Product]
-    createPhysicalProduct(input: ProductInputInput): Product
     createPhysicalProductsForCatalog(catalogId: UUID, inputs: [PhysicalProductInputInput]): [Product]
     deleteCatalog(id: UUID): Boolean
-    deleteProduct(id: UUID): Boolean
-    deleteProductsForCatalog(catalogId: UUID, productIds: [UUID]): Boolean!
     patchCatalog(id: UUID, input: CatalogPatchInputInput): Catalog
     patchDigitalProduct(id: UUID, input: DigitalProductInputInput): Product
     patchPhysicalProduct(id: UUID, input: ProductInputInput): Product
