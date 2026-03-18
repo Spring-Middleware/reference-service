@@ -180,6 +180,8 @@ services:
       - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
       - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
       - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
+      - OAUTH2_CLIENT_ID_CATALOG_SERVICE=catalog-service
+      - OAUTH2_CLIENT_SECRET_CATALOG_SERVICE=${OAUTH2_CLIENT_SECRET_CATALOG_SERVICE}
     depends_on:
       - mongo
       - registry

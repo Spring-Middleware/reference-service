@@ -162,7 +162,6 @@ middleware:
       secret: ${JWT_SECRET:dfwzsdzwh823zebdwdz772632gdsbddfr4}
 
     oauth2:
-      issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8081/realms/spring-middleware}
       jwk-set-uri: ${OAUTH2_ISSUER_URI_JWK_SET_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs}
       authorities-claim-path: ${OAUTH2_ISSUER_URI_AUTHORITIES_CLAIM_PATH:$.resource_access.catalog-service.roles[*]}
 

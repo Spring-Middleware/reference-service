@@ -14,12 +14,27 @@ servers:
 tags:
   - name: Catalog
 
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      x-middleware-client: catalog
+      flows:
+        clientCredentials:
+          tokenUrl: http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
+          scopes:
+            catalog.read: Read access to catalogs
+            catalog.write: Write access to catalogs
+
 paths:
   /api/v1/catalogs:
     get:
       tags: [ Catalog ]
       summary: List catalogs
       operationId: listCatalogs
+      security:
+        - OAuth2:
+            - catalog.read
       parameters:
         - name: q
           in: query
@@ -68,6 +83,9 @@ paths:
       tags: [ Catalog ]
       summary: Create catalog
       operationId: createCatalog
+      security:
+        - OAuth2:
+            - catalog.write
       requestBody:
         required: true
         content:
@@ -93,6 +111,9 @@ paths:
       tags: [ Catalog ]
       summary: Get catalog by id
       operationId: getCatalog
+      security:
+        - OAuth2:
+            - catalog.read
       parameters:
         - name: id
           in: path
@@ -120,6 +141,9 @@ paths:
       tags: [ Catalog ]
       summary: Replace catalog
       operationId: replaceCatalog
+      security:
+        - OAuth2:
+            - catalog.write
       parameters:
         - name: id
           in: path
@@ -147,6 +171,9 @@ paths:
       tags: [ Catalog ]
       summary: Partially update catalog
       operationId: patchCatalog
+      security:
+        - OAuth2:
+            - catalog.write
       parameters:
         - name: id
           in: path
@@ -174,6 +201,9 @@ paths:
       tags: [ Catalog ]
       summary: Delete catalog
       operationId: deleteCatalog
+      security:
+        - OAuth2:
+            - catalog.write
       parameters:
         - name: id
           in: path
@@ -192,6 +222,9 @@ paths:
       tags: [ Catalog ]
       summary: List products in a catalog
       operationId: listCatalogProducts
+      security:
+        - OAuth2:
+            - catalog.read
       parameters:
         - name: id
           in: path
@@ -217,6 +250,9 @@ paths:
       tags: [ Catalog ]
       summary: Add new products to a catalog (bulk). Internally calls product-service.
       operationId: addProductsToCatalog
+      security:
+        - OAuth2:
+            - catalog.write
       parameters:
         - name: id
           in: path
@@ -260,6 +296,9 @@ paths:
       tags: [ Catalog ]
       summary: Replace products of a catalog (bulk)
       operationId: replaceCatalogProducts
+      security:
+        - OAuth2:
+            - catalog.write
       parameters:
         - name: id
           in: path

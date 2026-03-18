@@ -1,10 +1,14 @@
 package io.github.spring.middleware.product.service;
 
+import io.github.spring.middleware.catalog.api.CatalogApi;
+import io.github.spring.middleware.catalog.dto.CatalogWithProductsDto;
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductStatus;
 import io.github.spring.middleware.product.entity.BaseProductEntity;
+import io.github.spring.middleware.product.exceptions.CatalogNotFoundException;
 import io.github.spring.middleware.product.exceptions.ProductAlreadyExistsException;
 import io.github.spring.middleware.product.exceptions.ProductNotFoundException;
+import io.github.spring.middleware.product.exceptions.ProductTypeChangeNotAllowedException;
 import io.github.spring.middleware.product.mapper.ProductEntityMapper;
 import io.github.spring.middleware.product.repository.ProductRepository;
 import io.github.spring.middleware.utils.PaginationUtils;
@@ -24,19 +28,23 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductEntityMapper productEntityMapper;
+    private final CatalogApi catalogApi;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductEntityMapper productEntityMapper) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductEntityMapper productEntityMapper, CatalogApi catalogApi) {
         this.productRepository = productRepository;
         this.productEntityMapper = productEntityMapper;
+        this.catalogApi = catalogApi;
     }
 
     @Override
     public Product createProduct(Product product) {
+        validateCatalogExists(product.getCatalogId());
         return createProductsForCatalog(List.of(product), product.getCatalogId()).getFirst();
     }
 
     @Override
     public List<Product> createProductsForCatalog(List<Product> products, UUID catalogId) {
+        validateCatalogExists(catalogId);
         List<BaseProductEntity> entities = products.stream().map(product -> {
             if (productRepository.existsBySku(product.getSku())) {
                 throw new ProductAlreadyExistsException(STR."Product with SKU \{product.getSku()} already exists");
@@ -85,6 +93,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> replaceProductsForCatalog(List<Product> products, UUID catalogId) {
+        validateCatalogExists(catalogId);
         List<BaseProductEntity> existingEntities = PaginationUtils.findAllPages((id, page, size) -> productRepository.findByCatalogId(id, PageRequest.of(page, size)).getContent(), catalogId,0, 100);
         List<UUID> existingIds = existingEntities.stream().map(BaseProductEntity::getId).collect(Collectors.toList());
 
@@ -128,6 +137,9 @@ public class ProductServiceImpl implements ProductService {
                 throw new ProductAlreadyExistsException(STR."Product with SKU \{product.getSku()} already exists");
             }
             entity.setSku(product.getSku());
+        }
+        if (entity.getProductType() != product.getProductType()) {
+            throw new ProductTypeChangeNotAllowedException(STR."Product type cannot be changed to \{product.getProductType()}");
         }
         // catalogId cannot be changed
         if (product.getName() != null) entity.setName(product.getName());
@@ -174,6 +186,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProductsFromCatalog(List<UUID> ids, UUID catalogId) {
+        validateCatalogExists(catalogId);
         List<UUID> existingIds = productRepository.findAllById(ids).stream()
                 .filter(productEntity -> productEntity.getCatalogId().equals(catalogId))
                 .map(BaseProductEntity::getId)
@@ -187,4 +200,12 @@ public class ProductServiceImpl implements ProductService {
         }
         productRepository.deleteAllById(ids);
     }
+
+    private void validateCatalogExists(UUID catalogId) {
+        CatalogWithProductsDto catalogWithProductsDto = catalogApi.getCatalog(catalogId, null);
+        if (catalogWithProductsDto == null) {
+            throw new CatalogNotFoundException(STR."Catalog with ID \{catalogId} not found");
+        }
+    }
+
 }

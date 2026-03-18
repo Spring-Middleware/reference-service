@@ -1,11 +1,22 @@
 package io.github.spring.middleware.catalog.controller;
 
+import io.github.spring.middleware.annotation.Register;
 import io.github.spring.middleware.annotation.RegisterSchema;
 import io.github.spring.middleware.catalog.api.CatalogApi;
 import io.github.spring.middleware.catalog.domain.Catalog;
 import io.github.spring.middleware.catalog.domain.CatalogStatus;
 import io.github.spring.middleware.catalog.domain.CatalogWithProducts;
-import io.github.spring.middleware.catalog.dto.*;
+import io.github.spring.middleware.catalog.dto.CatalogCreateRequestDto;
+import io.github.spring.middleware.catalog.dto.CatalogDto;
+import io.github.spring.middleware.catalog.dto.CatalogPatchRequestDto;
+import io.github.spring.middleware.catalog.dto.CatalogProductsAddRequestDto;
+import io.github.spring.middleware.catalog.dto.CatalogProductsRemoveRequestDto;
+import io.github.spring.middleware.catalog.dto.CatalogProductsReplaceRequestDto;
+import io.github.spring.middleware.catalog.dto.CatalogStatusDto;
+import io.github.spring.middleware.catalog.dto.CatalogUpdateRequestDto;
+import io.github.spring.middleware.catalog.dto.CatalogWithProductsDto;
+import io.github.spring.middleware.catalog.dto.PagedCatalogResponseDto;
+import io.github.spring.middleware.catalog.dto.PagedProductResponseDto;
 import io.github.spring.middleware.catalog.mapper.CatalogDtoMapper;
 import io.github.spring.middleware.catalog.mapper.CatalogMapper;
 import io.github.spring.middleware.catalog.mapper.ProductMapper;
@@ -17,8 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+import static io.github.spring.middleware.utils.PageRequestUtils.buildPageRequest;
+
 @Slf4j
 @RestController
+@Register(name = "catalog")
 @RegisterSchema("catalog")
 @RequiredArgsConstructor
 public class CatalogController implements CatalogApi {
@@ -72,9 +86,15 @@ public class CatalogController implements CatalogApi {
     @Override
     public PagedCatalogResponseDto listCatalogs(String q, CatalogStatusDto status, Integer page, Integer size, String sort) {
         log.info("Received request to list catalogs with query: {}, status: {}, page: {}, size: {}, sort: {}", q, status, page, size, sort);
-        var pagedCatalogs = catalogService.listCatalogs(q, status != null ? CatalogStatus.valueOf(status.name()) : null, PageRequest.of(page, size));
+        PageRequest pageRequest = buildPageRequest(page, size, sort);
+        var pagedCatalogs = catalogService.listCatalogs(
+                q,
+                status != null ? CatalogStatus.valueOf(status.name()) : null,
+                pageRequest
+        );
         return catalogDtoMapper.toPagedResponseDto(pagedCatalogs);
     }
+
 
     @Override
     public CatalogDto patchCatalog(UUID id, CatalogPatchRequestDto catalogPatchRequestDto) {

@@ -6,6 +6,28 @@
 [![Status](https://img.shields.io/badge/status-active%20development-brightgreen)](#)
 [![Architecture](https://img.shields.io/badge/Architecture-Spring%20Middleware%20Reference-blueviolet.svg)](#)
 
+## Table of contents
+
+- [Quickstart (TL;DR)](#quickstart-tldr)
+- [What is this repository?](#what-is-this-repository)
+- [Goals of this repository](#goals-of-this-repository)
+- [Spring Middleware in a nutshell](#spring-middleware-in-a-nutshell)
+- [Architecture of the reference-service](#architecture-of-the-reference-service)
+  - [GraphQL in a real platform](#graphql-in-a-real-platform)
+  - [GraphQL topology: platform vs. local](#graphql-topology-platform-vs-local)
+  - [Services in this demo](#services-in-this-demo)
+  - [How services communicate](#how-services-communicate)
+- [Request context and error model](#request-context-and-error-model)
+- [Requirements](#requirements)
+- [Running the project locally](#running-the-project-locally)
+- [Example calls](#example-calls)
+  - [Service base URLs](#service-base-urls)
+  - [REST – Catalog → Product via @MiddlewareClient](#rest--catalog--product-via-middlewareclient)
+  - [GraphQL – Product Service](#graphql--product-service)
+- [How to test Spring Middleware features](#how-to-test-spring-middleware-features)
+- [Extending this reference](#extending-this-reference)
+- [Further reading](#further-reading)
+
 ## Quickstart (TL;DR)
 
 If you just want to see the reference services running:
@@ -88,7 +110,7 @@ This reference project focuses mainly on:
 - **Registry + declarative HTTP clients**
 - **Request / span context propagation**
 - **Standardized error model**
-- **GraphQL schema registration**
+- **GraphQL schema registration and gateway composition**
 
 ---
 
@@ -118,10 +140,11 @@ boot   →  core   →  api
 
 In a typical platform deployment you don’t expose multiple GraphQL endpoints
 per microservice directly to clients. Instead, the platform offers a **single
-front GraphQL endpoint** (gateway/router), for example:
+front GraphQL endpoint**, backed by the Spring Middleware **GraphQL Gateway**,
+for example:
 
 ```text
-https://api.my-platform.com/graphql
+http://localhost:8060/graphql
 ```
 
 That front endpoint:
@@ -133,10 +156,11 @@ That front endpoint:
   `product-service` or `catalog-service`),
 - aggregates the results and returns **a single GraphQL response** to the client.
 
-In this repository, `product-service` is responsible for registering its GraphQL
-schema into the Registry. A GraphQL gateway (not implemented here, but planned
-in Spring Middleware) can consume that information and build a composed schema,
-exposed through that single front endpoint.
+In this repository, **both** `product-service` and `catalog-service` register
+their GraphQL schemas into the Registry. The Spring Middleware **graphql-gateway
+module** queries the Registry, composes a single merged schema from all
+registered services and exposes it through the front endpoint
+`http://localhost:8060/graphql`.
 
 ### GraphQL topology: platform vs. local
 
@@ -144,20 +168,22 @@ This project is designed to fit into that **single-endpoint topology**, while
 still making local development easy with direct service endpoints.
 
 - **In a platform environment**:
-  - Public endpoint: `https://<gateway-host>/graphql`
+  - Public endpoint: `http://localhost:8060/graphql` (via GraphQL Gateway)
   - The gateway/router receives the operation and, with the help of the Registry,
     routes it to `product-service`, `catalog-service`, etc.
   - Clients only know this front endpoint, not the internal services.
 
 - **In a local environment (this repo)**:
-  - You call the GraphQL endpoint of `product-service` directly,
-    for example `http://localhost:8090/product/graphql`.
+  - You can still call the GraphQL endpoint of `product-service` directly,
+    for example `http://localhost:8090/product/graphql`, when debugging
+    that service in isolation.
   - This is simpler for debugging and testing service changes.
-  - The design remains compatible with a future front GraphQL endpoint.
+  - The design remains compatible with the front GraphQL endpoint exposed
+    by the GraphQL Gateway.
 
-The rest of this README uses direct local URLs to simplify testing, but the
-architecture is intended for a **unified GraphQL endpoint** in a real platform
-deployment.
+The rest of this README shows direct local URLs to simplify testing individual
+services, but the recommended entry point in a full platform setup is the
+**unified GraphQL endpoint** exposed by the GraphQL Gateway.
 
 ### Services in this demo
 
@@ -174,6 +200,25 @@ The **Registry Service** is a central component provided by Spring Middleware
 Both `catalog-service` and `product-service` register themselves and use the
 Registry to communicate.
 
+#### GraphQL Gateway (`graphql-gateway`)
+
+The **GraphQL Gateway** is the service responsible for exposing a **single
+front GraphQL endpoint** for the whole platform (in this demo:
+`http://localhost:8060/graphql`). It:
+
+- queries the **Registry** to discover which services expose GraphQL schemas
+  and where their GraphQL endpoints are located,
+- downloads the registered schemas from each service (for example,
+  `product-service` and `catalog-service`),
+- composes a **single merged GraphQL schema** from all registered services,
+- exposes that unified schema through the `/graphql` endpoint,
+- routes incoming queries and mutations to the **proper backend service**
+  based on the composed schema and the information stored in the Registry.
+
+For clients, this means they only need to know one URL (`/graphql`), while the
+GraphQL Gateway takes care of discovering services, composing the schema and
+routing operations to the right microservice.
+
 #### Catalog Service (`catalog-service`)
 
 Service responsible for **catalog‑level APIs**. It demonstrates:
@@ -182,12 +227,15 @@ Service responsible for **catalog‑level APIs**. It demonstrates:
 - exposure of REST controllers annotated with `@Register`
 - **outbound calls** to Product Service using a **declarative middleware client**
 - consumption of Registry information to discover the `product` cluster
+- registration of its **GraphQL schema** in the Registry so the GraphQL
+  Gateway can compose it
 
 Typical role in the platform:
 
 - calls Product Service to obtain product data
 - reshapes data into catalog views
 - exposes REST endpoints that are visible in the Registry
+- contributes its GraphQL schema to the platform‑wide GraphQL API
 
 #### Product Service (`product-service`)
 
@@ -202,7 +250,8 @@ Typical role in the platform:
 
 - owns product entities and persistence
 - exposes REST and/or GraphQL APIs for product operations
-- registers its GraphQL schema so other services can discover it
+- registers its GraphQL schema so other services and the GraphQL Gateway
+  can discover and consume it
 
 #### Infrastructure
 
@@ -231,6 +280,13 @@ The high‑level interaction looks like this:
                    | Registry  |
                    | Topology  |
                    +-----------+
+                             \
+                              \
+                        +-------------+
+                        | GraphQL     |
+                        | Gateway     |
+                        | (/graphql)  |
+                        +-------------+
 ```
 
 Key points:
@@ -246,8 +302,20 @@ Key points:
   }
   ```
 
-- Spring Middleware resolves the `product` cluster in the Registry, selects a
-  healthy node and performs the HTTP call.
+- When Catalog Service starts, Spring Middleware queries the Registry and
+  configures the declarative clients (like `ProductApi`) with the **cluster
+  endpoint** information for the `product` service. Calls made through
+  `ProductApi` do **not** need to go back to the Registry on every request:
+  they simply use the already configured cluster endpoint, very much like a
+  Kubernetes `Service` fronting multiple pods behind it.
+- If all nodes of the `product` cluster go down or are stopped, the Registry
+  detects that state and notifies Catalog Service. Catalog then **deconfigures
+  or disables** its clients for `product` so calls fail fast instead of
+  hanging or retrying blindly.
+- As soon as healthy `product` nodes come back and register again, the
+  Registry pushes an update to the Catalog Service and the declarative
+  clients are **reconfigured automatically**, so calls to `ProductApi` start
+  working again without any manual change or restart.
 - Request context headers (`X-Request-ID`, `X-Span-ID`) are automatically
   propagated across services.
 - Errors are converted into a structured **error model** that is consistent
@@ -347,7 +415,7 @@ specified in the services `application.yml`.
 
 ## Example calls
 
-Once the stack is running (Registry, Mongo, Redis, Product, Catalog) you can hit the services directly.
+Once the stack is running (Registry, Mongo, Redis, Product, Catalog, GraphQL Gateway, and optionally Keycloak for OAuth2 security) you can hit the services directly.
 
 ### Service base URLs
 
@@ -356,25 +424,21 @@ Once the stack is running (Registry, Mongo, Redis, Product, Catalog) you can hit
 - Registry: `http://localhost:8080/registry`
 - Catalog Service: `http://localhost:8070/catalog`
 - Product Service (debug): `http://localhost:8090/product`
+- GraphQL Gateway (unified schema): `http://localhost:8060/graphql`
 
 In a real platform deployment you typically **do not expose** the internal
-GraphQL endpoints of each microservice directly. Instead, a GraphQL gateway
-(or an API Gateway with GraphQL support) exposes a **single front endpoint**,
-for example:
-
-```text
-https://api.my-platform.com/graphql
-```
-
-That unified endpoint is responsible for routing operations internally to
-`product-service`, `catalog-service` and other services registered in the
-Registry. The URLs above are intended for **local development and debugging**.
+GraphQL endpoints of each microservice directly. Instead, the Spring Middleware
+GraphQL Gateway exposes a **single front endpoint** (`http://localhost:8060/graphql`)
+that composes schemas from all registered services and routes operations to
+`product-service`, `catalog-service` and others. The URLs for individual
+services above are intended for **local development and debugging**.
 
 **Inside Docker network (from other containers):**
 
 - Registry: `http://registry:8080/registry`
 - Catalog Service: `http://catalog:8080/catalog`
 - Product Service: `http://product:8080/product`
+- GraphQL Gateway: `http://graphql-gateway:8060/graphql`
 
 ### REST – Catalog → Product via `@MiddlewareClient`
 
@@ -413,11 +477,11 @@ To see error propagation, request a non‑existing catalog or product ID and ins
 
 Product Service exposes GraphQL under the `/product` context path (default Spring GraphQL endpoint `/graphql`).
 In a **local environment** you can call it directly, but in a **real platform
-setup** clients usually hit a **single front GraphQL endpoint** (for example
-`https://api.my-platform.com/graphql`) which routes internally to this service
-and others.
+setup** clients usually hit the **single front GraphQL endpoint** exposed by
+the GraphQL Gateway (`http://localhost:8060/graphql`), which routes internally
+to this service and others.
 
-From your host machine:
+From your host machine, calling Product Service directly:
 
 ```bash
 curl -X POST "http://localhost:8090/product/graphql" \
@@ -427,15 +491,21 @@ curl -X POST "http://localhost:8090/product/graphql" \
   }'
 ```
 
-This will exercise:
+Or, using the **unified schema** exposed by the GraphQL Gateway:
+
+```bash
+curl -X POST "http://localhost:8060/graphql" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "{ products { id name } }"
+  }'
+```
+
+Both options exercise:
 
 - the Product GraphQL schema,
 - Spring Middleware GraphQL error handling,
-- and schema registration into the Registry.
-
-In a platform deployment, an equivalent query would be sent to the front
-`/graphql` endpoint of the gateway/router, which relies on the Registry and the
-registered schemas to delegate resolution to `product-service`.
+- and schema registration into the Registry and composition by the GraphQL Gateway.
 
 ---
 
@@ -468,14 +538,19 @@ registered schemas to delegate resolution to `product-service`.
 
 ### 4. GraphQL through a front endpoint (optional)
 
-In this repository, tests are performed by calling the GraphQL endpoint of
-`product-service` directly (`http://localhost:8090/product/graphql`) to keep
-local development simple.
+In this repository, you can:
 
-In a real platform with a front GraphQL gateway, the same queries and mutations
-would be sent to the **unified endpoint** (`/graphql`) exposed by that gateway.
-It would use the Registry and the GraphQL schemas registered by services (such
-as `product-service`) to route and resolve each operation.
+- call the GraphQL endpoint of `product-service` directly
+  (`http://localhost:8090/product/graphql`) to keep local service‑level
+  development simple, or
+- call the **unified GraphQL endpoint** exposed by the GraphQL Gateway
+  (`http://localhost:8060/graphql`) to exercise the full path: schema
+  registration in the Registry, schema composition and routing through
+  the gateway.
+
+In a real platform with a front GraphQL gateway, clients are expected to use
+only the unified `/graphql` endpoint; direct service endpoints remain an
+implementation detail.
 
 ---
 
@@ -503,4 +578,4 @@ main Spring Middleware documentation and the BOM published on Maven Central:
 - Core modules: `commons`, `api`, `app`, `model`, `view`
 - Data modules: `mongo`, `jpa`, `redis`, `cache`
 - Messaging: `rabbitmq`
-- Platform: `registry`, `graphql`
+- Platform: `registry`, `graphql`, `graphql-gateway`
