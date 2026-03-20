@@ -11,8 +11,11 @@ import io.github.spring.middleware.product.dto.PhysicalProductDto;
 import io.github.spring.middleware.product.dto.ProductDto;
 import io.github.spring.middleware.product.dto.ProductStatusDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.openapitools.jackson.nullable.JsonNullable;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -37,6 +40,7 @@ public interface ProductDtoMapper {
 
     DigitalProductDto toDigitalDto(DigitalProduct product);
 
+    @Mapping(target = "amount", source = "amount", qualifiedByName = "normalizeMoneyAmount")
     MoneyDto toDto(Money money);
 
     ProductStatusDto toDto(ProductStatus status);
@@ -47,5 +51,10 @@ public interface ProductDtoMapper {
 
     default OffsetDateTime map(Instant value) {
         return value == null ? null : value.atOffset(ZoneOffset.UTC);
+    }
+
+    @Named("normalizeMoneyAmount")
+    default BigDecimal normalizeMoneyAmount(BigDecimal amount) {
+        return amount == null ? null : amount.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 }

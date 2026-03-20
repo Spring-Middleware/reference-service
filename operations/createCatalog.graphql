@@ -1,0 +1,14 @@
+mutation {
+    createCatalog(input: {
+        name: "My Catalog",
+        description: "This is a sample catalog.",
+        status: ACTIVE
+    }) {
+        id
+        name
+        description
+        status
+        createdAt
+        updatedAt
+    }
+}

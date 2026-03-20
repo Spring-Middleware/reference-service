@@ -1,5 +1,6 @@
 package io.github.spring.middleware.catalog.boot;
 
+import io.github.spring.middleware.annotations.EnableGraphQLLinks;
 import io.github.spring.middleware.annotations.EnableMiddlewareClients;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
@@ -15,21 +16,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Slf4j
 @EnableMongoRepositories(basePackages = {"io.github.spring.middleware.catalog.repository"})
 @EnableMiddlewareClients(basePackages = {"io.github.spring.middleware"})
+@EnableGraphQLLinks(basePackages = {"io.github.spring.middleware.catalog.domain"})
 @SpringBootApplication(scanBasePackages = {"io.github.spring.middleware"})
 public class CatalogApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(CatalogApplication.class, args);
 
-    }
-
-    @Bean
-    ApplicationRunner runner(ApplicationContext ctx) {
-        return args -> {
-            log.info(STR."UserDetailsService beans -> \{ctx.getBeansOfType(UserDetailsService.class)}");
-            log.info(STR."PasswordEncoder beans -> \{ctx.getBeansOfType(PasswordEncoder.class)}");
-            log.info(STR."AuthenticationProvider beans -> \{ctx.getBeansOfType(AuthenticationProvider.class)}");
-        };
     }
 
 }

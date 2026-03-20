@@ -27,6 +27,8 @@ public class CatalogEntity {
 
     private String name;
 
+    private String description;
+
     private CatalogStatus status;
 
     @CreatedDate

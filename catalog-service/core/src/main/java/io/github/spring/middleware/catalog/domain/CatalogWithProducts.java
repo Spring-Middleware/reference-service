@@ -11,6 +11,7 @@ public class CatalogWithProducts {
 
     private UUID id;
     private String name;
+    private String description;
     private CatalogStatus status;
     private Instant createdAt;
     private Instant updatedAt;

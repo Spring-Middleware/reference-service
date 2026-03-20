@@ -92,9 +92,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> getProductsByIds(List<UUID> productIds) {
+        List<BaseProductEntity> entities = productRepository.findAllById(productIds);
+        return entities.stream().map(productEntityMapper::toDomain).toList();
+    }
+
+    @Override
     public List<Product> replaceProductsForCatalog(List<Product> products, UUID catalogId) {
         validateCatalogExists(catalogId);
-        List<BaseProductEntity> existingEntities = PaginationUtils.findAllPages((id, page, size) -> productRepository.findByCatalogId(id, PageRequest.of(page, size)).getContent(), catalogId,0, 100);
+        List<BaseProductEntity> existingEntities = PaginationUtils.findAllPages((id, page, size) -> productRepository.findByCatalogId(id, PageRequest.of(page, size)).getContent(), catalogId, 0, 100);
         List<UUID> existingIds = existingEntities.stream().map(BaseProductEntity::getId).collect(Collectors.toList());
 
         List<BaseProductEntity> entitiesToSave = products.stream().map(product -> {

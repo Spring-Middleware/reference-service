@@ -18,6 +18,8 @@ public interface ProductService {
 
     Product replaceProduct(UUID id, Product product);
 
+    List<Product> getProductsByIds(List<UUID> productIds);
+
     List<Product> replaceProductsForCatalog(List<Product> products, UUID catalogId);
 
     Product patchProduct(UUID id, Product product);

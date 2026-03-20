@@ -1,0 +1,32 @@
+{
+  "realm" : "spring-middleware",
+  "users" : [ {
+    "id" : "940128b0-7187-430b-9bf0-73a612b8e0f7",
+    "username" : "service-account-catalog-service",
+    "emailVerified" : false,
+    "createdTimestamp" : 1773994610418,
+    "enabled" : true,
+    "totp" : false,
+    "serviceAccountClientId" : "catalog-service",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-spring-middleware" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "4ad84707-8962-40ee-b80f-f73e0c99f694",
+    "username" : "service-account-product-service",
+    "emailVerified" : false,
+    "createdTimestamp" : 1773995426763,
+    "enabled" : true,
+    "totp" : false,
+    "serviceAccountClientId" : "product-service",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-spring-middleware" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  } ]
+}

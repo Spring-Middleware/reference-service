@@ -27,7 +27,7 @@ mutation {
         status
         createdAt
         updatedAt
-        productIds
+
     }
 }
 

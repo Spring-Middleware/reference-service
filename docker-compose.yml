@@ -1,8 +1,11 @@
 version: '3.8'
+name: middleware-network
 
 services:
   mongo:
     image: mongo:6.0
+    container_name: mongo
+    profiles: ["infra"]
     restart: always
     ports:
       - "27018:27017" # Expose for local access if running app outside docker too
@@ -15,7 +18,8 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: redis_local
+    profiles: ["infra"]
+    container_name: redis
     ports:
       - "6379:6379"
     networks:
@@ -25,6 +29,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management
+    profiles: ["infra"]
     container_name: rabbitmq
     hostname: rabbitmq
     ports:
@@ -38,10 +43,52 @@ services:
     networks:
       - middleware-net
 
+  postgres:
+    image: postgres:16
+    profiles: ["infra"]
+    container_name: keycloak_postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - keycloak_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      middleware-net:
+        aliases:
+          - postgres
+
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    profiles: ["infra"]
+    container_name: keycloak
+    command: start-dev --import-realm
+    volumes:
+      - ./docker/keycloak/export:/opt/keycloak/data/import
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    networks:
+      middleware-net:
+        aliases:
+          - keycloak
+
 
   graphql-gateway:
     image: spring-base_graphql-gateway:latest
-    container_name: graphql_gateway_local
+    profiles: ["platform"]
+    container_name: graphql_gateway
     hostname: graphql-gateway
     ports:
       - "8060:8080"
@@ -67,12 +114,9 @@ services:
 
 
   registry:
-    # Build context as passed by user, assuming files exist relative to execution context or built image exists
-    # build:
-    #   context: .
-    #   dockerfile: parent/registry/boot/Dockerfile.runtime
     image: spring-base_registry:latest
-    container_name: registry_local
+    profiles: ["platform"]
+    container_name: registry
     hostname: registry
     ports:
       - "8080:8080"
@@ -105,8 +149,10 @@ services:
       context: ./catalog-service
       dockerfile: Dockerfile
     image: catalog-service:latest
-    container_name: catalog_local
+    profiles: ["services"]
+    container_name: catalog
     hostname: catalog
+
     ports:
       - "8070:8080"
       - "5008:5005"
@@ -137,19 +183,21 @@ services:
       - API_KEY_CATALOG_SERVICE=${API_KEY_CATALOG_SERVICE}
       - OAUTH2_CLIENT_SECRET_PRODUCT_SERVICE=${OAUTH2_CLIENT_SECRET_PRODUCT_SERVICE}
       - JMS_PASSWORD=${JMS_PASSWORD}
+      - JMS_RABBITMQ_REGISTRY_SCANNER_ENABLED=true
+      - JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL=10000
     depends_on:
-      - product-service-debug
+      - product-service
       - mongo
-      - registry
     networks:
       - middleware-net
 
-  product-service-debug:
+  product-service:
     build:
       context: ./product-service
       dockerfile: Dockerfile
     image: product-service:latest
-    container_name: product_service_debug
+    profiles: ["services"]
+    container_name: product
     hostname: product
     ports:
       - "8090:8080"
@@ -182,9 +230,10 @@ services:
       - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
       - OAUTH2_CLIENT_ID_CATALOG_SERVICE=catalog-service
       - OAUTH2_CLIENT_SECRET_CATALOG_SERVICE=${OAUTH2_CLIENT_SECRET_CATALOG_SERVICE}
+      - JMS_RABBITMQ_REGISTRY_SCANNER_ENABLED=true
+      - JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL=10000
     depends_on:
       - mongo
-      - registry
     networks:
       middleware-net:
         aliases:
@@ -193,6 +242,7 @@ services:
 
   nginx:
     image: nginx:latest
+    profiles: ["product-cluster"]
     hostname: product
     ports:
       - "8080"
@@ -212,6 +262,7 @@ services:
       context: ./product-service
       dockerfile: Dockerfile
     image: product-service:latest
+    profiles: ["product-node"]
     hostname: product-1
     expose:
       - "8080"
@@ -242,9 +293,10 @@ services:
       - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
       - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
       - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
+      - JMS_RABBITMQ_REGISTRY_SCANNER_ENABLED=true
+      - JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL=10000
     depends_on:
       - mongo
-      - registry
     networks:
       - middleware-net
 
@@ -253,6 +305,7 @@ services:
       context: ./product-service
       dockerfile: Dockerfile
     image: product-service:latest
+    profiles: ["product-node"]
     hostname: product-2
     expose:
       - "8080"
@@ -283,9 +336,10 @@ services:
       - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
       - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
       - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
+      - JMS_RABBITMQ_REGISTRY_SCANNER_ENABLED=true
+      - JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL=10000
     depends_on:
       - mongo
-      - registry
     networks:
       - middleware-net
 
@@ -294,6 +348,7 @@ services:
       context: ./product-service
       dockerfile: Dockerfile
     image: product-service:latest
+    profiles: ["product-node"]
     hostname: product-3
     expose:
       - "8080"
@@ -324,14 +379,16 @@ services:
       - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
       - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
       - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
+      - JMS_RABBITMQ_REGISTRY_SCANNER_ENABLED=true
+      - JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL=10000
     depends_on:
       - mongo
-      - registry
     networks:
       - middleware-net
 
   wiremock:
     image: wiremock/wiremock:latest
+    profiles: ["testing"]
     container_name: product
     hostname: product
     ports:
@@ -350,3 +407,5 @@ networks:
 
 volumes:
   mongo-data:
+  keycloak_postgres_data:
+

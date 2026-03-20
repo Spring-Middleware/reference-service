@@ -31,6 +31,7 @@ components:
       properties:
         id: { type: string, format: uuid, example: "123e4567-e89b-12d3-a456-426614174000" }
         name: { type: string, example: "Summer 2026" }
+        description: { type: string, nullable: true, example: "Catalog for summer collection 2026" }
         status: { $ref: "#/components/schemas/CatalogStatus" }
         createdAt:
           type: string
@@ -50,7 +51,10 @@ components:
             productIds:
               type: array
               description: Product identifiers contained in this catalog.
-              items: { type: string }
+              items: {
+                type: string,
+                format: uuid
+              }
               example: [ "123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002" ]
           required: [ productIds ]
 
@@ -101,7 +105,7 @@ components:
           type: object
           nullable: true
           additionalProperties: true
-      required: [statusCode, statusMessage]
+      required: [ statusCode, statusMessage ]
 
     ProductType:
       type: string
@@ -162,7 +166,7 @@ components:
               format: int32
             shippable:
               type: boolean
-          required: []
+          required: [ ]
 
     PhysicalProductWithIdInput:
       x-discriminator-value: PHYSICAL
@@ -177,7 +181,7 @@ components:
               format: int32
             shippable:
               type: boolean
-          required: []
+          required: [ ]
 
     DigitalProductInput:
       x-discriminator-value: DIGITAL
@@ -194,24 +198,24 @@ components:
               type: string
               format: uri
               example: "https://example.com/downloads/digital-product-123.zip"
-          required: []
+          required: [ ]
 
     DigitalProductWithIdInput:
       x-discriminator-value: DIGITAL
       allOf:
-          - $ref: "#/components/schemas/BaseProductWithIdInput"
-          - type: object
-            properties:
-                fileSize:
-                  type: integer
-                  format: int64
-                fileFormat:
-                  type: string
-                downloadUrl:
-                  type: string
-                  format: uri
-                example: "https://example.com/downloads/digital-product-123.zip"
-            required: []
+        - $ref: "#/components/schemas/BaseProductWithIdInput"
+        - type: object
+          properties:
+            fileSize:
+              type: integer
+              format: int64
+            fileFormat:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+            example: "https://example.com/downloads/digital-product-123.zip"
+          required: [ ]
 
     ProductInput:
       type: object
@@ -219,8 +223,8 @@ components:
       properties:
         productType: { $ref: "#/components/schemas/ProductType" }
       oneOf:
-          - $ref: "#/components/schemas/PhysicalProductInput"
-          - $ref: "#/components/schemas/DigitalProductInput"
+        - $ref: "#/components/schemas/PhysicalProductInput"
+        - $ref: "#/components/schemas/DigitalProductInput"
       required: [ productType ]
       discriminator:
         propertyName: productType

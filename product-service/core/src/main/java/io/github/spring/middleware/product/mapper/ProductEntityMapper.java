@@ -40,6 +40,7 @@ public interface ProductEntityMapper {
         return toPhysicalDomain((PhysicalProductEntity) entity);
     }
 
+
     PhysicalProduct toPhysicalDomain(PhysicalProductEntity entity);
 
     DigitalProduct toDigitalDomain(DigitalProductEntity entity);

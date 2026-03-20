@@ -4,16 +4,13 @@ import io.github.spring.middleware.catalog.domain.Catalog;
 import io.github.spring.middleware.catalog.domain.CatalogStatus;
 import io.github.spring.middleware.catalog.domain.CatalogWithProducts;
 import io.github.spring.middleware.catalog.domain.Product;
-import io.github.spring.middleware.catalog.dto.*;
+import io.github.spring.middleware.catalog.dto.graphql.CatalogDigitalProductInput;
 import io.github.spring.middleware.catalog.dto.graphql.CatalogDigitalProductUpdateInput;
 import io.github.spring.middleware.catalog.dto.graphql.CatalogInput;
 import io.github.spring.middleware.catalog.dto.graphql.CatalogPatchInput;
-import io.github.spring.middleware.catalog.dto.graphql.CatalogDigitalProductInput;
 import io.github.spring.middleware.catalog.dto.graphql.CatalogPhysicalProductInput;
 import io.github.spring.middleware.catalog.dto.graphql.CatalogPhysicalProductUpdateInput;
-import io.github.spring.middleware.catalog.mapper.CatalogDtoMapper;
 import io.github.spring.middleware.catalog.mapper.CatalogMapper;
-import io.github.spring.middleware.catalog.mapper.ProductMapper;
 import io.github.spring.middleware.catalog.service.CatalogService;
 import io.github.spring.middleware.graphql.annotations.GraphQLService;
 import io.leangen.graphql.annotations.GraphQLArgument;
@@ -25,10 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 @GraphQLService
@@ -36,35 +31,18 @@ public class CatalogGraphqlController {
 
     private final CatalogService catalogService;
     private final CatalogMapper catalogMapper;
-    private final CatalogDtoMapper catalogDtoMapper;
-    private final ProductMapper productMapper;
+
 
     public CatalogGraphqlController(CatalogService catalogService,
-                                    CatalogMapper catalogMapper,
-                                    CatalogDtoMapper catalogDtoMapper,
-                                    ProductMapper productMapper) {
+                                    CatalogMapper catalogMapper) {
         this.catalogService = catalogService;
         this.catalogMapper = catalogMapper;
-        this.catalogDtoMapper = catalogDtoMapper;
-        this.productMapper = productMapper;
     }
 
     @GraphQLQuery(name = "catalog")
     public Catalog getCatalog(@GraphQLArgument(name = "id") UUID id) {
         CatalogWithProducts catalogWithProducts = catalogService.getCatalog(id, false);
-        // Map CatalogWithProducts to basic Catalog view
-        Catalog catalog = new Catalog();
-        catalog.setId(catalogWithProducts.getId());
-        catalog.setName(catalogWithProducts.getName());
-        catalog.setStatus(catalogWithProducts.getStatus());
-        catalog.setCreatedAt(catalogWithProducts.getCreatedAt());
-        catalog.setUpdatedAt(catalogWithProducts.getUpdatedAt());
-        if (catalogWithProducts.getProducts() != null) {
-            catalog.setProductIds(catalogWithProducts.getProducts().stream()
-                    .map(Product::getId)
-                    .collect(Collectors.toList()));
-        }
-        return catalog;
+        return this.catalogMapper.toCatalog(catalogWithProducts);
     }
 
     @GraphQLQuery(name = "catalogWithProducts")

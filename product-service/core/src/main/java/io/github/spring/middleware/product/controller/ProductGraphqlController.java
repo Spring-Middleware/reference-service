@@ -56,6 +56,11 @@ public class ProductGraphqlController {
         return productService.listProducts(q, status, catalogId, pageable);
     }
 
+    @GraphQLQuery(name = "productsByIds")
+    public List<Product> getProductsByIds(@GraphQLArgument(name = "ids") List<UUID> ids) {
+        return productService.getProductsByIds(ids);
+    }
+
     @GraphQLMutation(name = "replaceDigitalProduct")
     public Product replaceDigitalProduct(
             @GraphQLArgument(name = "id") UUID id,

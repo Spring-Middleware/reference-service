@@ -1,12 +1,17 @@
 package io.github.spring.middleware.product.mapper;
 
 import io.github.spring.middleware.product.domain.DigitalProduct;
+import io.github.spring.middleware.product.domain.Money;
 import io.github.spring.middleware.product.domain.PhysicalProduct;
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductType;
 import io.github.spring.middleware.product.dto.*;
 import io.github.spring.middleware.product.dto.graphql.ProductInput;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.math.BigDecimal;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
@@ -104,4 +109,12 @@ public interface ProductMapper {
     DigitalProduct mapToDigitalDomain(DigitalProductReplaceItemDto replaceItemDto);
 
     DigitalProduct mapToDigitalDomain(ProductInput input);
+
+    @Mapping(target = "amount", source = "amount", qualifiedByName = "normalizeMoneyAmount")
+    Money toDomain(MoneyDto moneyDto);
+
+    @Named("normalizeMoneyAmount")
+    default BigDecimal normalizeMoneyAmount(BigDecimal amount) {
+        return amount == null ? null : amount.setScale(2, java.math.BigDecimal.ROUND_HALF_UP);
+    }
 }
