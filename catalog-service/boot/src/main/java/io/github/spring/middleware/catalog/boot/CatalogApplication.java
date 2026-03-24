@@ -2,6 +2,7 @@ package io.github.spring.middleware.catalog.boot;
 
 import io.github.spring.middleware.annotations.EnableGraphQLLinks;
 import io.github.spring.middleware.annotations.EnableMiddlewareClients;
+import io.github.spring.middleware.kafka.core.registrar.EnableMiddlewareKafkaListeners;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableMongoRepositories(basePackages = {"io.github.spring.middleware.catalog.repository"})
 @EnableMiddlewareClients(basePackages = {"io.github.spring.middleware"})
 @EnableGraphQLLinks(basePackages = {"io.github.spring.middleware.catalog.domain"})
+@EnableMiddlewareKafkaListeners(basePackages = {"io.github.spring.middleware.catalog.kafka"})
 @SpringBootApplication(scanBasePackages = {"io.github.spring.middleware"})
 public class CatalogApplication {
 

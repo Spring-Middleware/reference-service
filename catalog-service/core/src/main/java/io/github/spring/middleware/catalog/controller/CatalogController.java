@@ -17,6 +17,7 @@ import io.github.spring.middleware.catalog.dto.CatalogUpdateRequestDto;
 import io.github.spring.middleware.catalog.dto.CatalogWithProductsDto;
 import io.github.spring.middleware.catalog.dto.PagedCatalogResponseDto;
 import io.github.spring.middleware.catalog.dto.PagedProductResponseDto;
+import io.github.spring.middleware.catalog.kafka.CatalogRunner;
 import io.github.spring.middleware.catalog.mapper.CatalogDtoMapper;
 import io.github.spring.middleware.catalog.mapper.CatalogMapper;
 import io.github.spring.middleware.catalog.mapper.ProductMapper;
@@ -24,6 +25,7 @@ import io.github.spring.middleware.catalog.service.CatalogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -38,6 +40,8 @@ import static io.github.spring.middleware.utils.PageRequestUtils.buildPageReques
 public class CatalogController implements CatalogApi {
 
     private final CatalogService catalogService;
+
+    private final CatalogRunner catalogRunner;
 
     private final CatalogMapper catalogMapper;
 
@@ -125,5 +129,15 @@ public class CatalogController implements CatalogApi {
                 .toList();
         Catalog catalog = catalogService.replaceCatalogProducts(id, products);
         return catalogDtoMapper.toDto(catalog);
+    }
+
+    @GetMapping("/start-publishing")
+    public void startPublishing() {
+        catalogRunner.restart();
+    }
+
+    @GetMapping("/stop-publishing")
+    public void stopPublishing() {
+        catalogRunner.stop();
     }
 }

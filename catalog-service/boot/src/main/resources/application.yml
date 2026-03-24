@@ -8,6 +8,12 @@ spring:
     mongodb:
       uri: ${MONGO_URI:mongodb://localhost:27017/catalog}
       uuid-representation: standard
+  kafka:
+    producer:
+      properties:
+        max.block.ms: 10000
+        delivery.timeout.ms: 10000
+        request.timeout.ms: 5000
 
 springdoc:
   api-docs:
@@ -17,9 +23,11 @@ springdoc:
 
 logging:
   level:
-    io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:DEBUG}
-    org.springframework.security: TRACE
-    org.springframework.security.web: TRACE
+    io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:INFO}
+    io.github.spring.middleware.scheduler: ERROR
+    io.github.spring:.middleware.jms: ERROR
+    org.springframework.security: ERROR
+    org.springframework.security.web: ERROR
     root: ${LOG_LEVEL_ROOT:ERROR}
 
 middleware:
@@ -36,6 +44,9 @@ middleware:
         - /api-docs/**
         - /swagger-ui.html
         - /swagger-ui/**
+        - /_alive
+        - /graphql
+        - /graphql/_alive
 
   jms:
     profile: ${JMS_PROFILE:LOCAL}
@@ -52,6 +63,22 @@ middleware:
           enabled: ${JMS_RABBITMQ_REGISTRY_SCANNER_ENABLED:true}
           check-interval: ${JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL:10000}
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    create-missing-topics: true
+    topics:
+      catalog-events:
+        partitions: 5
+        replication-factor: 3
+
+    publishers:
+      catalog:
+        topic: ${KAFKA_TOPIC_CATALOG:catalog-events}
+    subscribers:
+      catalog:
+        group-id: ${KAFKA_GROUP_ID_CATALOG:catalog-service-group}
+        topic: ${KAFKA_TOPIC_CATALOG:catalog-events}
+        concurrency: 3
 
   client:
     registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
@@ -100,6 +127,8 @@ middleware:
       - /api-docs/**
       - /swagger-ui.html
       - /swagger-ui/**
+      - /start-publishing
+      - /stop-publishing
 
     protected-paths:
       - type: ROLES

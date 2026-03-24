@@ -37,6 +37,12 @@
 
         <dependency>
             <groupId>io.github.spring-middleware</groupId>
+            <artifactId>kafka-core</artifactId>
+            <version>${spring-middleware.kafka-core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
             <artifactId>catalog-api</artifactId>
         </dependency>
 

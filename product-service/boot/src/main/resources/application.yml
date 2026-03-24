@@ -21,9 +21,11 @@ springdoc:
 
 logging:
   level:
-    io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:DEBUG}
-    org.springframework.security: TRACE
-    org.springframework.security.web: TRACE
+    io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:INFO}
+    io.github.spring.middleware.scheduler: ERROR
+    io.github.spring:.middleware.jms: ERROR
+    org.springframework.security: EROR
+    org.springframework.security.web: ERROR
     root: ${LOG_LEVEL_ROOT:ERROR}
   exclude:
     urlPatterns:

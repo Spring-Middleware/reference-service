@@ -9,9 +9,13 @@ import io.github.spring.middleware.catalog.entity.CatalogEntity;
 import io.github.spring.middleware.catalog.entity.ProductIdWithType;
 import io.github.spring.middleware.catalog.exception.CatalogErrorCodes;
 import io.github.spring.middleware.catalog.exception.CatalogNotFoundException;
+import io.github.spring.middleware.catalog.kafka.CatalogEvent;
+import io.github.spring.middleware.catalog.kafka.CatalogEventType;
 import io.github.spring.middleware.catalog.mapper.CatalogEntityMapper;
 import io.github.spring.middleware.catalog.mapper.ProductMapper;
 import io.github.spring.middleware.catalog.repository.CatalogRepository;
+import io.github.spring.middleware.kafka.api.interf.KafkaPublisher;
+import io.github.spring.middleware.kafka.core.registry.KafkaPublisherRegistry;
 import io.github.spring.middleware.product.api.ProductApi;
 import io.github.spring.middleware.product.dto.DigitalProductDto;
 import io.github.spring.middleware.product.dto.PhysicalProductDto;
@@ -20,6 +24,7 @@ import io.github.spring.middleware.product.dto.ProductBulkDeleteRequestDto;
 import io.github.spring.middleware.product.dto.ProductBulkReplaceRequestDto;
 import io.github.spring.middleware.product.dto.ProductDto;
 import io.github.spring.middleware.utils.PaginationUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class CatalogServiceImpl implements CatalogService {
 
@@ -37,15 +43,18 @@ public class CatalogServiceImpl implements CatalogService {
     private final CatalogEntityMapper catalogEntityMapper;
     private final ProductApi productApi;
     private final ProductMapper productMapper;
+    private final KafkaPublisherRegistry publisherRegistry;
 
     public CatalogServiceImpl(final CatalogRepository catalogRepository,
                               final CatalogEntityMapper catalogEntityMapper,
                               final ProductMapper productMapper,
-                              final ProductApi productApi) {
+                              final ProductApi productApi,
+                              final KafkaPublisherRegistry publisherRegistry) {
         this.catalogRepository = catalogRepository;
         this.catalogEntityMapper = catalogEntityMapper;
         this.productApi = productApi;
         this.productMapper = productMapper;
+        this.publisherRegistry = publisherRegistry;
     }
 
 
@@ -56,8 +65,26 @@ public class CatalogServiceImpl implements CatalogService {
         catalogEntity.setUpdatedAt(Instant.now());
         catalogEntity.setId(UUID.randomUUID());
         CatalogEntity savedEntity = catalogRepository.save(catalogEntity);
-        return catalogEntityMapper.toDomain(savedEntity);
+        Catalog savedCatalog = catalogEntityMapper.toDomain(savedEntity);
+        publishCatalogEvent(savedCatalog, CatalogEventType.CREATED);
+        return savedCatalog;
     }
+
+    private void publishCatalogEvent(Catalog catalog, CatalogEventType eventType) {
+        CatalogEvent catalogEvent = new CatalogEvent();
+        catalogEvent.setCatalog(catalog);
+        catalogEvent.setEventType(eventType);
+        KafkaPublisher<CatalogEvent, String> publisher = publisherRegistry.getPublisher("catalog");
+        publisher.publish(catalogEvent).thenAccept(result -> {
+            // Log success or handle post-publish actions if needed
+            log.info("Published catalog event: {} with result: {}", catalogEvent, result);
+        }).exceptionally(ex -> {
+            // Log the exception or handle publish failure
+            log.error("Failed to publish catalog event: {} due to {}", catalogEvent, ex.getMessage());
+            return null;
+        });
+    }
+
 
     @Override
     public CatalogWithProducts getCatalog(UUID id, boolean expandProducts) {
