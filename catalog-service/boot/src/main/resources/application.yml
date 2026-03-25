@@ -71,9 +71,18 @@ middleware:
         partitions: 5
         replication-factor: 3
 
+    error-handling:
+      enabled: ${KAFKA_ERROR_HANDLING_ENABLED:true}
+      max-retries: ${KAFKA_ERROR_HANDLING_MAX_RETRIES:3}
+      retry-backoff-ms: ${KAFKA_ERROR_HANDLING_RETRY_BACKOFF_MS:1000}
+      dead-letter:
+        enabled: ${KAFKA_ERROR_HANDLING_DEAD_LETTER_ENABLED:true}
+        suffix: .DLT
+
     publishers:
       catalog:
         topic: ${KAFKA_TOPIC_CATALOG:catalog-events}
+
     subscribers:
       catalog:
         group-id: ${KAFKA_GROUP_ID_CATALOG:catalog-service-group}

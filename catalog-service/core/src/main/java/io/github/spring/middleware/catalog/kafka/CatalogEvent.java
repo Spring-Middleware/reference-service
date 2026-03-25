@@ -11,5 +11,6 @@ public class CatalogEvent {
     private Catalog catalog;
     private String key; // Optional: can be used for partitioning in Kafka
     private CatalogEventType eventType; // e.g., "CREATED", "UPDATED", "DELETED"
+    private CatalogRetryPolicy retryPolicy; // Optional: can be used to determine retry behavior
 
 }
