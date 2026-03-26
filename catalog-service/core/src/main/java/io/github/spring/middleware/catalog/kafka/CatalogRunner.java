@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -18,17 +19,22 @@ public class CatalogRunner {
 
     private final List<String> keys = new ArrayList<>();
     private final Random random = new Random();
-    private final KafkaPublisherRegistry publisherRegistry;
+    private final Optional<KafkaPublisherRegistry> publisherRegistry;
 
     private volatile boolean running = true;
 
-    public CatalogRunner(KafkaPublisherRegistry publisherRegistry) {
+    public CatalogRunner(Optional<KafkaPublisherRegistry> publisherRegistry) {
         this.publisherRegistry = publisherRegistry;
         IntStream.range(0, 5).forEach(i -> keys.add(STR."key#\{UUID.randomUUID().toString()}"));
     }
 
 
     public void start() {
+        if (publisherRegistry.isEmpty()) {
+            log.warn("KafkaPublisherRegistry not available. CatalogRunner will not publish events.");
+            return;
+        }
+
         while (running) {
             publishRandomEvent();
             try {
@@ -56,7 +62,7 @@ public class CatalogRunner {
         catalogEvent.setKey(key);
         catalogEvent.setCatalog(CatalogMother.randomCatalog());
         catalogEvent.setRetryPolicy(resolveRetryPolicy());
-        KafkaPublisher<CatalogEvent, String> publisher = publisherRegistry.getPublisher("catalog");
+        KafkaPublisher<CatalogEvent, String> publisher = publisherRegistry.get().getPublisher("catalog");
         publisher.publishWithKey(catalogEvent, key)
                 .thenAccept(result -> {
                     log.info(STR."Published event \{result.getEvent().getEventId()} with key: \{result.getKey()}");

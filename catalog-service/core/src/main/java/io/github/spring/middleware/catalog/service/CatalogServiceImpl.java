@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -43,13 +44,13 @@ public class CatalogServiceImpl implements CatalogService {
     private final CatalogEntityMapper catalogEntityMapper;
     private final ProductApi productApi;
     private final ProductMapper productMapper;
-    private final KafkaPublisherRegistry publisherRegistry;
+    private final Optional<KafkaPublisherRegistry> publisherRegistry;
 
     public CatalogServiceImpl(final CatalogRepository catalogRepository,
                               final CatalogEntityMapper catalogEntityMapper,
                               final ProductMapper productMapper,
                               final ProductApi productApi,
-                              final KafkaPublisherRegistry publisherRegistry) {
+                              final Optional<KafkaPublisherRegistry> publisherRegistry) {
         this.catalogRepository = catalogRepository;
         this.catalogEntityMapper = catalogEntityMapper;
         this.productApi = productApi;
@@ -74,7 +75,11 @@ public class CatalogServiceImpl implements CatalogService {
         CatalogEvent catalogEvent = new CatalogEvent();
         catalogEvent.setCatalog(catalog);
         catalogEvent.setEventType(eventType);
-        KafkaPublisher<CatalogEvent, String> publisher = publisherRegistry.getPublisher("catalog");
+        if (publisherRegistry.isEmpty()) {
+            log.warn("KafkaPublisherRegistry not available, skipping event publish for catalog: {}", catalog);
+            return;
+        }
+        KafkaPublisher<CatalogEvent, String> publisher = publisherRegistry.get().getPublisher("catalog");
         publisher.publish(catalogEvent).thenAccept(result -> {
             // Log success or handle post-publish actions if needed
             log.info("Published catalog event: {} with result: {}", catalogEvent, result);

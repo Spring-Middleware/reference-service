@@ -1,0 +1,42 @@
+query {
+    catalog(id: "11cac832-3721-47f5-b87a-ca38fb52fe0e") {
+        id
+        name
+        description
+        status
+        createdAt
+        updatedAt
+        productsByNames(name: "Monitor") {
+            __typename
+            ... on PhysicalProduct {
+                id
+                name
+                description
+                price {
+                    amount
+                    currency
+                }
+                productType
+                shippable
+                sku
+                status
+                stockQuantity
+            }
+            ...on DigitalProduct{
+                id
+                name
+                description
+                price {
+                    amount
+                    currency
+                }
+                productType
+                downloadUrl
+                fileFormat
+                fileSize
+                sku
+                status
+            }
+        }
+    }
+}

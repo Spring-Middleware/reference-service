@@ -47,6 +47,7 @@ middleware:
         - /_alive
         - /graphql
         - /graphql/_alive
+        - /graphql/schema-metadata
 
   jms:
     profile: ${JMS_PROFILE:LOCAL}
@@ -64,6 +65,7 @@ middleware:
           check-interval: ${JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL:10000}
 
   kafka:
+    enabled: ${KAFKA_ENABLED:false}
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     create-missing-topics: true
     topics:

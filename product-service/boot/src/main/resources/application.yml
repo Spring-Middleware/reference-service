@@ -24,17 +24,12 @@ logging:
     io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:INFO}
     io.github.spring.middleware.scheduler: ERROR
     io.github.spring:.middleware.jms: ERROR
-    org.springframework.security: EROR
+    org.springframework.security: ERROR
     org.springframework.security.web: ERROR
     root: ${LOG_LEVEL_ROOT:ERROR}
-  exclude:
-    urlPatterns:
-      - /api-docs
-      - /swagger-ui.html
-      - /swagger-ui/**
+
 
 middleware:
-
   log:
     apiKey: ${LOG_API_KEY}
     request:
@@ -48,6 +43,10 @@ middleware:
         - /api-docs/**
         - /swagger-ui.html
         - /swagger-ui/**
+        - /_alive
+        - /graphql
+        - /graphql/_alive
+        - /graphql/schema-metadata
 
   security:
     type: ${SECURITY_TYPE:BASIC_AUTH} #options: NONE, BASIC_AUTH, JWT, OAUTH2, API_KEY
