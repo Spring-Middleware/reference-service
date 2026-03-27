@@ -5,6 +5,17 @@ schema {
     mutation: Mutation
 }
 
+"This directive allows results to be deferred during execution"
+directive @defer(
+    "Deferred behaviour is controlled by this argument"
+    if: Boolean! = true,
+    "A unique label that represents the fragment being deferred"
+    label: String
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"This directive disables error propagation when a non nullable field returns null for the given operation."
+directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
+
 "Indicates an Input Object is a OneOf Input Object."
 directive @oneOf on INPUT_OBJECT
 
@@ -15,8 +26,8 @@ type Catalog {
     description: String
     id: UUID
     name: String
-    products: [UUID]
-    productsByNames(name: String): GraphQLLinkArguments
+    products: [Product]
+    productsByNames(name: String): Page_Product
     status: CatalogStatus
     updatedAt: Instant
 }
@@ -32,6 +43,7 @@ type CatalogWithProducts {
 }
 
 type DigitalProduct {
+    catalogId: UUID
     createdAt: Instant
     description: String
     downloadUrl: URI
@@ -57,17 +69,22 @@ type Money {
     currency: String
 }
 
-"Mutation root"
 type Mutation {
     addDigitalProductsToCatalog(catalogId: UUID, inputs: [CatalogDigitalProductInputInput]): Catalog
     addPhysicalProductsToCatalog(catalogId: UUID, inputs: [CatalogPhysicalProductInputInput]): Catalog
     createCatalog(input: CatalogInputInput): Catalog
+    createDigitalProductsForCatalog(catalogId: UUID, inputs: [DigitalProductInputInput]): [Product]
+    createPhysicalProductsForCatalog(catalogId: UUID, inputs: [PhysicalProductInputInput]): [Product]
     deleteCatalog(id: UUID): Boolean
     patchCatalog(id: UUID, input: CatalogPatchInputInput): Catalog
+    patchDigitalProduct(id: UUID, input: DigitalProductInputInput): Product
+    patchPhysicalProduct(id: UUID, input: ProductInputInput): Product
     removeProductsFromCatalog(catalogId: UUID, productIds: [UUID]): Boolean
     replaceCatalog(id: UUID, input: CatalogInputInput): Catalog
     replaceCatalogDigitalProducts(catalogId: UUID, inputs: [CatalogDigitalProductUpdateInputInput]): Catalog
     replaceCatalogPhysicalProducts(catalogId: UUID, inputs: [CatalogPhysicalProductUpdateInputInput]): Catalog
+    replaceDigitalProduct(id: UUID, input: DigitalProductInputInput): Product
+    replacePhysicalProduct(id: UUID, input: ProductInputInput): Product
 }
 
 type Page_Catalog {
@@ -106,6 +123,7 @@ type Pageable {
 }
 
 type PhysicalProduct {
+    catalogId: UUID
     createdAt: Instant
     description: String
     dimensions: Dimensions
@@ -120,12 +138,14 @@ type PhysicalProduct {
     updatedAt: Instant
 }
 
-"Query root"
 type Query {
     catalog(id: UUID): Catalog
     catalogProducts(catalogId: UUID, page: Int, size: Int): Page_Product
     catalogWithProducts(id: UUID): CatalogWithProducts
     catalogs(page: Int, q: String, size: Int, sort: String, status: CatalogStatus): Page_Catalog
+    product(id: UUID): Product
+    products(catalogId: UUID, page: Int, q: String, size: Int, sort: String, status: ProductStatus): Page_Product
+    productsByIds(ids: [UUID]): [Product]
 }
 
 type Sort {
@@ -162,16 +182,16 @@ scalar BigDecimal
 "Internal scalar for GraphQL link arguments"
 scalar GraphQLLinkArguments
 
-"Built-in scalar representing an instant in time"
+"Java Instant scalar"
 scalar Instant
 
 "A 64-bit signed integer"
 scalar Long
 
-"URI String"
+"Java URI scalar"
 scalar URI
 
-"UUID String"
+"A universally unique identifier compliant UUID Scalar"
 scalar UUID
 
 input CatalogDigitalProductInputInput {
@@ -235,8 +255,55 @@ input CatalogPhysicalProductUpdateInputInput {
     stockQuantity: Int
 }
 
+input DigitalProductInputInput {
+    catalogId: UUID
+    description: String
+    downloadUrl: URI
+    fileFormat: String
+    fileSize: Long
+    name: String
+    price: MoneyInputInput
+    productType: ProductType
+    sku: String
+    status: ProductStatus
+}
+
 input DimensionsInput {
     height: Float
     length: Float
     width: Float
+}
+
+input DimensionsInputInput {
+    depth: Float
+    height: Float
+    width: Float
+}
+
+input MoneyInputInput {
+    amount: BigDecimal
+    currency: String
+}
+
+input PhysicalProductInputInput {
+    catalogId: UUID
+    description: String
+    dimensions: DimensionsInputInput
+    name: String
+    price: MoneyInputInput
+    productType: ProductType
+    shippable: Boolean
+    sku: String
+    status: ProductStatus
+    stockQuantity: Int
+}
+
+input ProductInputInput {
+    catalogId: UUID
+    description: String
+    name: String
+    price: MoneyInputInput
+    productType: ProductType
+    sku: String
+    status: ProductStatus
 }

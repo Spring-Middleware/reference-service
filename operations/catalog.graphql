@@ -6,7 +6,7 @@ query {
         status
         createdAt
         updatedAt
-        productsByNames(name: "Monitor") {
+        products {
             __typename
             ... on PhysicalProduct {
                 id

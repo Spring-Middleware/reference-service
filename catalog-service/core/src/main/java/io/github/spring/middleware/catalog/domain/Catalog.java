@@ -33,7 +33,7 @@ public class Catalog {
         return productIds;
     }
 
-    @GraphQLLink(schema = "product", type = "Product", query = "products", arguments = {@GraphQLLinkArgument(name = "catalogId"), @GraphQLLinkArgument(name = "q")}, collection = true)
+    @GraphQLLink(schema = "product", type = "Page_Product", query = "products", arguments = {@GraphQLLinkArgument(name = "catalogId"), @GraphQLLinkArgument(name = "q")})
     @GraphQLQuery(name = "productsByNames")
     public GraphQLLinkArguments getProductNames(@GraphQLArgument(name = "name") String name) {
         return new GraphQLLinkArguments(Map.of("catalogId", id, "q", name));

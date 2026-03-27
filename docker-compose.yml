@@ -94,7 +94,7 @@ services:
       - "8060:8080"
       - "5009:5005"
     environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - SPRING_PROFILES_ACTIVE=LOCAL
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - GRAPHQL_ENABLED=false
@@ -157,7 +157,7 @@ services:
       - "8070:8080"
       - "5008:5005"
     environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
       - SECURITY_TYPE=OAUTH2
       - REGISTRY_ENDPOINT=http://registry:8080/registry
