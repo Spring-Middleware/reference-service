@@ -1,0 +1,40 @@
+query {
+    catalogs(page: 0, size: 10) {
+        content {
+            id
+            name
+            description
+            status
+            products {
+                __typename
+                ... on PhysicalProduct {
+                    id
+                    name
+                    description
+                    dimensions {
+                        length
+                        width
+                        height
+                    }
+                    price {
+                        amount
+                        currency
+                    }
+                }
+                ... on DigitalProduct {
+                    id
+                    name
+                    downloadUrl
+                    fileFormat
+                    fileSize
+                    price {
+                        amount
+                        currency
+                    }
+                }
+            }
+        }
+        totalElements
+        totalPages
+    }
+}

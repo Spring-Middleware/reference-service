@@ -1,11 +1,11 @@
 mutation {
-    addDigitalProductsToCatalog(catalogId: "4ac84f87-e596-4d87-a2e0-d7f14bc43c17", inputs: [
+    addDigitalProductsToCatalog(catalogId: "c116f9df-203e-402a-9fe0-1d9a095d3cf5", inputs: [
         {
             name: "Product 1",
             description: "Description for Product 1",
             priceAmount: 19.99,
             priceCurrency: "USD",
-            sku: "PROD-001",
+            sku: "PROD-011",
             status: ACTIVE
             fileFormat: "pdf",
             fileSize: 1024,
@@ -15,7 +15,7 @@ mutation {
             description: "Description for Product 2",
             priceAmount: 29.99,
             priceCurrency: "USD",
-            sku: "PROD-002",
+            sku: "PROD-012",
             status: ACTIVE
             fileFormat: "epub",
             fileSize: 2048,

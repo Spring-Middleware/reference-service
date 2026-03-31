@@ -1,5 +1,5 @@
 query {
-    catalogWithProducts(id: "4ac84f87-e596-4d87-a2e0-d7f14bc43c17") {
+    catalogWithProducts(id: "c116f9df-203e-402a-9fe0-1d9a095d3cf5") {
         id
         name
         status

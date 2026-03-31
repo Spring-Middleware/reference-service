@@ -1,13 +1,13 @@
 mutation {
     addPhysicalProductsToCatalog(
-        catalogId: "4ac84f87-e596-4d87-a2e0-d7f14bc43c17"
+        catalogId: "c116f9df-203e-402a-9fe0-1d9a095d3cf5"
         inputs: [
             {
                 name: "Teclado Mecánico Pro"
                 description: "Teclado mecánico con switches Cherry MX Blue"
                 priceAmount: 79.99
                 priceCurrency: "EUR"
-                sku: "KEYB-001"
+                sku: "KEYB-002"
                 status: ACTIVE
                 stockQuantity: 50
                 dimensions: {
@@ -21,7 +21,7 @@ mutation {
                 description: "Monitor 27 pulgadas 4K UHD"
                 priceAmount: 299.99
                 priceCurrency: "EUR"
-                sku: "MON-0274K"
+                sku: "MON-0276K"
                 status: ACTIVE
                 stockQuantity: 20
                 dimensions: {
@@ -37,6 +37,5 @@ mutation {
         status
         createdAt
         updatedAt
-        productIds
     }
 }

@@ -3,6 +3,7 @@ package io.github.spring.middleware.catalog.domain;
 import io.github.spring.middleware.annotation.graphql.GraphQLLink;
 import io.github.spring.middleware.annotation.graphql.GraphQLLinkArgument;
 import io.github.spring.middleware.annotation.graphql.GraphQLLinkClass;
+import io.github.spring.middleware.annotation.graphql.GraphQLType;
 import io.github.spring.middleware.graphql.arguments.GraphQLLinkArguments;
 import io.leangen.graphql.annotations.GraphQLArgument;
 import io.leangen.graphql.annotations.GraphQLQuery;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Data
-@GraphQLLinkClass
+@GraphQLLinkClass(types = {@GraphQLType(names = "Catalog"), @GraphQLType(names = "Page_Catalog", isWrapper = true)})
 public class Catalog {
 
     private UUID id;
@@ -24,8 +25,8 @@ public class Catalog {
     private Instant createdAt;
     private Instant updatedAt;
     @GraphQLLink(schema = "product", type = "Product", query = "productsByIds", arguments = {
-            @GraphQLLinkArgument(name = "ids")
-    }, collection = true)
+            @GraphQLLinkArgument(name = "ids", targetFieldName = "id", batch = true)
+    }, collection = true, batched = true)
     private List<UUID> productIds;
 
     @GraphQLQuery(name = "products")
