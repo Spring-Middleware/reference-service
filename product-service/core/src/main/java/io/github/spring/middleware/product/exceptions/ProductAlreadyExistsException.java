@@ -1,5 +1,6 @@
 package io.github.spring.middleware.product.exceptions;
 
+import io.github.spring.middleware.error.ErrorDescriptor;
 import io.github.spring.middleware.exception.ConflictException;
 import io.github.spring.middleware.product.error.ProductErrorCodes;
 
@@ -11,6 +12,6 @@ public class ProductAlreadyExistsException extends ConflictException {
     private static final long serialVersionUID = 1L;
 
     public ProductAlreadyExistsException(String message) {
-        super(ProductErrorCodes.PRODUCT_ALREADY_EXISTS, message);
+        super(ErrorDescriptor.fromErrorCodes(ProductErrorCodes.PRODUCT_ALREADY_EXISTS), message);
     }
 }

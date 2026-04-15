@@ -50,6 +50,7 @@ middleware:
         - /graphql/schema-metadata
 
   jms:
+    enabled: ${JMS_ENABLED:true}
     profile: ${JMS_PROFILE:LOCAL}
     host: ${JMS_HOST:amqp://rabbitmq:5672}
     user: ${JMS_USER:admin}

@@ -2,6 +2,11 @@ schema: product-service/schema.graphql
 documents: product-service/**/*.graphql
 extensions:
   endpoints:
+    review:
+      url: http://localhost:8050/review/graphql
+      headers:
+        user-agent: "JS GraphQL"
+      introspect: true
     product:
       url: http://localhost:8090/product/graphql
       headers:

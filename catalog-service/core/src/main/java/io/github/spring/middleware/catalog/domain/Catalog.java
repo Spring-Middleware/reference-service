@@ -34,11 +34,12 @@ public class Catalog {
         return productIds;
     }
 
-    @GraphQLLink(schema = "product", type = "Page_Product", query = "products", arguments = {@GraphQLLinkArgument(name = "catalogId"), @GraphQLLinkArgument(name = "q")})
+    @GraphQLLink(schema = "product", type = "Page_Product", query = "products", arguments = {@GraphQLLinkArgument(name = "catalogIds", targetFieldName = "catalogId", batch = true), @GraphQLLinkArgument(name = "q")})
     @GraphQLQuery(name = "productsByNames")
     public GraphQLLinkArguments getProductNames(@GraphQLArgument(name = "name") String name) {
-        return new GraphQLLinkArguments(Map.of("catalogId", id, "q", name));
+        return new GraphQLLinkArguments(Map.of("catalogIds", id, "q", name));
     }
-
-
 }
+
+
+

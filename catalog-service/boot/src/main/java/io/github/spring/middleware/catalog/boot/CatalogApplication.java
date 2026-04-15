@@ -18,7 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableMongoRepositories(basePackages = {"io.github.spring.middleware.catalog.repository"})
 @EnableMiddlewareClients(basePackages = {"io.github.spring.middleware"})
 @EnableGraphQLLinks(basePackages = {"io.github.spring.middleware.catalog.domain"})
-@EnableMiddlewareKafkaListeners(basePackages = {"io.github.spring.middleware.catalog.kafka"})
+//@EnableMiddlewareKafkaListeners(basePackages = {"io.github.spring.middleware.catalog.kafka"})
 @SpringBootApplication(scanBasePackages = {"io.github.spring.middleware"})
 public class CatalogApplication {
 

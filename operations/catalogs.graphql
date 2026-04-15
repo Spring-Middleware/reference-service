@@ -1,5 +1,5 @@
 query {
-    catalogs(page: 0, size: 10) {
+    catalogs(page: 0, size: 100, sort: "name,asc") {
         content {
             id
             name
@@ -11,6 +11,21 @@ query {
                     id
                     name
                     description
+                    catalog {
+                        id
+                        name
+                        products {
+                            __typename
+                            ... on PhysicalProduct {
+                                id
+                                name
+                            }
+                            ... on DigitalProduct {
+                                id
+                                name
+                            }
+                        }
+                    }
                     dimensions {
                         length
                         width
@@ -25,6 +40,21 @@ query {
                     id
                     name
                     downloadUrl
+                    catalog {
+                        id
+                        name
+                        products {
+                            __typename
+                            ... on PhysicalProduct {
+                                id
+                                name
+                            }
+                            ... on DigitalProduct {
+                                id
+                                name
+                            }
+                        }
+                    }
                     fileFormat
                     fileSize
                     price {

@@ -1,0 +1,157 @@
+# Product Service Configuration
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: ${SERVER_CONTEXT_PATH:/review}
+
+spring:
+  application:
+    name: review-service
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://127.0.0.1:27017/review}
+      auto-index-creation: true
+      uuid-representation: standard
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:INFO}
+    io.github.spring.middleware.scheduler: ERROR
+    io.github.spring:.middleware.jms: ERROR
+    org.springframework.security: ERROR
+    org.springframework.security.web: ERROR
+    root: ${LOG_LEVEL_ROOT:ERROR}
+
+
+middleware:
+  log:
+    apiKey: ${LOG_API_KEY}
+    request:
+      enabled: ${LOG_REQUEST_ENABLED:true}
+    response:
+      enabled: ${LOG_RESPONSE_ENABLED:false}
+    responseTime:
+      enabled: ${LOG_RESPONSE_TIME_ENABLED:false}
+    exclude:
+      urlPatterns:
+        - /api-docs/**
+        - /swagger-ui.html
+        - /swagger-ui/**
+        - /_alive
+        - /graphql/_alive
+        - /graphql/schema-metadata
+
+  security:
+    type: ${SECURITY_TYPE:BASIC_AUTH} #options: NONE, BASIC_AUTH, JWT, OAUTH2, API_KEY
+
+    public-paths:
+      - /graphql
+      - /resources/register
+      - /api-docs/**
+      - /swagger-ui.html
+      - /swagger-ui/**
+
+    protected-paths:
+      - type: ROLES
+        path: /api/v1/reviews/bulk
+        methods: [ POST, PUT, DELETE ]
+        allowed-roles: [ ADMIN , REVIEW_WRITER ]
+
+      - type: ROLES
+        path: /api/v1/reviews
+        methods: [ GET ]
+        allowed-roles: [ ADMIN, REVIEW_WRITER, REVIEW_READER ]
+
+      - type: ROLES
+        path: /api/*/reviews/*
+        methods: [ PUT, DELETE, PATCH ]
+        allowed-roles: [ ADMIN, REVIEW_WRITER ]
+
+      - type: ROLES
+        path: /api/*/reviews/*
+        methods: [ GET ]
+        allowed-roles: [ ADMIN, REVIEW_WRITER, REVIEW_READER ]
+
+      - type: ROLES
+        path: /api/*/reviews
+        methods: [ POST ]
+        allowed-roles: [ ADMIN, REVIEW_WRITER ]
+
+    api-key:
+      header-name: ${API_KEY_HEADER_NAME:X-API-KEY}
+      credentials:
+        - key: ${API_KEY_REVIEW_ADMIN:default-api-key}
+          enabled: true
+          roles: [ ADMIN ]
+        - key: ${API_KEY_REVIEW_WRITER:review-writer-key}
+          enabled: true
+          roles: [ REVIEW_WRITER ]
+        - key: ${API_KEY_REVIEW_READER:review-reader-key}
+          enabled: true
+          roles: [ REVIEW_READER ]
+
+    oauth2:
+      #issuer-uri: ${OAUTH2_ISSUER_URI_ISSUER_URI}
+      jwk-set-uri: ${OAUTH2_ISSUER_URI_JWK_SET_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/certs}
+      authorities-claim-path: ${OAUTH2_ISSUER_URI_AUTHORITIES_CLAIM_PATH:$.resource_access.review-service.roles[*]}
+
+    basic-auth:
+      credentials:
+        - username: ${BASIC_AUTH_REVIEW_ADMIN:admin}
+          password: ${BASIC_AUTH_REVIEW_ADMIN_PASSWORD:admin}
+          roles: [ ADMIN ]
+
+
+  client:
+    registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
+    product:
+      security:
+        type: OAUTH2_CLIENT_CREDENTIALS # Options: NONE, PASSTHROUGH, API_KEY, OAUTH2_CLIENT_CREDENTIALS
+        oauth2:
+          client-id: ${OAUTH2_CLIENT_ID_PRODUCT_SERVICE:product-service}
+          client-secret: ${OAUTH2_CLIENT_SECRET_PRODUCT_SERVICE}
+          token-uri: ${OAUTH2_TOKEN_URI_REVIEW_SERVICE:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token}
+
+  jms:
+    enabled: ${JMS_ENABLED:true}
+    profile: ${JMS_PROFILE:LOCAL}
+    host: ${JMS_HOST:amqp://rabbitmq:5672}
+    user: ${JMS_USER:admin}
+    password: ${JMS_PASSWORD:admin}
+    max-pool-size: ${JMS_MAX_POOL_SIZE:10}
+    min-idle: ${JMS_MIN_IDLE:5}
+    max-idle: ${JMS_MAX_IDLE:10}
+    rabbitmq:
+      base-url: ${JMS_RABBITMQ_BASE_URL:http://rabbitmq:15672}
+      registry:
+        scanner:
+          enabled: ${JMS_RABBITMQ_REGISTRY_SCANNER_ENABLED:true}
+          check-interval: ${JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL:10000}
+
+  resource-register:
+    cluster-name: ${RESOURCE_CLUSTER_NAME:review}
+
+  public-server:
+    # In Docker the public hostname will be the service name `registry` (or set via env)
+    host: ${PUBLIC_SERVER_HOST:localhost}
+    port: ${PUBLIC_SERVER_PORT:8080}
+
+  graphql:
+    enabled: ${GRAPHQL_ENABLED:true}
+    clusterName: ${GRAPHQL_REVIEW_CLUSTER_NAME:review}
+    namespace: ${GRAPHQL_REVIEW_NAMESPACE:review}
+
+  registry-consistency-scheduler:
+    enabled: ${REGISTRY_CONSISTENCY_SCHEDULER_ENABLED:true}
+    cron: ${REGISTRY_CONSISTENCY_SCHEDULER_CRON:*/30 * * * * *}
+
+redisson:
+  # In Docker compose Redis service should be named `redis`
+  address: ${REDIS_ADDRESS:redis://localhost:6379}
+  database: ${REDIS_DATABASE:0}

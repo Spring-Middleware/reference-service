@@ -1,7 +1,6 @@
 package io.github.spring.middleware.catalog.controller;
 
 import io.github.spring.middleware.annotation.Register;
-import io.github.spring.middleware.annotation.RegisterSchema;
 import io.github.spring.middleware.catalog.api.CatalogApi;
 import io.github.spring.middleware.catalog.domain.Catalog;
 import io.github.spring.middleware.catalog.domain.CatalogStatus;
@@ -35,7 +34,6 @@ import static io.github.spring.middleware.utils.PageRequestUtils.buildPageReques
 @Slf4j
 @RestController
 @Register(name = "catalog")
-@RegisterSchema("catalog")
 @RequiredArgsConstructor
 public class CatalogController implements CatalogApi {
 

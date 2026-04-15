@@ -1,0 +1,331 @@
+openapi: 3.0.3
+x-middleware-endpoint: review
+info:
+  title: Review Service API
+  version: 1.0.0
+  description: |
+    Review-service for Spring-Middleware demo.
+    Internal service intended to be called ONLY by product-service (service-to-service).
+servers:
+  - url: http://localhost:8083
+    description: Local
+tags:
+  - name: Review
+    description: "Endpoints for managing reviews."
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      x-middleware-client: review
+      description: |
+        API key authentication for service-to-service communication.
+        Only product-service should be allowed.
+    PassthroughAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Passthrough authentication for forwarded user credentials.
+    OAuth2:
+      type: oauth2
+      x-middleware-client: review
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth-server.example.com/oauth/token
+          scopes:
+            review.read: Grants read access
+            review.write: Grants write access
+paths:
+  /api/v1/reviews:
+    get:
+      tags: [ Review ]
+      summary: List reviews
+      operationId: listReviews
+      security:
+        - ApiKeyAuth: []
+        - PassthroughAuth: []
+        - OAuth2:
+            - review.read
+      parameters:
+        - name: productId
+          in: query
+          required: false
+          description: Filter reviews by productId
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+        - name: sort
+          in: query
+          required: false
+          description: Sort expression, e.g. "createdAt,desc"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paged reviews
+          content:
+            application/json:
+              schema:
+                $ref: "review-responses.yaml#/components/schemas/PagedReviewResponse"
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+    post:
+      tags: [ Review ]
+      summary: Create review
+      operationId: createReview
+      security:
+        - ApiKeyAuth: []
+        - PassthroughAuth: []
+        - OAuth2:
+            - review.write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "review-requests.yaml#/components/schemas/ReviewCreateRequest"
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              description: URL of the created resource
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "review-schema.yaml#/components/schemas/Review"
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "409":
+          $ref: "review-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+  /api/v1/reviews/bulk:
+    post:
+      tags: [ Review ]
+      summary: Bulk create reviews
+      operationId: createReviews
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "review-requests.yaml#/components/schemas/ReviewBulkCreateRequest"
+      responses:
+        "201":
+          $ref: "review-responses.yaml#/components/responses/ReviewListResponse"
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+    put:
+      tags: [ Review ]
+      summary: Bulk replace reviews
+      operationId: replaceReviews
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "review-requests.yaml#/components/schemas/ReviewBulkReplaceRequest"
+      responses:
+        "200":
+          $ref: "review-responses.yaml#/components/responses/ReviewListResponse"
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+    delete:
+      tags: [ Review ]
+      summary: Bulk delete reviews
+      operationId: deleteReviews
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "review-requests.yaml#/components/schemas/ReviewBulkDeleteRequest"
+      responses:
+        "204":
+          description: Deleted
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+  /api/v1/reviews/{id}:
+    get:
+      tags: [ Review ]
+      summary: Get review by id
+      operationId: getReview
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          $ref: "review-responses.yaml#/components/responses/ReviewResponse"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "404":
+          $ref: "review-responses.yaml#/components/responses/Error404"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+    put:
+      tags: [ Review ]
+      summary: Replace review
+      operationId: replaceReview
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.write
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "review-requests.yaml#/components/schemas/ReviewUpdateRequest"
+      responses:
+        "200":
+          $ref: "review-responses.yaml#/components/responses/ReviewResponse"
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "404":
+          $ref: "review-responses.yaml#/components/responses/Error404"
+        "409":
+          $ref: "review-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+    patch:
+      tags: [ Review ]
+      summary: Partially update review
+      operationId: patchReview
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.write
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "review-requests.yaml#/components/schemas/ReviewPatchRequest"
+      responses:
+        "200":
+          $ref: "review-responses.yaml#/components/responses/ReviewResponse"
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "404":
+          $ref: "review-responses.yaml#/components/responses/Error404"
+        "409":
+          $ref: "review-responses.yaml#/components/responses/Error409"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+    delete:
+      tags: [ Review ]
+      summary: Delete review
+      operationId: deleteReview
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.write
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "404":
+          $ref: "review-responses.yaml#/components/responses/Error404"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"

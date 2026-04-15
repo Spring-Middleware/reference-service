@@ -54,6 +54,12 @@ components:
         catalogId:
           type: string
           format: uuid
+        reviewIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: List of review IDs associated with this product
         sku:
           type: string
         name:

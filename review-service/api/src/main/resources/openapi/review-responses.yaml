@@ -1,0 +1,50 @@
+components:
+  responses:
+    ReviewResponse:
+      description: Review details
+      content:
+        application/json:
+          schema:
+            $ref: "review-schema.yaml#/components/schemas/Review"
+    ReviewListResponse:
+      description: List of reviews
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "review-schema.yaml#/components/schemas/Review"
+    Error400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "review-schema.yaml#/components/schemas/ErrorMessage"
+    Error401:
+      description: Unauthorized
+    Error403:
+      description: Forbidden
+    Error404:
+      description: Not Found
+    Error409:
+      description: Conflict
+    Error500:
+      description: Internal Server Error
+  schemas:
+    PagedReviewResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "review-schema.yaml#/components/schemas/Review"
+        totalPages:
+          type: integer
+        totalElements:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
+      required: [content, totalPages, totalElements, size, number]

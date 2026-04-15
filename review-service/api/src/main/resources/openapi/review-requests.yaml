@@ -1,0 +1,115 @@
+components:
+  schemas:
+    ReviewCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        productId:
+          type: string
+          format: uuid
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 10
+        comments:
+          type: string
+      required:
+        - productId
+        - rating
+        - comments
+    ReviewUpdateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 10
+        comments:
+          type: string
+      required:
+        - rating
+        - comments
+    ReviewPatchRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 10
+        comments:
+          type: string
+    ReviewCreateItem:
+      type: object
+      additionalProperties: false
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 10
+        comments:
+          type: string
+      required:
+        - rating
+        - comments
+    ReviewBulkCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        productId:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReviewCreateItem"
+      required:
+        - productId
+        - items
+    ReviewReplaceItem:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 10
+        comments:
+          type: string
+      required:
+        - id
+        - rating
+        - comments
+    ReviewBulkReplaceRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        productId:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReviewReplaceItem"
+      required:
+        - productId
+        - items
+    ReviewBulkDeleteRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        productId:
+          type: string
+          format: uuid
+        reviewIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - productId
+        - reviewIds

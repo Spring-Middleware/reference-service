@@ -8,10 +8,10 @@ public class CatalogNotFoundException extends NotFoundException {
 
 
     public CatalogNotFoundException(String message) {
-        super(ProductErrorCodes.CATALOG_NOT_FOUND, message);
+        super(ErrorDescriptor.fromErrorCodes(ProductErrorCodes.CATALOG_NOT_FOUND), message);
     }
 
     public CatalogNotFoundException(ErrorDescriptor descriptor, String message, Throwable cause) {
-        super(ProductErrorCodes.CATALOG_NOT_FOUND, message, cause);
+        super(ErrorDescriptor.fromErrorCodes(ProductErrorCodes.CATALOG_NOT_FOUND), message, cause);
     }
 }

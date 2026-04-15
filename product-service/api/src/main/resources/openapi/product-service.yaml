@@ -70,7 +70,7 @@ paths:
         - name: catalogId
           in: query
           required: false
-          description: Optional filter by catalogId (for catalog-service expansions)
+          description: Optional filter by catalogIds (for catalog-service expansions)
           schema:
             type: string
             format: uuid

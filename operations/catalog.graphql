@@ -1,5 +1,5 @@
 query {
-    catalog(id: "11cac832-3721-47f5-b87a-ca38fb52fe0e") {
+    catalog(id: "82f0e0ad-febe-4491-964f-08ff6f9bb545") {
         id
         name
         description
@@ -15,6 +15,10 @@ query {
                 price {
                     amount
                     currency
+                }
+                catalog {
+                    id
+                    name
                 }
                 productType
                 shippable

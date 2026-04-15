@@ -35,7 +35,7 @@ middleware:
     request:
       enabled: ${LOG_REQUEST_ENABLED:true}
     response:
-      enabled: ${LOG_RESPONSE_ENABLED:true}
+      enabled: ${LOG_RESPONSE_ENABLED:false}
     responseTime:
       enabled: ${LOG_RESPONSE_TIME_ENABLED:false}
     exclude:
@@ -44,7 +44,6 @@ middleware:
         - /swagger-ui.html
         - /swagger-ui/**
         - /_alive
-        - /graphql
         - /graphql/_alive
         - /graphql/schema-metadata
 
@@ -122,6 +121,7 @@ middleware:
           token-uri: ${OAUTH2_TOKEN_URI_PRODUCT_SERVICE:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token}
 
   jms:
+    enabled: ${JMS_ENABLED:true}
     profile: ${JMS_PROFILE:LOCAL}
     host: ${JMS_HOST:amqp://rabbitmq:5672}
     user: ${JMS_USER:admin}

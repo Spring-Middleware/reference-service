@@ -4,6 +4,7 @@ import io.leangen.graphql.annotations.types.GraphQLUnion;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -18,6 +19,7 @@ public abstract class Product {
     private Money price;
     private Instant createdAt;
     private Instant updatedAt;
+    private List<UUID> reviewIds;
 
     public abstract ProductType getProductType();
 

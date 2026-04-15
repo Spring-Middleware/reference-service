@@ -1,5 +1,6 @@
 package io.github.spring.middleware.product.exceptions;
 
+import io.github.spring.middleware.error.ErrorDescriptor;
 import io.github.spring.middleware.exception.NotFoundException;
 import io.github.spring.middleware.product.error.ProductErrorCodes;
 
@@ -11,6 +12,6 @@ public class ProductNotFoundException extends NotFoundException {
     private static final long serialVersionUID = 1L;
 
     public ProductNotFoundException(String message) {
-        super(ProductErrorCodes.PRODUCT_NOT_FOUND, message);
+        super(ErrorDescriptor.fromErrorCodes(ProductErrorCodes.PRODUCT_NOT_FOUND), message);
     }
 }

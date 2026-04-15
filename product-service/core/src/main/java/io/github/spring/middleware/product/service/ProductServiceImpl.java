@@ -151,6 +151,7 @@ public class ProductServiceImpl implements ProductService {
         if (product.getName() != null) entity.setName(product.getName());
         if (product.getStatus() != null) entity.setStatus(product.getStatus());
         if (product.getPrice() != null) entity.setPrice(product.getPrice());
+        if (product.getReviewIds() != null) entity.setReviewIds(product.getReviewIds());
 
         entity.setUpdatedAt(Instant.now());
 
@@ -161,17 +162,37 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<Product> listProducts(String q, ProductStatus status, UUID catalogId, Pageable pageable) {
         Page<BaseProductEntity> page;
-        if (q != null && !q.isBlank()) {
-            if (catalogId != null) {
-                page = productRepository.findByNameContainingIgnoreCaseAndCatalogId(q, catalogId, pageable);
+        boolean hasQuery = q != null && !q.isBlank();
+        boolean hasStatus = status != null;
+        boolean hasCatalogId = catalogId != null;
+
+        if (hasQuery) {
+            if (hasCatalogId) {
+                if (hasStatus) {
+                    page = productRepository.findAllByNameContainingIgnoreCaseAndCatalogIdAndStatus(q, catalogId, status, pageable);
+                } else {
+                    page = productRepository.findAllByNameContainingIgnoreCaseAndCatalogId(q, catalogId, pageable);
+                }
             } else {
-                page = productRepository.findByNameContainingIgnoreCase(q, pageable);
+                if (hasStatus) {
+                    page = productRepository.findAllByNameContainingIgnoreCaseAndStatus(q, status, pageable);
+                } else {
+                    page = productRepository.findByNameContainingIgnoreCase(q, pageable);
+                }
             }
         } else {
-            if (catalogId != null) {
-                page = productRepository.findByCatalogId(catalogId, pageable);
+            if (hasCatalogId) {
+                if (hasStatus) {
+                    page = productRepository.findAllByCatalogIdAndStatus(catalogId, status, pageable);
+                } else {
+                    page = productRepository.findAllByCatalogId(catalogId, pageable);
+                }
             } else {
-                page = productRepository.findAll(pageable);
+                if (hasStatus) {
+                    page = productRepository.findAllByStatus(status, pageable);
+                } else {
+                    page = productRepository.findAll(pageable);
+                }
             }
         }
 

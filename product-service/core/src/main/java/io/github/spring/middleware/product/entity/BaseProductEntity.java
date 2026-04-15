@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -41,5 +42,6 @@ public abstract class BaseProductEntity {
 
     @LastModifiedDate
     private Instant updatedAt;
-}
 
+    private List<UUID> reviewIds;
+}

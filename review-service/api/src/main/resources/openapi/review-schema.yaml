@@ -1,0 +1,57 @@
+components:
+  schemas:
+    Review:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        productId:
+          type: string
+          format: uuid
+          example: "7c8d9e0f-1234-4a5b-6c7d-8e9f0a1b2c3d"
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 10
+          example: 8
+        comments:
+          type: string
+          example: "Great product, really liked it!"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - productId
+        - rating
+        - comments
+        - createdAt
+        - updatedAt
+
+    ErrorMessage:
+      type: object
+      additionalProperties: false
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        statusMessage:
+          type: string
+        errorCode:
+          type: string
+          nullable: true
+        errorMessage:
+          type: string
+          nullable: true
+        extensions:
+          type: object
+          nullable: true
+          additionalProperties: true
+      required: [statusCode, statusMessage]
+

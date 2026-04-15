@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>io.github.spring-middleware</groupId>
+        <artifactId>review-service</artifactId>
+        <version>${review.version}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <groupId>io.github.spring-middleware</groupId>
+    <artifactId>review-boot</artifactId>
+    <version>${review.version}</version>
+    <name>review-boot</name>
+    <description>Product Boot application</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
+            <artifactId>app</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
+            <artifactId>graphql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
+            <artifactId>mongo-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
+            <artifactId>review-core</artifactId>
+            <version>${product.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

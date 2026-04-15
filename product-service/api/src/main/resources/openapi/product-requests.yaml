@@ -29,6 +29,7 @@ components:
       required: [catalogId, sku, name, status, price, productType]
 
     PhysicalProductCreateRequest:
+      x-discriminator-value: PHYSICAL
       allOf:
         - $ref: "#/components/schemas/BaseProductCreateRequest"
         - type: object
@@ -42,6 +43,7 @@ components:
               type: boolean
 
     DigitalProductCreateRequest:
+      x-discriminator-value: DIGITAL
       allOf:
         - $ref: "#/components/schemas/BaseProductCreateRequest"
         - type: object
@@ -91,9 +93,15 @@ components:
           $ref: "product-schema.yaml#/components/schemas/Money"
         productType:
           $ref: "product-schema.yaml#/components/schemas/ProductType"
+        reviewIds:
+          type: array
+          items:
+            type: string
+            format: uuid
       required: [sku, name, status, price, productType]
 
     PhysicalProductUpdateRequest:
+      x-discriminator-value: PHYSICAL
       allOf:
         - $ref: "#/components/schemas/BaseProductUpdateRequest"
         - type: object
@@ -107,6 +115,7 @@ components:
               type: boolean
 
     DigitalProductUpdateRequest:
+      x-discriminator-value: DIGITAL
       allOf:
         - $ref: "#/components/schemas/BaseProductUpdateRequest"
         - type: object
@@ -159,8 +168,14 @@ components:
           $ref: "product-schema.yaml#/components/schemas/Money"
         productType:
           $ref: "product-schema.yaml#/components/schemas/ProductType"
+        reviewIds:
+          type: array
+          items:
+            type: string
+            format: uuid
 
     PhysicalProductPatchRequest:
+      x-discriminator-value: PHYSICAL
       allOf:
         - $ref: "#/components/schemas/BaseProductPatchRequest"
         - type: object
@@ -174,6 +189,7 @@ components:
               type: boolean
 
     DigitalProductPatchRequest:
+      x-discriminator-value: DIGITAL
       allOf:
         - $ref: "#/components/schemas/BaseProductPatchRequest"
         - type: object
@@ -226,6 +242,7 @@ components:
       required: [sku, name, status, price, productType]
 
     PhysicalProductCreateItem:
+      x-discriminator-value: PHYSICAL
       allOf:
         - $ref: "#/components/schemas/BaseProductCreateItem"
         - type: object
@@ -239,6 +256,7 @@ components:
               type: boolean
 
     DigitalProductCreateItem:
+      x-discriminator-value: DIGITAL
       allOf:
         - $ref: "#/components/schemas/BaseProductCreateItem"
         - type: object
@@ -323,9 +341,15 @@ components:
           $ref: "product-schema.yaml#/components/schemas/Money"
         productType:
           $ref: "product-schema.yaml#/components/schemas/ProductType"
+        reviewIds:
+          type: array
+          items:
+            type: string
+            format: uuid
       required: [id, sku, name, status, price, productType]
 
     PhysicalProductReplaceItem:
+      x-discriminator-value: PHYSICAL
       allOf:
         - $ref: "#/components/schemas/BaseProductReplaceItem"
         - type: object
@@ -339,6 +363,7 @@ components:
               type: boolean
 
     DigitalProductReplaceItem:
+      x-discriminator-value: DIGITAL
       allOf:
         - $ref: "#/components/schemas/BaseProductReplaceItem"
         - type: object
