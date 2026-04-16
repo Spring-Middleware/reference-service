@@ -1,5 +1,5 @@
 query {
-    catalogs(page: 0, size: 100, sort: "name,asc") {
+    catalogs(page: 0, size: 2, sort: "name,asc") {
         content {
             id
             name
@@ -11,21 +11,6 @@ query {
                     id
                     name
                     description
-                    catalog {
-                        id
-                        name
-                        products {
-                            __typename
-                            ... on PhysicalProduct {
-                                id
-                                name
-                            }
-                            ... on DigitalProduct {
-                                id
-                                name
-                            }
-                        }
-                    }
                     dimensions {
                         length
                         width
@@ -35,31 +20,26 @@ query {
                         amount
                         currency
                     }
+                    reviews {
+                        id
+                        comment
+                        rating
+                    }
                 }
                 ... on DigitalProduct {
                     id
                     name
                     downloadUrl
-                    catalog {
-                        id
-                        name
-                        products {
-                            __typename
-                            ... on PhysicalProduct {
-                                id
-                                name
-                            }
-                            ... on DigitalProduct {
-                                id
-                                name
-                            }
-                        }
-                    }
                     fileFormat
                     fileSize
                     price {
                         amount
                         currency
+                    }
+                    reviews {
+                        id
+                        comment
+                        rating
                     }
                 }
             }

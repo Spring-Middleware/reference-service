@@ -22,7 +22,7 @@ public class ReviewEntity {
 
     private Integer rating;
 
-    private String comments;
+    private String comment;
 
     @CreatedDate
     private Instant createdAt;

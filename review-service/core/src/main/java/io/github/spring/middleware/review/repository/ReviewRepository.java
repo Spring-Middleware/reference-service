@@ -15,7 +15,7 @@ public interface ReviewRepository extends MongoRepository<ReviewEntity, UUID> {
 
     Page<ReviewEntity> findByProductId(UUID productId, Pageable pageable);
 
-    Page<ReviewEntity> findByCommentsContainingIgnoreCase(String q, Pageable pageable);
+    Page<ReviewEntity> findByCommentContainingIgnoreCase(String q, Pageable pageable);
 
-    Page<ReviewEntity> findByCommentsContainingIgnoreCaseAndProductId(String q, UUID productId, Pageable pageable);
+    Page<ReviewEntity> findByCommentContainingIgnoreCaseAndProductId(String q, UUID productId, Pageable pageable);
 }

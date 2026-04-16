@@ -1,5 +1,6 @@
 package io.github.spring.middleware.catalog.domain;
 
+import io.leangen.graphql.annotations.GraphQLIgnore;
 import io.leangen.graphql.annotations.types.GraphQLUnion;
 import lombok.Data;
 
@@ -19,6 +20,7 @@ public abstract class Product {
     private Money price;
     private Instant createdAt;
     private Instant updatedAt;
+    @GraphQLIgnore
     private List<UUID> reviewIds;
 
     public abstract ProductType getProductType();

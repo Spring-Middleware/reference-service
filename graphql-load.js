@@ -34,7 +34,7 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080/graphql';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:8060/graphql';
 const AUTH_TOKEN = __ENV.AUTH_TOKEN || '';
 const QUERY_FILE = __ENV.QUERY_FILE || './query.graphql';
 const VARIABLES_FILE = __ENV.VARIABLES_FILE || '';

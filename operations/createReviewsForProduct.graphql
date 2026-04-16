@@ -1,0 +1,16 @@
+mutation {
+    createReviewsForProduct(productId: "b9c8a1e7-5c3d-4f0e-9a1b-2d3e4f5a6b7c", inputs: [
+        {
+            rating: 5,
+            comment: "Excellent product!"
+        },
+        {
+            rating: 4,
+            comment: "Very good, but could be improved."
+        }
+    ]) {
+        id
+        rating
+        comment
+    }
+}

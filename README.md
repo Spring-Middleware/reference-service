@@ -26,6 +26,7 @@
   - [GraphQL – Product Service](#graphql--product-service)
 - [Security & Keycloak (optional)](#security--keycloak-optional)
 - [How to test Spring Middleware features](#how-to-test-spring-middleware-features)
+- [Seeding Data (Optional)](#seeding-data-optional)
 - [Extending this reference](#extending-this-reference)
 - [Further reading](#further-reading)
 
@@ -602,6 +603,29 @@ In this repository, you can:
 In a real platform with a front GraphQL gateway, clients are expected to use
 only the unified `/graphql` endpoint; direct service endpoints remain an
 implementation detail.
+
+---
+
+## Seeding Data (Optional)
+
+You can seed the MongoDB with catalogs, products, and reviews using the provided `seed_catalogs.py` script. This is useful for testing without having to manually create entities through the API.
+
+To run the script:
+
+1.  **Ensure you have Python installed.**
+2.  **Install dependencies** if necessary (the script uses standard libraries and `requests`).
+3.  **Run the script** from the root of the repository:
+
+```bash
+python seed_catalogs.py --catalogs 200 --min-products 5 --max-products 40 --min-reviews 0 --max-reviews 8
+```
+
+This command will:
+- Create **200 catalogs**.
+- For each catalog, create between **5 and 40 products**.
+- For each product, create between **0 and 8 reviews**.
+
+_Note: Make sure the services (catalog, product, and review) are running and the Registry is reachable before executing the script, as it uses the REST APIs to populate the data._
 
 ---
 

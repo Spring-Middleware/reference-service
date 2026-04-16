@@ -1,0 +1,90 @@
+query {
+    catalogs(page: 0, size: 100, sort: "name,asc") {
+        content {
+            id
+            name
+            description
+            status
+            products {
+                __typename
+                ... on PhysicalProduct {
+                    id
+                    name
+                    description
+                    catalog {
+                        id
+                        name
+                        products {
+                            __typename
+                            ... on PhysicalProduct {
+                                id
+                                name
+                                reviews {
+                                    id
+                                    comment
+                                    rating
+                                }
+                            }
+                            ... on DigitalProduct {
+                                id
+                                name
+                                reviews {
+                                    id
+                                    comment
+                                    rating
+                                }
+                            }
+                        }
+                    }
+                    dimensions {
+                        length
+                        width
+                        height
+                    }
+                    price {
+                        amount
+                        currency
+                    }
+                }
+                ... on DigitalProduct {
+                    id
+                    name
+                    downloadUrl
+                    catalog {
+                        id
+                        name
+                        products {
+                            __typename
+                            ... on PhysicalProduct {
+                                id
+                                name
+                                reviews {
+                                    id
+                                    comment
+                                    rating
+                                }
+                            }
+                            ... on DigitalProduct {
+                                id
+                                name
+                                reviews {
+                                    id
+                                    comment
+                                    rating
+                                }
+                            }
+                        }
+                    }
+                    fileFormat
+                    fileSize
+                    price {
+                        amount
+                        currency
+                    }
+                }
+            }
+        }
+        totalElements
+        totalPages
+    }
+}

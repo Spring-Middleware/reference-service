@@ -27,6 +27,23 @@ mutation {
         status
         createdAt
         updatedAt
+        products {
+            __typename
+            ... on DigitalProduct {
+                id
+                name
+                description
+                price {
+                    amount
+                    currency
+                }
+                sku
+                status
+                fileFormat
+                fileSize
+                downloadUrl
+            }
+        }
 
     }
 }

@@ -7,6 +7,6 @@ import java.util.UUID;
 public class ReviewInput {
     private UUID productId;
     private Integer rating;
-    private String comments;
+    private String comment;
 }
 

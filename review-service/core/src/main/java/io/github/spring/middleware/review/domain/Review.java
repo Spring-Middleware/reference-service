@@ -12,7 +12,7 @@ public class Review {
     private UUID id;
     private UUID productId;
     private Integer rating;
-    private String comments;
+    private String comment;
     private Instant createdAt;
     private Instant updatedAt;
 }

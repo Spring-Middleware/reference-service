@@ -142,7 +142,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new ReviewNotFoundException(id));
 
         if (review.getRating() != null) existing.setRating(review.getRating());
-        if (review.getComments() != null) existing.setComments(review.getComments());
+        if (review.getComment() != null) existing.setComment(review.getComment());
         if (review.getProductId() != null) existing.setProductId(review.getProductId());
         existing.setUpdatedAt(Instant.now());
 
@@ -158,9 +158,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (hasQuery) {
             if (hasProductId) {
-                page = reviewRepository.findByCommentsContainingIgnoreCaseAndProductId(q, productId, pageable);
+                page = reviewRepository.findByCommentContainingIgnoreCaseAndProductId(q, productId, pageable);
             } else {
-                page = reviewRepository.findByCommentsContainingIgnoreCase(q, pageable);
+                page = reviewRepository.findByCommentContainingIgnoreCase(q, pageable);
             }
         } else {
             if (hasProductId) {

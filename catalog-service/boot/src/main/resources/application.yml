@@ -108,8 +108,8 @@ middleware:
           token-uri: ${OAUTH2_TOKEN_URI_PRODUCT_SERVICE:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token}
 
       connection:
-        timeout: 500
-        max-retries: 0
+        timeout: 5000
+        max-retries: 3
 
       circuit-breaker:
         wait-duration-in-open-state-ms: 10000

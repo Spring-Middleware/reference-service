@@ -94,7 +94,7 @@ services:
       - "8060:8080"
       - "5009:5005"
     environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - SPRING_PROFILES_ACTIVE=LOCAL
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - GRAPHQL_ENABLED=false
@@ -103,6 +103,8 @@ services:
       - JMS_PASSWORD=${JMS_PASSWORD}
       - JMS_RABBITMQ_GRAPHQL_SCANNER_CHECK_INTERVAL_MS=10000
       - JMS_RABBITMQ_GRAPHQL_SCANNER_ENABLED=true
+      - LOG_LEVEL_PACKAGE=ERROR
+      - LOG_LEVEL_ROOT=ERROR
     networks:
       middleware-net:
         aliases:
@@ -284,6 +286,7 @@ services:
       - JMS_RABBITMQ_REGISTRY_SCANNER_CHECK_INTERVAL=10000
     depends_on:
       - mongo
+      - product-service
     networks:
       middleware-net:
         aliases:
