@@ -92,18 +92,22 @@ services:
     hostname: graphql-gateway
     ports:
       - "8060:8080"
+      - "8061:8081" # Expose for local access if running app outside docker too
       - "5009:5005"
     environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - JAVA_TOOL_OPTIONS=--enable-preview -Xms4g -Xmx8g
       - SPRING_PROFILES_ACTIVE=LOCAL
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - GRAPHQL_ENABLED=false
+      - GRAPHQL_GATEWAY_METRICS_MODE=ENABLED
+      - GRAPHQL_GATEWAY_METRICS_HEADER_NAME=X-Metrics-Enabled
+      - GRAPHQL_GATEWAY_METRICS_HEADER_VALUE=true
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=false
       - LOG_API_KEY=${LOG_API_KEY}
       - JMS_PASSWORD=${JMS_PASSWORD}
       - JMS_RABBITMQ_GRAPHQL_SCANNER_CHECK_INTERVAL_MS=10000
       - JMS_RABBITMQ_GRAPHQL_SCANNER_ENABLED=true
-      - LOG_LEVEL_PACKAGE=ERROR
+      - LOG_LEVEL_PACKAGE=INFO
       - LOG_LEVEL_ROOT=ERROR
     networks:
       middleware-net:
@@ -173,7 +177,7 @@ services:
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
-      - LOG_REQUEST_ENABLED=true
+      - LOG_REQUEST_ENABLED=false
       - LOG_RESPONSE_ENABLED=true
       - LOG_RESPONSE_TIME_ENABLED=false
       - BASIC_AUTH_CATALOG_ADMIN=admin
@@ -219,7 +223,7 @@ services:
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
-      - LOG_REQUEST_ENABLED=true
+      - LOG_REQUEST_ENABLED=false
       - LOG_RESPONSE_ENABLED=false
       - LOG_RESPONSE_TIME_ENABLED=false
       - JMS_PASSWORD=${JMS_PASSWORD}
@@ -268,7 +272,7 @@ services:
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
-      - LOG_REQUEST_ENABLED=true
+      - LOG_REQUEST_ENABLED=false
       - LOG_RESPONSE_ENABLED=false
       - LOG_RESPONSE_TIME_ENABLED=false
       - JMS_PASSWORD=${JMS_PASSWORD}

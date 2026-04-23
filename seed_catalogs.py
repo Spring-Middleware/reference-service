@@ -416,10 +416,11 @@ def seed_catalogs(
         physical_inputs = [build_physical_input() for _ in range(physical_count)]
         digital_inputs = [build_digital_input() for _ in range(digital_count)]
 
-        created_physical = add_physical_products(catalog_id, physical_inputs, graphql_url)
-        created_digital = add_digital_products(catalog_id, digital_inputs, graphql_url)
+        add_physical_products(catalog_id, physical_inputs, graphql_url)
+        all_created_products = add_digital_products(catalog_id, digital_inputs, graphql_url)
 
-        all_created_products = created_physical + created_digital
+        created_physical_count = len(physical_inputs)
+        created_digital_count = len(digital_inputs)
 
         catalog_reviews_created = 0
         products_with_reviews = 0
@@ -436,8 +437,8 @@ def seed_catalogs(
 
         print(
             f"[{i:03d}/{total_catalogs}] Created catalog '{catalog['name']}' "
-            f"with {len(created_physical)} physical, {len(created_digital)} digital, "
-            f"{products_with_reviews} products with reviews, {catalog_reviews_created} reviews total"
+            f"with {created_physical_count} physical, {created_digital_count} digital, "
+            f"{len(all_created_products)} products with reviews, {catalog_reviews_created} reviews total"
         )
 
         if sleep_ms > 0:

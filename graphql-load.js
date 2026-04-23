@@ -38,6 +38,7 @@ const BASE_URL = __ENV.BASE_URL || 'http://localhost:8060/graphql';
 const AUTH_TOKEN = __ENV.AUTH_TOKEN || '';
 const QUERY_FILE = __ENV.QUERY_FILE || './query.graphql';
 const VARIABLES_FILE = __ENV.VARIABLES_FILE || '';
+const OPERATION_NAME = __ENV.OPERATION_NAME || null;
 
 const queryHolder = new SharedArray('graphql-query', function () {
   return [open(QUERY_FILE)];
@@ -53,11 +54,32 @@ const variablesHolder = new SharedArray('graphql-variables', function () {
 const query = queryHolder[0];
 const variables = variablesHolder[0];
 
+function safeParseJson(text) {
+  if (!text || typeof text !== 'string') {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return null;
+  }
+}
+
+function safeBodySnippet(body, maxLength = 1000) {
+  if (body == null) {
+    return '<empty body>';
+  }
+
+  const text = typeof body === 'string' ? body : JSON.stringify(body);
+  return text.length > maxLength ? text.substring(0, maxLength) : text;
+}
+
 export default function () {
   const payload = JSON.stringify({
     query,
     variables,
-    operationName: null,
+    operationName: OPERATION_NAME,
   });
 
   const headers = {
@@ -71,33 +93,29 @@ export default function () {
   const res = http.post(BASE_URL, payload, {
     headers,
     tags: {
-      operation: 'graphql_catalogs',
+      operation: OPERATION_NAME || 'anonymous_graphql',
       endpoint: 'graphql',
     },
+    timeout: __ENV.REQUEST_TIMEOUT || '60s',
   });
+
+  const body = safeParseJson(res.body);
 
   const ok = check(res, {
     'status is 200': (r) => r.status === 200,
-    'response has no GraphQL errors': (r) => {
-      try {
-        const body = JSON.parse(r.body);
-        return !body.errors || body.errors.length === 0;
-      } catch (e) {
-        return false;
-      }
+    'response has no GraphQL errors': () => {
+      return !!body && (!body.errors || body.errors.length === 0);
     },
-    'response contains data': (r) => {
-      try {
-        const body = JSON.parse(r.body);
-        return !!body?.data;
-      } catch (e) {
-        return false;
-      }
+    'response contains data': () => {
+      return !!body && !!body.data;
     },
   });
 
   if (!ok) {
-    console.error(`Unexpected response: status=${res.status}, body=${res.body.substring(0, 1000)}`);
+    const errorMessage = res.error ? `, error=${res.error}` : '';
+    console.error(
+      `Unexpected response: status=${res.status}${errorMessage}, body=${safeBodySnippet(res.body)}`
+    );
   }
 
   sleep(1);

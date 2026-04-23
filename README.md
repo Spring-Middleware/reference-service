@@ -387,10 +387,10 @@ Spring Middleware dependencies are resolved correctly.
 Use Docker Compose to bring up infrastructure services:
 
 ```bash
-docker-compose -f docker-compose.yml up -d
+docker-compose --profile infra up -d
 ```
 
-> Adjust the command if you use a different compose file or profile.
+> **Note:** Services like `registry`, `catalog-service`, `product-service`, and `review-service` require external infrastructure (MongoDB, Redis, Keycloak, etc.). If they fail to start or connect, ensure you have first started the infrastructure using the `--profile infra` flag as shown above.
 
 ### 3. Run the microservices
 

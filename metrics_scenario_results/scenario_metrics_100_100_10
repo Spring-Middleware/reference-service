@@ -1,0 +1,333 @@
+NO BATCHING:
+
+execution: local
+        script: ./graphql-load.js
+        output: -
+
+     scenarios: (100.00%) 2 scenarios, 20 max VUs, 2m20s max duration (incl. graceful stop):
+              * warmup: Up to 2 looping VUs for 35s over 3 stages (gracefulRampDown: 5s, gracefulStop: 30s)
+              * load_test: Up to 20 looping VUs for 1m40s over 4 stages (gracefulRampDown: 5s, startTime: 35s, gracefulStop: 30s)
+
+
+
+  █ THRESHOLDS
+
+    checks
+    ✓ 'rate>0.99' rate=100.00%
+
+    http_req_duration
+    ✗ 'p(90)<2000' p(90)=28.85s
+    ✗ 'p(95)<3000' p(95)=29.91s
+    ✗ 'p(99)<5000' p(99)=30.09s
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS
+
+    checks_total.......: 117     0.835708/s
+    checks_succeeded...: 100.00% 117 out of 117
+    checks_failed......: 0.00%   0 out of 117
+
+    ✓ status is 200
+    ✓ response has no GraphQL errors
+    ✓ response contains data
+
+    HTTP
+    http_req_duration..............: avg=18.35s min=10.45s med=16s    max=30.09s p(90)=28.85s p(95)=29.91s
+      { expected_response:true }...: avg=18.35s min=10.45s med=16s    max=30.09s p(90)=28.85s p(95)=29.91s
+    http_req_failed................: 0.00%  0 out of 39
+    http_reqs......................: 39     0.278569/s
+
+    EXECUTION
+    iteration_duration.............: avg=19.05s min=11.74s med=16.92s max=31.36s p(90)=28.5s  p(95)=30.57s
+    iterations.....................: 37     0.264284/s
+    vus............................: 1      min=0       max=20
+    vus_max........................: 20     min=20      max=20
+
+    NETWORK
+    data_received..................: 489 MB 3.5 MB/s
+    data_sent......................: 91 kB  652 B/s
+
+
+
+
+running (2m20.0s), 00/20 VUs, 37 complete and 20 interrupted iterations
+warmup    ✓ [======================================] 1/2 VUs    35s
+load_test ✓ [======================================] 01/20 VUs  1m40s
+ERRO[0140] thresholds on metrics 'http_req_duration' have been crossed
+
+
+http://localhost:8061/actuator/metrics/graphql.gateway.remote.execution?tag=schema:catalog
+
+{
+  "name": "graphql.gateway.remote.execution",
+  "baseUnit": "seconds",
+  "measurements": [
+    {
+      "statistic": "COUNT",
+      "value": 57
+    },
+    {
+      "statistic": "TOTAL_TIME",
+      "value": 1.266265577
+    },
+    {
+      "statistic": "MAX",
+      "value": 0.070126426
+    }
+  ],
+  "availableTags": [
+    {
+      "tag": "operation",
+      "values": [
+        "catalogs"
+      ]
+    },
+    {
+      "tag": "outcome",
+      "values": [
+        "success"
+      ]
+    }
+  ]
+}
+
+http://localhost:8061/actuator/metrics/graphql.gateway.remote.execution?tag=schema:product
+
+
+{
+  "name": "graphql.gateway.remote.execution",
+  "baseUnit": "seconds",
+  "measurements": [
+    {
+      "statistic": "COUNT",
+      "value": 5700
+    },
+    {
+      "statistic": "TOTAL_TIME",
+      "value": 28.774373006
+    },
+    {
+      "statistic": "MAX",
+      "value": 0.068481533
+    }
+  ],
+  "availableTags": [
+    {
+      "tag": "operation",
+      "values": [
+        "productsByIds"
+      ]
+    },
+    {
+      "tag": "outcome",
+      "values": [
+        "success"
+      ]
+    }
+  ]
+}
+
+http://localhost:8061/actuator/metrics/graphql.gateway.remote.execution?tag=schema:review
+
+{
+  "name": "graphql.gateway.remote.execution",
+  "baseUnit": "seconds",
+  "measurements": [
+    {
+      "statistic": "COUNT",
+      "value": 570000
+    },
+    {
+      "statistic": "TOTAL_TIME",
+      "value": 1088.941269602
+    },
+    {
+      "statistic": "MAX",
+      "value": 0.083527157
+    }
+  ],
+  "availableTags": [
+    {
+      "tag": "operation",
+      "values": [
+        "reviewsByIds"
+      ]
+    },
+    {
+      "tag": "outcome",
+      "values": [
+        "success"
+      ]
+    }
+  ]
+}
+
+BATCHING
+
+
+ execution: local
+        script: ./graphql-load.js
+        output: -
+
+     scenarios: (100.00%) 2 scenarios, 20 max VUs, 2m20s max duration (incl. graceful stop):
+              * warmup: Up to 2 looping VUs for 35s over 3 stages (gracefulRampDown: 5s, gracefulStop: 30s)
+              * load_test: Up to 20 looping VUs for 1m40s over 4 stages (gracefulRampDown: 5s, startTime: 35s, gracefulStop: 30s)
+
+
+
+  █ THRESHOLDS
+
+    checks
+    ✓ 'rate>0.99' rate=100.00%
+
+    http_req_duration
+    ✗ 'p(90)<2000' p(90)=9.73s
+    ✗ 'p(95)<3000' p(95)=10.66s
+    ✗ 'p(99)<5000' p(99)=11.43s
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS
+
+    checks_total.......: 441     3.175304/s
+    checks_succeeded...: 100.00% 441 out of 441
+    checks_failed......: 0.00%   0 out of 441
+
+    ✓ status is 200
+    ✓ response has no GraphQL errors
+    ✓ response contains data
+
+    HTTP
+    http_req_duration..............: avg=5.42s min=2.73s med=4.26s max=12.13s p(90)=9.73s  p(95)=10.66s
+      { expected_response:true }...: avg=5.42s min=2.73s med=4.26s max=12.13s p(90)=9.73s  p(95)=10.66s
+    http_req_failed................: 0.00%  0 out of 148
+    http_reqs......................: 148    1.065635/s
+
+    EXECUTION
+    iteration_duration.............: avg=6.66s min=4s    med=5.52s max=13.44s p(90)=10.92s p(95)=12.02s
+    iterations.....................: 145    1.044034/s
+    vus............................: 1      min=0        max=20
+    vus_max........................: 20     min=20       max=20
+
+    NETWORK
+    data_received..................: 1.9 GB 13 MB/s
+    data_sent......................: 243 kB 1.8 kB/s
+
+
+
+
+running (2m18.9s), 00/20 VUs, 145 complete and 7 interrupted iterations
+warmup    ✓ [======================================] 0/2 VUs    35s
+load_test ✓ [======================================] 00/20 VUs  1m40s
+ERRO[0139] thresholds on metrics 'http_req_duration' have been crossed
+
+http://localhost:8061/actuator/metrics/graphql.gateway.remote.execution?tag=schema:catalog
+
+{
+  "name": "graphql.gateway.remote.execution",
+  "baseUnit": "seconds",
+  "measurements": [
+    {
+      "statistic": "COUNT",
+      "value": 152
+    },
+    {
+      "statistic": "TOTAL_TIME",
+      "value": 5.136577537
+    },
+    {
+      "statistic": "MAX",
+      "value": 0.268353013
+    }
+  ],
+  "availableTags": [
+    {
+      "tag": "operation",
+      "values": [
+        "catalogs"
+      ]
+    },
+    {
+      "tag": "outcome",
+      "values": [
+        "success"
+      ]
+    }
+  ]
+}
+
+
+http://localhost:8061/actuator/metrics/graphql.gateway.remote.execution?tag=schema:product
+
+{
+  "name": "graphql.gateway.remote.execution",
+  "baseUnit": "seconds",
+  "measurements": [
+    {
+      "statistic": "COUNT",
+      "value": 304
+    },
+    {
+      "statistic": "TOTAL_TIME",
+      "value": 146.928572048
+    },
+    {
+      "statistic": "MAX",
+      "value": 1.934729708
+    }
+  ],
+  "availableTags": [
+    {
+      "tag": "operation",
+      "values": [
+        "productsByIds"
+      ]
+    },
+    {
+      "tag": "outcome",
+      "values": [
+        "success"
+      ]
+    }
+  ]
+}
+
+http://localhost:8061/actuator/metrics/graphql.gateway.remote.execution?tag=schema:review
+
+{
+  "name": "graphql.gateway.remote.execution",
+  "baseUnit": "seconds",
+  "measurements": [
+    {
+      "statistic": "COUNT",
+      "value": 304
+    },
+    {
+      "statistic": "TOTAL_TIME",
+      "value": 173.392650223
+    },
+    {
+      "statistic": "MAX",
+      "value": 1.394917019
+    }
+  ],
+  "availableTags": [
+    {
+      "tag": "operation",
+      "values": [
+        "reviewsByIds"
+      ]
+    },
+    {
+      "tag": "outcome",
+      "values": [
+        "success"
+      ]
+    }
+  ]
+}

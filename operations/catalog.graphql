@@ -10,7 +10,7 @@ query {
                 reviews {
                     id
                     rating
-                    comments
+                    comment
                 }
             }
             ... on DigitalProduct {
@@ -19,7 +19,7 @@ query {
                 reviews {
                     id
                     rating
-                    comments
+                    comment
                 }
             }
         }

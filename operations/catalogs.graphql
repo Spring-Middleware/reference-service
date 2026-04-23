@@ -1,5 +1,5 @@
 query {
-    catalogs(page: 0, size: 2, sort: "name,asc") {
+    catalogs(page: 0, size: 100, sort: "name,asc") {
         content {
             id
             name
