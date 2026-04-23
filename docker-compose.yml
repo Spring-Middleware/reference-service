@@ -86,7 +86,7 @@ services:
 
 
   graphql-gateway:
-    image: spring-base_graphql-gateway:latest
+    image: ferguardiola/graphql-gateway:1.0.0
     profiles: ["platform"]
     container_name: graphql_gateway
     hostname: graphql-gateway
@@ -120,7 +120,7 @@ services:
 
 
   registry:
-    image: spring-base_registry:latest
+    image: ferguardiola/registry:1.0.0
     profiles: ["platform"]
     container_name: registry
     hostname: registry
