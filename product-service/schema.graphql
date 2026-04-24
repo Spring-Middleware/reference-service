@@ -26,7 +26,8 @@ type Catalog {
     description: String
     id: UUID
     name: String
-    products: [Product]
+    productIds: [UUID]
+    products(sort: String): [Product]
     productsByNames(name: String): Page_Product
     status: CatalogStatus
     updatedAt: Instant
@@ -166,7 +167,7 @@ type Query {
     catalogs(page: Int, q: String, size: Int, sort: String, status: CatalogStatus): Page_Catalog
     product(id: UUID): Product
     products(catalogId: UUID, page: Int, q: String, size: Int, sort: String, status: ProductStatus): Page_Product
-    productsByIds(ids: [UUID]): [Product]
+    productsByIds(ids: [UUID], sort: String): [Product]
     review(id: UUID): Review
     reviews(page: Int, productId: UUID, q: String, size: Int, sort: String): Page_Review
     reviewsByIds(ids: [UUID]): [Review]

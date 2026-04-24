@@ -10,6 +10,7 @@ import io.leangen.graphql.annotations.GraphQLQuery;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,14 +25,22 @@ public class Catalog {
     private CatalogStatus status;
     private Instant createdAt;
     private Instant updatedAt;
-    @GraphQLLink(schema = "product", type = "Product", query = "productsByIds", arguments = {
-            @GraphQLLinkArgument(name = "ids", targetFieldName = "id", batch = true)
-    }, collection = true, batched = true)
     private List<UUID> productIds;
 
+    @GraphQLLink(schema = "product", type = "Product", query = "productsByIds", arguments = {
+            @GraphQLLinkArgument(name = "ids", targetFieldName = "id", batch = true),
+            @GraphQLLinkArgument(name = "sort")
+    }, collection = true, batched = true)
     @GraphQLQuery(name = "products")
-    public List<UUID> getProductIds() {
-        return productIds;
+    public GraphQLLinkArguments getProductIds(@GraphQLArgument(name = "sort") String sort) {
+        Map<String, Object> args = new HashMap<>();
+        args.put("ids", productIds);
+
+        if (sort != null) {
+            args.put("sort", sort);
+        }
+
+        return new GraphQLLinkArguments(args);
     }
 
     @GraphQLLink(schema = "product", type = "Page_Product", query = "products", arguments = {@GraphQLLinkArgument(name = "catalogId", targetFieldName = "catalogId", batch = true), @GraphQLLinkArgument(name = "q")})

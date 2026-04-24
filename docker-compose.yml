@@ -95,7 +95,7 @@ services:
       - "8061:8081" # Expose for local access if running app outside docker too
       - "5009:5005"
     environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -Xms4g -Xmx8g
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xms4g -Xmx8g
       - SPRING_PROFILES_ACTIVE=LOCAL
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - GRAPHQL_ENABLED=false

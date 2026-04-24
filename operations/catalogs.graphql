@@ -5,7 +5,7 @@ query {
             name
             description
             status
-            products {
+            products(sort: null) {
                 __typename
                 ... on PhysicalProduct {
                     id

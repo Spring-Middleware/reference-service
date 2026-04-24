@@ -312,7 +312,7 @@ def add_physical_products(catalog_id: str, products: list[dict], graphql_url: st
         ) {{
             id
             name
-            products {{
+            products(sort: null) {{
                 __typename
                 ... on PhysicalProduct {{
                     id
@@ -344,7 +344,7 @@ def add_digital_products(catalog_id: str, products: list[dict], graphql_url: str
         ) {{
             id
             name
-            products {{
+            products(sort: null) {{
                 __typename
                 ... on PhysicalProduct {{
                     id

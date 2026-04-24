@@ -18,7 +18,7 @@ public interface ProductService {
 
     Product replaceProduct(UUID id, Product product);
 
-    List<Product> getProductsByIds(List<UUID> productIds);
+    List<Product> getProductsByIds(List<UUID> productIds, String sort);
 
     List<Product> replaceProductsForCatalog(List<Product> products, UUID catalogId);
 

@@ -4,6 +4,7 @@ import io.github.spring.middleware.product.domain.ProductStatus;
 import io.github.spring.middleware.product.entity.BaseProductEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -41,4 +42,6 @@ public interface ProductRepository extends MongoRepository<BaseProductEntity, UU
     boolean existsBySku(String sku);
 
     BaseProductEntity findBySkuAndCatalogId(String sku, UUID catalogId);
+
+    List<BaseProductEntity> findByIdIn(List<UUID> ids, Sort sorting);
 }

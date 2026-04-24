@@ -57,8 +57,8 @@ public class ProductGraphqlController {
     }
 
     @GraphQLQuery(name = "productsByIds")
-    public List<Product> getProductsByIds(@GraphQLArgument(name = "ids") List<UUID> ids) {
-        return productService.getProductsByIds(ids);
+    public List<Product> getProductsByIds(@GraphQLArgument(name = "ids") List<UUID> ids, @GraphQLArgument(name = "sort") String sort) {
+        return productService.getProductsByIds(ids, sort);
     }
 
     @GraphQLMutation(name = "replaceDigitalProduct")

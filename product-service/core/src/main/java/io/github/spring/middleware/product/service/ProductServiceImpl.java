@@ -11,11 +11,13 @@ import io.github.spring.middleware.product.exceptions.ProductNotFoundException;
 import io.github.spring.middleware.product.exceptions.ProductTypeChangeNotAllowedException;
 import io.github.spring.middleware.product.mapper.ProductEntityMapper;
 import io.github.spring.middleware.product.repository.ProductRepository;
+import io.github.spring.middleware.utils.PageRequestUtils;
 import io.github.spring.middleware.utils.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -92,8 +94,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getProductsByIds(List<UUID> productIds) {
-        List<BaseProductEntity> entities = productRepository.findAllById(productIds);
+    public List<Product> getProductsByIds(List<UUID> productIds, String sort) {
+        Sort sorting = PageRequestUtils.parseSort(sort);
+        List<BaseProductEntity> entities =
+                sorting.isUnsorted()
+                        ? productRepository.findAllById(productIds)
+                        : productRepository.findByIdIn(productIds, sorting);
         return entities.stream().map(productEntityMapper::toDomain).toList();
     }
 
