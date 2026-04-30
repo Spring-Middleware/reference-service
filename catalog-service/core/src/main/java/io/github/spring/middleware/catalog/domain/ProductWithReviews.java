@@ -7,14 +7,18 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-public class CatalogWithProducts {
+public abstract class ProductWithReviews {
 
     private UUID id;
     private String name;
     private String description;
-    private CatalogStatus status;
+    private String sku;
+    private ProductStatus status;
+    private Money price;
     private Instant createdAt;
     private Instant updatedAt;
-    private List<ProductWithReviews> products;
+    private List<Review> reviews;
+
+    public abstract ProductType getProductType();
 
 }

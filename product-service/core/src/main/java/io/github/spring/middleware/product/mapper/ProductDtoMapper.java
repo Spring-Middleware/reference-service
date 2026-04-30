@@ -1,10 +1,13 @@
 package io.github.spring.middleware.product.mapper;
 
 import io.github.spring.middleware.product.domain.DigitalProduct;
+import io.github.spring.middleware.product.domain.DigitalProductWithReviews;
 import io.github.spring.middleware.product.domain.Money;
 import io.github.spring.middleware.product.domain.PhysicalProduct;
+import io.github.spring.middleware.product.domain.PhysicalProductWithReviews;
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductStatus;
+import io.github.spring.middleware.product.domain.ProductWithReviews;
 import io.github.spring.middleware.product.dto.DigitalProductDto;
 import io.github.spring.middleware.product.dto.MoneyDto;
 import io.github.spring.middleware.product.dto.PhysicalProductDto;
@@ -23,6 +26,21 @@ import java.time.ZoneOffset;
 @Mapper(componentModel = "spring")
 public interface ProductDtoMapper {
 
+
+    default ProductDto toDtoWithReviews(ProductWithReviews product) {
+        if (product == null) {
+            return null;
+        }
+        switch (product.getProductType()) {
+            case DIGITAL:
+                return toDigitalDtoWithReviews((DigitalProductWithReviews) product);
+            case PHYSICAL:
+            default:
+                return toPhysicalDtoWithReviews((PhysicalProductWithReviews) product);
+        }
+    }
+
+
     default ProductDto toDto(Product product) {
         if (product == null) {
             return null;
@@ -39,6 +57,10 @@ public interface ProductDtoMapper {
     PhysicalProductDto toPhysicalDto(PhysicalProduct product);
 
     DigitalProductDto toDigitalDto(DigitalProduct product);
+
+    PhysicalProductDto toPhysicalDtoWithReviews(PhysicalProductWithReviews product);
+
+    DigitalProductDto toDigitalDtoWithReviews(DigitalProductWithReviews product);
 
     @Mapping(target = "amount", source = "amount", qualifiedByName = "normalizeMoneyAmount")
     MoneyDto toDto(Money money);

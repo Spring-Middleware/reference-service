@@ -120,6 +120,11 @@ middleware:
           client-secret: ${OAUTH2_CLIENT_SECRET_CATALOG_SERVICE}
           token-uri: ${OAUTH2_TOKEN_URI_PRODUCT_SERVICE:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token}
 
+    review:
+      security:
+        type: API_KEY
+        api-key: ${API_KEY_REVIEW_ADMIN:review-service-api-key}
+
   jms:
     enabled: ${JMS_ENABLED:true}
     profile: ${JMS_PROFILE:LOCAL}

@@ -5,6 +5,7 @@ import io.github.spring.middleware.catalog.domain.CatalogWithProducts;
 import io.github.spring.middleware.catalog.domain.DigitalProduct;
 import io.github.spring.middleware.catalog.domain.PhysicalProduct;
 import io.github.spring.middleware.catalog.domain.Product;
+import io.github.spring.middleware.catalog.domain.ProductWithReviews;
 import io.github.spring.middleware.catalog.dto.CatalogCreateRequestDto;
 import io.github.spring.middleware.catalog.dto.CatalogPatchRequestDto;
 import io.github.spring.middleware.catalog.dto.CatalogUpdateRequestDto;
@@ -35,12 +36,12 @@ public interface CatalogMapper {
     Catalog toCatalog(CatalogWithProducts catalogWithProducts);
 
     @Named("productsFromCatalogWithProducts")
-    default List<UUID> productsFromCatalogWithProducts(List<Product> products) {
+    default List<UUID> productsFromCatalogWithProducts(List<ProductWithReviews> products) {
         if (products == null) {
             return null;
         }
         return products.stream()
-                .map(Product::getId)
+                .map(ProductWithReviews::getId)
                 .toList();
     }
 

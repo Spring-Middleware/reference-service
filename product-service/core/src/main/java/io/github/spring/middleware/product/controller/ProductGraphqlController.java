@@ -53,7 +53,7 @@ public class ProductGraphqlController {
                 size != null ? size : 20,
                 sort != null ? Sort.by(sort.split(",")) : Sort.unsorted()
         );
-        return productService.listProducts(q, status, catalogId, pageable);
+        return productService.listProducts(q, status, catalogId,  pageable);
     }
 
     @GraphQLQuery(name = "productsByIds")

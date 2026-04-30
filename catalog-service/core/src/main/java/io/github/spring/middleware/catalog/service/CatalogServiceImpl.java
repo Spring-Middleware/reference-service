@@ -96,8 +96,8 @@ public class CatalogServiceImpl implements CatalogService {
         CatalogEntity catalogEntity = catalogRepository.findById(id).orElseThrow(() -> new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found"));
         CatalogWithProducts catalogWithProducts = catalogEntityMapper.toWithProducts(catalogEntity);
         if (expandProducts) {
-            List<ProductDto> productDtos = PaginationUtils.findAllPages((catalogId, p, s) -> productApi.listProducts(null, null, catalogId, p, s, null).getItems(), catalogWithProducts.getId(), 0, 100);
-            catalogWithProducts.setProducts(productDtos.stream().map(productMapper::toDomain).toList());
+            List<ProductDto> productDtos = PaginationUtils.findAllPages((catalogId, p, s) -> productApi.listProducts(null, null, catalogId, true, p, s, null).getItems(), catalogWithProducts.getId(), 0, 100);
+            catalogWithProducts.setProducts(productDtos.stream().map(productMapper::toDomainWithReviews).toList());
         }
         return catalogWithProducts;
     }
@@ -170,7 +170,7 @@ public class CatalogServiceImpl implements CatalogService {
         if (!catalogRepository.existsById(id)) {
             throw new CatalogNotFoundException(CatalogErrorCodes.CATALOG_NOT_FOUND, STR."Catalog with id \{id} not found");
         }
-        var response = productApi.listProducts(null, null, id, pageable.getPageNumber(), pageable.getPageSize(), null);
+        var response = productApi.listProducts(null, null, id, false, pageable.getPageNumber(), pageable.getPageSize(), null);
         List<Product> products = response.getItems().stream()
                 .map(productMapper::toDomain)
                 .toList();

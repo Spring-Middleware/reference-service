@@ -93,6 +93,7 @@ middleware:
         concurrency: 3
 
   client:
+    enabled: true
     registry-endpoint: ${REGISTRY_ENDPOINT:http://localhost:8080/registry}
     product:
       security:

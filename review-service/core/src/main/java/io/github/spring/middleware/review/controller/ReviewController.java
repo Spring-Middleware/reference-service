@@ -74,6 +74,15 @@ public class ReviewController implements ReviewApi {
     }
 
     @Override
+    public List<ReviewDto> getReviewsByIds(List<UUID> ids) {
+        log.info("Received request to get reviews by ids: {}", ids);
+        List<Review> reviews = reviewService.getReviewsByIds(ids);
+        return reviews.stream()
+                .map(reviewMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public PagedReviewResponseDto listReviews(UUID productId, Integer page, Integer size, String sort) {
         log.info("Rest request to list reviews. productId: {}, page: {}, size: {}", productId, page, size);
         Pageable pageable = PageRequest.of(

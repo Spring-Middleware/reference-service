@@ -48,7 +48,7 @@ middleware:
         - /graphql/schema-metadata
 
   security:
-    type: ${SECURITY_TYPE:BASIC_AUTH} #options: NONE, BASIC_AUTH, JWT, OAUTH2, API_KEY
+    type: ${SECURITY_TYPE:API_KEY} #options: NONE, BASIC_AUTH, JWT, OAUTH2, API_KEY
 
     public-paths:
       - /graphql

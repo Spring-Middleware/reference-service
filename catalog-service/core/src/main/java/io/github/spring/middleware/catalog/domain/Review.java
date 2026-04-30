@@ -3,18 +3,15 @@ package io.github.spring.middleware.catalog.domain;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Data
-public class CatalogWithProducts {
-
+public class Review {
     private UUID id;
-    private String name;
-    private String description;
-    private CatalogStatus status;
+    private UUID productId;
+    private Integer rating;
+    private String comment;
     private Instant createdAt;
     private Instant updatedAt;
-    private List<ProductWithReviews> products;
-
 }
+

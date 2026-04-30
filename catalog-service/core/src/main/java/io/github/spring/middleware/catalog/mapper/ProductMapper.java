@@ -1,8 +1,12 @@
 package io.github.spring.middleware.catalog.mapper;
 
 import io.github.spring.middleware.catalog.domain.DigitalProduct;
+import io.github.spring.middleware.catalog.domain.DigitalProductWithReviews;
 import io.github.spring.middleware.catalog.domain.PhysicalProduct;
+import io.github.spring.middleware.catalog.domain.PhysicalProductWithReviews;
 import io.github.spring.middleware.catalog.domain.Product;
+import io.github.spring.middleware.catalog.domain.ProductWithReviews;
+import io.github.spring.middleware.catalog.domain.Review;
 import io.github.spring.middleware.catalog.dto.DigitalProductInputDto;
 import io.github.spring.middleware.catalog.dto.DigitalProductWithIdInputDto;
 import io.github.spring.middleware.catalog.dto.PagedProductResponseDto;
@@ -21,6 +25,7 @@ import io.github.spring.middleware.product.dto.ProductCreateItemDto;
 import io.github.spring.middleware.product.dto.ProductDto;
 import io.github.spring.middleware.product.dto.ProductReplaceItemDto;
 import io.github.spring.middleware.product.dto.ProductTypeDto;
+import io.github.spring.middleware.product.dto.ReviewDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -30,6 +35,22 @@ import java.time.OffsetDateTime;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
+
+
+    default ProductWithReviews toDomainWithReviews(ProductDto productDTO) {
+        if (productDTO == null) {
+            return null;
+        }
+
+        ProductTypeDto productTypeDto = productDTO.getProductType();
+        if (productTypeDto == ProductTypeDto.DIGITAL) {
+            return toDomainWithReviews((DigitalProductDto) productDTO);
+        } else if (productTypeDto == ProductTypeDto.PHYSICAL) {
+            return toDomainWithReviews((PhysicalProductDto) productDTO);
+        } else {
+            throw new IllegalArgumentException(STR."Unknown product type: \{productTypeDto}");
+        }
+    }
 
 
     default Product toDomain(ProductDto productDTO) {
@@ -53,7 +74,19 @@ public interface ProductMapper {
 
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "offsetDateTimeToInstant")
     @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "offsetDateTimeToInstant")
+    DigitalProductWithReviews toDomainWithReviews(DigitalProductDto digitalProductDTO);
+
+    @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "offsetDateTimeToInstant")
+    @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "offsetDateTimeToInstant")
+    Review toDomain(ReviewDto reviewDTO);
+
+    @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "offsetDateTimeToInstant")
+    @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "offsetDateTimeToInstant")
     PhysicalProduct toDomain(PhysicalProductDto physicalProductDTO);
+
+    @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "offsetDateTimeToInstant")
+    @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "offsetDateTimeToInstant")
+    PhysicalProductWithReviews toDomainWithReviews(PhysicalProductDto physicalProductDTO);
 
 
     default Product toDomain(ProductInputDto productInputDto) {

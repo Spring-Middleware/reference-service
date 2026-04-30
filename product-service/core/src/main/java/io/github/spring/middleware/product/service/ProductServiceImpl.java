@@ -4,13 +4,17 @@ import io.github.spring.middleware.catalog.api.CatalogApi;
 import io.github.spring.middleware.catalog.dto.CatalogWithProductsDto;
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductStatus;
+import io.github.spring.middleware.product.domain.ProductWithReviews;
 import io.github.spring.middleware.product.entity.BaseProductEntity;
 import io.github.spring.middleware.product.exceptions.CatalogNotFoundException;
 import io.github.spring.middleware.product.exceptions.ProductAlreadyExistsException;
 import io.github.spring.middleware.product.exceptions.ProductNotFoundException;
 import io.github.spring.middleware.product.exceptions.ProductTypeChangeNotAllowedException;
 import io.github.spring.middleware.product.mapper.ProductEntityMapper;
+import io.github.spring.middleware.product.mapper.ReviewMapper;
 import io.github.spring.middleware.product.repository.ProductRepository;
+import io.github.spring.middleware.review.api.ReviewApi;
+import io.github.spring.middleware.review.dto.ReviewDto;
 import io.github.spring.middleware.utils.PageRequestUtils;
 import io.github.spring.middleware.utils.PaginationUtils;
 import org.springframework.data.domain.Page;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,11 +36,15 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductEntityMapper productEntityMapper;
     private final CatalogApi catalogApi;
+    private final ReviewApi reviewApi;
+    private final ReviewMapper reviewMapper;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductEntityMapper productEntityMapper, CatalogApi catalogApi) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductEntityMapper productEntityMapper, CatalogApi catalogApi, ReviewApi reviewApi, ReviewMapper reviewMapper) {
         this.productRepository = productRepository;
         this.productEntityMapper = productEntityMapper;
         this.catalogApi = catalogApi;
+        this.reviewApi = reviewApi;
+        this.reviewMapper = reviewMapper;
     }
 
     @Override
@@ -167,6 +176,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<Product> listProducts(String q, ProductStatus status, UUID catalogId, Pageable pageable) {
+
         Page<BaseProductEntity> page;
         boolean hasQuery = q != null && !q.isBlank();
         boolean hasStatus = status != null;
@@ -206,6 +216,71 @@ public class ProductServiceImpl implements ProductService {
                 .map(productEntityMapper::toDomain)
                 .collect(Collectors.toList());
 
+        return new PageImpl<>(products, pageable, page.getTotalElements());
+    }
+
+
+    @Override
+    public Page<ProductWithReviews> listProductsWithReviews(String q, ProductStatus status, UUID catalogId, boolean includeReviews, Pageable pageable) {
+        Page<BaseProductEntity> page;
+        boolean hasQuery = q != null && !q.isBlank();
+        boolean hasStatus = status != null;
+        boolean hasCatalogId = catalogId != null;
+
+        if (hasQuery) {
+            if (hasCatalogId) {
+                if (hasStatus) {
+                    page = productRepository.findAllByNameContainingIgnoreCaseAndCatalogIdAndStatus(q, catalogId, status, pageable);
+                } else {
+                    page = productRepository.findAllByNameContainingIgnoreCaseAndCatalogId(q, catalogId, pageable);
+                }
+            } else {
+                if (hasStatus) {
+                    page = productRepository.findAllByNameContainingIgnoreCaseAndStatus(q, status, pageable);
+                } else {
+                    page = productRepository.findByNameContainingIgnoreCase(q, pageable);
+                }
+            }
+        } else {
+            if (hasCatalogId) {
+                if (hasStatus) {
+                    page = productRepository.findAllByCatalogIdAndStatus(catalogId, status, pageable);
+                } else {
+                    page = productRepository.findAllByCatalogId(catalogId, pageable);
+                }
+            } else {
+                if (hasStatus) {
+                    page = productRepository.findAllByStatus(status, pageable);
+                } else {
+                    page = productRepository.findAll(pageable);
+                }
+            }
+        }
+
+        List<ProductWithReviews> products = page.getContent().stream()
+                .map(productEntityMapper::toDomainWithReviews)
+                .collect(Collectors.toList());
+
+        if (includeReviews) {
+            List<UUID> reviewsIds = products.stream().filter(product -> product.getReviews() != null)
+                    .flatMap(product -> product.getReviews().stream())
+                    .map(review -> review.getId())
+                    .distinct()
+                    .toList();
+
+            if (!reviewsIds.isEmpty()) {
+                var reviews = reviewApi.getReviewsByIds(reviewsIds);
+                Map<UUID, List<ReviewDto>> reviewsByProductId = reviews.stream()
+                        .collect(Collectors.groupingBy(ReviewDto::getProductId));
+
+                products.forEach(product -> {
+                    List<ReviewDto> reviewsForProduct = reviewsByProductId.get(product.getId());
+                    if (reviewsForProduct != null) {
+                        product.setReviews(reviewsForProduct.stream().map(reviewMapper::toDomain).toList());
+                    }
+                });
+            }
+        }
         return new PageImpl<>(products, pageable, page.getTotalElements());
     }
 

@@ -129,85 +129,7 @@ paths:
           $ref: "review-responses.yaml#/components/responses/Error409"
         "500":
           $ref: "review-responses.yaml#/components/responses/Error500"
-  /api/v1/reviews/bulk:
-    post:
-      tags: [ Review ]
-      summary: Bulk create reviews
-      operationId: createReviews
-      security:
-        - ApiKeyAuth: [ ]
-        - PassthroughAuth: [ ]
-        - OAuth2:
-            - review.write
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "review-requests.yaml#/components/schemas/ReviewBulkCreateRequest"
-      responses:
-        "201":
-          $ref: "review-responses.yaml#/components/responses/ReviewListResponse"
-        "400":
-          $ref: "review-responses.yaml#/components/responses/Error400"
-        "401":
-          $ref: "review-responses.yaml#/components/responses/Error401"
-        "403":
-          $ref: "review-responses.yaml#/components/responses/Error403"
-        "500":
-          $ref: "review-responses.yaml#/components/responses/Error500"
-    put:
-      tags: [ Review ]
-      summary: Bulk replace reviews
-      operationId: replaceReviews
-      security:
-        - ApiKeyAuth: [ ]
-        - PassthroughAuth: [ ]
-        - OAuth2:
-            - review.write
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "review-requests.yaml#/components/schemas/ReviewBulkReplaceRequest"
-      responses:
-        "200":
-          $ref: "review-responses.yaml#/components/responses/ReviewListResponse"
-        "400":
-          $ref: "review-responses.yaml#/components/responses/Error400"
-        "401":
-          $ref: "review-responses.yaml#/components/responses/Error401"
-        "403":
-          $ref: "review-responses.yaml#/components/responses/Error403"
-        "500":
-          $ref: "review-responses.yaml#/components/responses/Error500"
-    delete:
-      tags: [ Review ]
-      summary: Bulk delete reviews
-      operationId: deleteReviews
-      security:
-        - ApiKeyAuth: [ ]
-        - PassthroughAuth: [ ]
-        - OAuth2:
-            - review.write
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "review-requests.yaml#/components/schemas/ReviewBulkDeleteRequest"
-      responses:
-        "204":
-          description: Deleted
-        "400":
-          $ref: "review-responses.yaml#/components/responses/Error400"
-        "401":
-          $ref: "review-responses.yaml#/components/responses/Error401"
-        "403":
-          $ref: "review-responses.yaml#/components/responses/Error403"
-        "500":
-          $ref: "review-responses.yaml#/components/responses/Error500"
+
   /api/v1/reviews/{id}:
     get:
       tags: [ Review ]
@@ -327,5 +249,124 @@ paths:
           $ref: "review-responses.yaml#/components/responses/Error403"
         "404":
           $ref: "review-responses.yaml#/components/responses/Error404"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+          
+  /api/v1/reviews/list:
+    get:
+      tags: [ Review ]
+      summary: Get reviews by ids
+      operationId: getReviewsByIds
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.read
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          description: List of review ids to retrieve
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+            example: ["123e4567-e89b-12d3-a456-426614174000", "7c8d9e0f-1234-4a5b-6c7d-8e9f0a1b2c3d"]
+      responses:
+        "200":
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "review-schema.yaml#/components/schemas/Review"
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+
+  /api/v1/reviews/bulk:
+    post:
+      tags: [ Review ]
+      summary: Bulk create reviews
+      operationId: createReviews
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "review-requests.yaml#/components/schemas/ReviewBulkCreateRequest"
+      responses:
+        "201":
+          $ref: "review-responses.yaml#/components/responses/ReviewListResponse"
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+    put:
+      tags: [ Review ]
+      summary: Bulk replace reviews
+      operationId: replaceReviews
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "review-requests.yaml#/components/schemas/ReviewBulkReplaceRequest"
+      responses:
+        "200":
+          $ref: "review-responses.yaml#/components/responses/ReviewListResponse"
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
+        "500":
+          $ref: "review-responses.yaml#/components/responses/Error500"
+    delete:
+      tags: [ Review ]
+      summary: Bulk delete reviews
+      operationId: deleteReviews
+      security:
+        - ApiKeyAuth: [ ]
+        - PassthroughAuth: [ ]
+        - OAuth2:
+            - review.write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "review-requests.yaml#/components/schemas/ReviewBulkDeleteRequest"
+      responses:
+        "204":
+          description: Deleted
+        "400":
+          $ref: "review-responses.yaml#/components/responses/Error400"
+        "401":
+          $ref: "review-responses.yaml#/components/responses/Error401"
+        "403":
+          $ref: "review-responses.yaml#/components/responses/Error403"
         "500":
           $ref: "review-responses.yaml#/components/responses/Error500"

@@ -163,7 +163,7 @@ services:
       - "8070:8080"
       - "5008:5005"
     environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
       - SECURITY_TYPE=OAUTH2
       - REGISTRY_ENDPOINT=http://registry:8080/registry
@@ -233,6 +233,7 @@ services:
       - API_KEY_PRODUCT_ADMIN=${API_KEY_PRODUCT_ADMIN}
       - API_KEY_PRODUCT_WRITER=${API_KEY_PRODUCT_WRITER}
       - API_KEY_PRODUCT_READER=${API_KEY_PRODUCT_READER}
+      - API_KEY_REVIEW_ADMIN=${API_KEY_REVIEW_ADMIN}
       - OAUTH2_TOKEN_URI_PRODUCT_SERVICE=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
       - BASIC_AUTH_PRODUCT_ADMIN_PASSWORD=${BASIC_AUTH_PRODUCT_ADMIN_PASSWORD}
       - OAUTH2_CLIENT_ID_CATALOG_SERVICE=catalog-service
@@ -261,7 +262,7 @@ services:
     environment:
       - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
-      - SECURITY_TYPE=BASIC_AUTH
+      - SECURITY_TYPE=API_KEY
       - SERVER_CONTEXT_PATH=/review
       - REGISTRY_ENDPOINT=http://registry:8080/registry
       - MONGO_URI=mongodb://mongo:27017/review

@@ -41,6 +41,11 @@
 
         <dependency>
             <groupId>io.github.spring-middleware</groupId>
+            <artifactId>review-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.spring-middleware</groupId>
             <artifactId>catalog-api</artifactId>
         </dependency>
 

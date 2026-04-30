@@ -1,11 +1,11 @@
 query {
-    catalogs(page: 0, size: 100, sort: "name,asc") {
+    catalogs(page: 0, size: 3, sort: "name,asc") {
         content {
             id
             name
             description
             status
-            products(sort: null) {
+            products(sort: "name, desc") {
                 __typename
                 ... on PhysicalProduct {
                     id

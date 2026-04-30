@@ -43,6 +43,35 @@ components:
           example: 10.0
       required: [length, width, height]
 
+    Review:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 10
+          example: 8
+        comment:
+          type: string
+          example: "Great product, really liked it!"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - rating
+        - comments
+        - createdAt
+        - updatedAt
+
     # 1) Tipo base sin campos específicos
     BaseProduct:
       type: object
@@ -77,6 +106,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+          description: List of reviews associated with this product (populated if includeReviews is true)
         productType:
           $ref: "#/components/schemas/ProductType"
       required:

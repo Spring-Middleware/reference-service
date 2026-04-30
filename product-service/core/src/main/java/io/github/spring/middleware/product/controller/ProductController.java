@@ -4,6 +4,7 @@ import io.github.spring.middleware.annotation.Register;
 import io.github.spring.middleware.product.api.ProductApi;
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductStatus;
+import io.github.spring.middleware.product.domain.ProductWithReviews;
 import io.github.spring.middleware.product.dto.PagedProductResponseDto;
 import io.github.spring.middleware.product.dto.ProductBulkCreateRequestDto;
 import io.github.spring.middleware.product.dto.ProductBulkDeleteRequestDto;
@@ -16,7 +17,6 @@ import io.github.spring.middleware.product.dto.ProductUpdateRequestDto;
 import io.github.spring.middleware.product.mapper.ProductDtoMapper;
 import io.github.spring.middleware.product.mapper.ProductMapper;
 import io.github.spring.middleware.product.service.ProductService;
-import jakarta.annotation.security.RolesAllowed;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -76,9 +76,10 @@ public class ProductController implements ProductApi {
         return productDtoMapper.toDto(product);
     }
 
+
     @Override
-    public PagedProductResponseDto listProducts(String q, ProductStatusDto status, UUID catalogId, Integer page, Integer size, String sort) {
-        log.info("Rest request to list products. q: {}, status: {}, page: {}, size: {}", q, status, page, size);
+    public PagedProductResponseDto listProducts(String q, ProductStatusDto status, UUID catalogId, Boolean includeReviews, Integer page, Integer size, String sort) {
+        log.info("Rest request to list products. q: {}, status: {}, page: {}, size: {}, includeReviews: {}", q, status, page, size, includeReviews);
         Pageable pageable = PageRequest.of(
                 page == null ? 0 : page,
                 size == null ? 20 : size,
@@ -87,10 +88,10 @@ public class ProductController implements ProductApi {
 
         ProductStatus domainStatus = status != null ? ProductStatus.valueOf(status.name()) : null;
 
-        Page<Product> productsPage = productService.listProducts(q, domainStatus, catalogId, pageable);
+        Page<ProductWithReviews> productsPage = productService.listProductsWithReviews(q, domainStatus, catalogId, Boolean.TRUE.equals(includeReviews), pageable);
 
         PagedProductResponseDto response = new PagedProductResponseDto();
-        response.setItems(productsPage.getContent().stream().map(productDtoMapper::toDto).toList());
+        response.setItems(productsPage.getContent().stream().map(productDtoMapper::toDtoWithReviews).toList());
         response.setPage(productsPage.getNumber());
         response.setSize(productsPage.getSize());
         response.setTotalItems((int) productsPage.getTotalElements());

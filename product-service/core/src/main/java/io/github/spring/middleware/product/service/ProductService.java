@@ -2,6 +2,7 @@ package io.github.spring.middleware.product.service;
 
 import io.github.spring.middleware.product.domain.Product;
 import io.github.spring.middleware.product.domain.ProductStatus;
+import io.github.spring.middleware.product.domain.ProductWithReviews;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -23,6 +24,8 @@ public interface ProductService {
     List<Product> replaceProductsForCatalog(List<Product> products, UUID catalogId);
 
     Product patchProduct(UUID id, Product product);
+
+    Page<ProductWithReviews> listProductsWithReviews(String q, ProductStatus status, UUID catalogId, boolean includeReviews, Pageable pageable);
 
     Page<Product> listProducts(String q, ProductStatus status, UUID catalogId, Pageable pageable);
 
