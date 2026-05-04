@@ -30,6 +30,14 @@ logging:
     org.springframework.security.web: ERROR
     root: ${LOG_LEVEL_ROOT:ERROR}
 
+catalog:
+  document-source:
+    url: ${CATALOG_DOCUMENT_SOURCE_URL:http://catalog:8080/catalog}
+    token-uri: ${CATALOG_DOCUMENT_SOURCE_TOKEN_URI:http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token}
+    client-id: ${OAUTH2_CLIENT_ID_CATALOG_SERVICE:catalog-service}
+    client-secret: ${OAUTH2_CLIENT_SECRET_CATALOG_SERVICE}
+    scopes: catalog.read catalog.write
+
 middleware:
   log:
     apiKey: ${LOG_API_KEY}
@@ -221,6 +229,72 @@ middleware:
 
   errors:
     CATALOG_NOT_FOUND: 404
+
+  ai:
+   document:
+     sources:
+       catalogs:
+            enabled: true
+            system-context: |
+              You are a product catalog assistant.
+              
+              Answer ONLY using the provided product catalog context.
+              If the answer is not explicitly present in the retrieved context, say exactly:
+              "No está en los catálogos."
+              
+              Hard constraints:
+              - Never use external knowledge.
+              - Never invent product names.
+              - Never add examples.
+              - Never add partial-list disclaimers.
+              - Never say "some products" unless the context explicitly says the list is partial.
+              - Product names must be copied exactly from the context.
+              - If no product names are present in the context, say: "No está en los catálogos."
+              
+              Style:
+              - Be concise.
+              - Prefer bullet points only when listing products from the context.
+            type: CUSTOM
+            chunker: catalogs-chunker
+            provider-name: catalogs-provider
+
+     indexing:
+       enabled: true
+       index-on-startup: true
+       sources:
+         catalogs:
+           vector-type: QDRANT
+           chunker: catalogs-chunker
+           vector-namespace: catalogs
+           embedding-model: nomic-embed-text
+           top-k: 5
+           document-indexer-type: CHUNKER
+
+     document-chunkers:
+       catalogs-chunker:
+         type: JSON
+         json:
+           definitions:
+             catalogs:
+               rules-paths:
+                 - classpath:rules/catalogs.yml
+
+     vector-store:
+       in-memory:
+         enabled: false
+       mongo:
+         enabled: false
+       qdrant:
+         enabled: true
+         url: ${QDRANT_URL:http://localhost:6333}
+
+     provider:
+       ollama:
+         models:
+           - llama3.1:8b
+           - nomic-embed-text
+         baseUrl: ${OLLAMA_BASE_URL:http://localhost:11434}
+
 
 redisson:
   # In Docker compose Redis service should be named `redis`

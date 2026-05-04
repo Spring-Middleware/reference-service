@@ -27,6 +27,18 @@ services:
         aliases:
           - redis
 
+  qdrant:
+    image: qdrant/qdrant
+    container_name: qdrant
+    restart: always
+    ports:
+      - "6333:6333" # HTTP API
+      - "6334:6334" # gRPC API
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - middleware-net
+
   rabbitmq:
     image: rabbitmq:3.13-management
     profiles: ["infra"]
@@ -163,7 +175,7 @@ services:
       - "8070:8080"
       - "5008:5005"
     environment:
-      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djava.net.preferIPv4Stack=true -Dio.netty.resolver.dns.ndots=1 -Dio.netty.resolver.dns.noSearchDomains=true -Dio.netty.resolver.dns.queryTimeoutMillis=10000
       - SERVER_PORT=8080
       - SECURITY_TYPE=OAUTH2
       - REGISTRY_ENDPOINT=http://registry:8080/registry
@@ -297,6 +309,36 @@ services:
         aliases:
           - review
 
+  catalog-chat-boot:
+    build:
+      context: ./catalog-chat-boot
+      dockerfile: Dockerfile
+    image: catalog-chat-boot:latest
+    profiles: ["services"]
+    container_name: catalog-chat
+    hostname: catalog-chat
+    ports:
+      - "8083:8080"
+      - "5010:5005"
+    environment:
+      - JAVA_TOOL_OPTIONS=--enable-preview -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - SERVER_PORT=8080
+      - LOG_LEVEL_PACKAGE=DEBUG
+      - SECURITY_TYPE=NONE
+      - SERVER_CONTEXT_PATH=/
+      - CATALOG_DOCUMENT_SOURCE_URL=http://catalog:8080/catalog
+      - CATALOG_DOCUMENT_SOURCE_TOKEN_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
+      - OAUTH2_CLIENT_ID_CATALOG_SERVICE=catalog-service
+      - OAUTH2_CLIENT_SECRET_CATALOG_SERVICE=${OAUTH2_CLIENT_SECRET_CATALOG_SERVICE}
+      - QDRANT_URL=http://qdrant:6333
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - LOG_API_KEY=${LOG_API_KEY}
+    depends_on:
+      - qdrant
+      - catalog-service
+      - keycloak
+    networks:
+      - middleware-net
 
   nginx:
     image: nginx:latest
@@ -465,6 +507,6 @@ networks:
 
 volumes:
   mongo-data:
+  qdrant-data:
   keycloak_postgres_data:
-
 

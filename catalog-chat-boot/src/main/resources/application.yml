@@ -1,0 +1,126 @@
+server:
+  port: ${SERVER_PORT:8083}
+  servlet:
+    context-path: ${SERVER_CONTEXT_PATH:/}
+
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    io.github.spring.middleware: ${LOG_LEVEL_PACKAGE:INFO}
+    io.github.spring.middleware.ai.rag.chunk: INFO
+    io.github.spring.middleware.scheduler: ERROR
+    io.github.spring:.middleware.jms: ERROR
+    org.springframework.security: ERROR
+    org.springframework.security.web: ERROR
+    root: ${LOG_LEVEL_ROOT:ERROR}
+
+catalog:
+  document-source:
+    url: ${CATALOG_DOCUMENT_SOURCE_URL:http://localhost:8070/catalog}
+    token-uri: ${CATALOG_DOCUMENT_SOURCE_TOKEN_URI:http://localhost:8081/realms/spring-middleware/protocol/openid-connect/token}
+    client-id: ${OAUTH2_CLIENT_ID_CATALOG_SERVICE:catalog-service}
+    client-secret: ${OAUTH2_CLIENT_SECRET_CATALOG_SERVICE:KPIRHbxU9Ear4qTaE55wKynwhsGtRhI2}
+    scopes: catalog.read catalog.write
+
+middleware:
+  log:
+    apiKey: ${LOG_API_KEY}
+    request:
+      enabled: ${LOG_REQUEST_ENABLED:true}
+    response:
+      enabled: ${LOG_RESPONSE_ENABLED:true}
+    responseTime:
+      enabled: ${LOG_RESPONSE_TIME_ENABLED:false}
+    exclude:
+      urlPatterns:
+        - /api-docs/**
+        - /swagger-ui.html
+        - /swagger-ui/**
+        - /_alive
+        - /graphql
+        - /graphql/_alive
+        - /graphql/schema-metadata
+        - /api/v1/chat/**
+
+  clients:
+    enabled: false
+
+  security:
+    type: ${SECURITY_TYPE:NONE} # Options: NONE, BASIC_AUTH, JWT, OUAHT2, API_KEY
+
+  ai:
+    document:
+      sources:
+        catalogs:
+          enabled: true
+          system-context: |
+            You are a product catalog assistant.
+            
+            Answer ONLY using the provided product catalog context.
+            If the answer is not explicitly present in the retrieved context, say exactly:
+            "No está en los catálogos."
+            
+            Hard constraints:
+            - Never use external knowledge.
+            - Never invent product names.
+            - Never add examples.
+            - Never add partial-list disclaimers.
+            - Never say "some products" unless the context explicitly says the list is partial.
+            - Product names must be copied exactly from the context.
+            - If no product names are present in the context, say: "No está en los catálogos."
+            
+            Style:
+            - Be concise.
+            - Prefer bullet points only when listing products from the context.
+          type: CUSTOM
+          chunker: catalogs-chunker
+          provider-name: catalogs-provider
+
+      indexing:
+        enabled: true
+        index-on-startup: true
+        sources:
+          catalogs:
+            vector-type: QDRANT
+            chunker: catalogs-chunker
+            vector-namespace: catalogs
+            embedding-model: mxbai-embed-large
+            top-k: 10
+            document-indexer-type: CHUNKER
+
+    document-chunkers:
+      catalogs-chunker:
+        type: JSON
+        json:
+          definitions:
+            catalogs:
+              rules-paths:
+                - classpath:rules/catalogs.yml
+
+    vector-store:
+      in-memory:
+        enabled: false
+      mongo:
+        enabled: false
+      qdrant:
+        enabled: true
+        url: ${QDRANT_URL:http://localhost:6333}
+
+    provider:
+      ollama:
+        models:
+          - qwen2.5:7b-instruct
+          - mxbai-embed-large
+          - nomic-embed-text
+        baseUrl: ${OLLAMA_BASE_URL:http://localhost:11434}
+
+
+
+
+
