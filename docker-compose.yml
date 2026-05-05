@@ -129,8 +129,6 @@ services:
       - registry
       - rabbitmq
 
-
-
   registry:
     image: ferguardiola/registry:1.0.0
     profiles: ["platform"]
@@ -189,8 +187,9 @@ services:
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
-      - LOG_REQUEST_ENABLED=false
-      - LOG_RESPONSE_ENABLED=true
+      - LOG_LEVEL_PACKAGE=INFO
+      - LOG_REQUEST_ENABLED=true
+      - LOG_RESPONSE_ENABLED=false
       - LOG_RESPONSE_TIME_ENABLED=false
       - BASIC_AUTH_CATALOG_ADMIN=admin
       - BASIC_AUTH_CATALOG_ADMIN_PASSWORD=${BASIC_AUTH_CATALOG_ADMIN_PASSWORD}
@@ -235,6 +234,7 @@ services:
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
       - LOG_API_KEY=${LOG_API_KEY}
+      - LOG_LEVEL_PACKAGE=INFO
       - LOG_REQUEST_ENABLED=false
       - LOG_RESPONSE_ENABLED=false
       - LOG_RESPONSE_TIME_ENABLED=false
@@ -284,6 +284,7 @@ services:
       - SPRING_PROFILES_ACTIVE=local
       - REGISTRY_CONSISTENCY_SCHEDULER_ENABLED=true
       - REGISTRY_CONSISTENCY_SCHEDULER_CRON=*/10 * * * * *
+      - LOG_LEVEL_PACKAGE=INFO
       - LOG_API_KEY=${LOG_API_KEY}
       - LOG_REQUEST_ENABLED=false
       - LOG_RESPONSE_ENABLED=false
@@ -327,12 +328,17 @@ services:
       - SECURITY_TYPE=NONE
       - SERVER_CONTEXT_PATH=/
       - CATALOG_DOCUMENT_SOURCE_URL=http://catalog:8080/catalog
+      - CATALOG_GRAPHQL_DOCUMENT_SOURCE_URL=http://graphql-gateway:8080/graphql
       - CATALOG_DOCUMENT_SOURCE_TOKEN_URI=http://keycloak:8080/realms/spring-middleware/protocol/openid-connect/token
       - OAUTH2_CLIENT_ID_CATALOG_SERVICE=catalog-service
       - OAUTH2_CLIENT_SECRET_CATALOG_SERVICE=${OAUTH2_CLIENT_SECRET_CATALOG_SERVICE}
       - QDRANT_URL=http://qdrant:6333
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OPENAI_BASE_URL=https://api.openai.com/v1
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - LOG_API_KEY=${LOG_API_KEY}
+      - INDEX_ON_STARTUP=true
+
     depends_on:
       - qdrant
       - catalog-service

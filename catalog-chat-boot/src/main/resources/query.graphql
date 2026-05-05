@@ -1,15 +1,16 @@
-query {
-    catalogs(page: 2, size: 10, sort: "name,asc") {
+query GetCatalogs($page: Int!, $size: Int!, $sort: String!, $productSort: String!) {
+    catalogs(page: $page, size: $size, sort: $sort) {
         content {
             id
             name
             description
             status
-            products(sort: "name, desc") {
+            products(sort: $productSort) {
                 __typename
                 ... on PhysicalProduct {
                     id
                     name
+                    sku
                     description
                     productType
                     dimensions {
@@ -30,8 +31,10 @@ query {
                 ... on DigitalProduct {
                     id
                     name
-                    downloadUrl
+                    sku
+                    description
                     productType
+                    downloadUrl
                     fileFormat
                     fileSize
                     price {

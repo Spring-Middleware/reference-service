@@ -1,0 +1,286 @@
+rules:
+  - name: catalog
+    extractor-path: "$.content[*]"
+
+    extractor-rules:
+      - json-data-types: [FIELD, META_DATA]
+        name: catalogId
+        extractor-path: "$.id"
+
+      - json-data-types: [FIELD, META_DATA]
+        name: catalogName
+        extractor-path: "$.name"
+
+      - json-data-types: [FIELD, META_DATA]
+        name: catalogStatus
+        extractor-path: "$.status"
+
+      - json-data-types: [FIELD]
+        name: catalogDescription
+        extractor-path: "$.description"
+
+      - json-data-types: [FIELD, META_DATA]
+        name: averagePrice
+        extractor-path: "$.products[*]"
+        transformation:
+          name: calculation
+          parameters:
+            operation: AVERAGE(price.amount)
+
+      - json-data-types: [FIELD, META_DATA]
+        name: maxPrice
+        extractor-path: "$.products[*]"
+        transformation:
+          name: calculation
+          parameters:
+            operation: MAX(price.amount)
+            result: "{.} price.currency"
+
+      - json-data-types: [FIELD, META_DATA]
+        name: minPrice
+        extractor-path: "$.products[*]"
+        transformation:
+          name: calculation
+          parameters:
+            operation: MIN(price.amount)
+            result: "{.} price.currency"
+
+      - json-data-types: [FIELD, META_DATA]
+        name: productCount
+        extractor-path: "$.products[*]"
+        transformation:
+          name: calculation
+          parameters:
+            operation: COUNT(price.amount)
+
+      - json-data-types: [FIELD, META_DATA]
+        name: digitalProductCount
+        extractor-path: "$.products[*]"
+        transformation:
+          name: calculation
+          parameters:
+            condition: EQUAL_TO(productType, 'DIGITAL')
+            operation: COUNT(price.amount)
+
+      - json-data-types: [FIELD, META_DATA]
+        name: physicalProductCount
+        extractor-path: "$.products[*]"
+        transformation:
+          name: calculation
+          parameters:
+            condition: EQUAL_TO(productType, 'PHYSICAL')
+            operation: COUNT(price.amount)
+
+      - json-data-types: [FIELD, META_DATA]
+        name: maxPriceEUR
+        extractor-path: "$.products[*]"
+        transformation:
+          name: calculation
+          parameters:
+            condition: EQUAL_TO(price.currency, 'EUR')
+            operation: MAX(price.amount)
+            result: "{.} price.currency"
+
+      - json-data-types: [FIELD, META_DATA]
+        name: minPriceEUR
+        extractor-path: "$.products[*]"
+        transformation:
+          name: calculation
+          parameters:
+            condition: EQUAL_TO(price.currency, 'EUR')
+            operation: MIN(price.amount)
+            result: "{.} price.currency"
+
+    generation-text-rules:
+      - template: "catalogName: {catalogName}"
+        variables:
+          catalogName: catalogName!
+
+      - template: "catalogId: {catalogId}"
+        variables:
+          catalogId: catalogId!
+
+      - template: "catalogStatus: {catalogStatus}"
+        variables:
+          catalogStatus: catalogStatus
+
+      - template: "catalogDescription: {catalogDescription}"
+        variables:
+          catalogDescription: catalogDescription
+
+      - template: "catalogStats: productCount={productCount}, digitalProductCount={digitalProductCount}, physicalProductCount={physicalProductCount}, averagePrice={averagePrice}, minPrice={minPrice}, maxPrice={maxPrice}"
+        variables:
+          productCount: productCount
+          digitalProductCount: digitalProductCount
+          physicalProductCount: physicalProductCount
+          averagePrice: averagePrice
+          minPrice: minPrice
+          maxPrice: maxPrice
+
+    children:
+      - name: product
+        extractor-path: "$.products[*]"
+        inherit-metadata:
+          - catalogId
+          - catalogName
+
+        extractor-rules:
+          - json-data-types: [FIELD, META_DATA]
+            name: productId
+            extractor-path: "$.id"
+
+          - json-data-types: [FIELD, META_DATA]
+            name: productName
+            extractor-path: "$.name"
+
+          - json-data-types: [FIELD, META_DATA]
+            name: productType
+            extractor-path: "$.productType"
+
+          - json-data-types: [FIELD, META_DATA]
+            name: productSku
+            extractor-path: "$.sku"
+
+          - json-data-types: [FIELD, META_DATA]
+            name: priceAmount
+            extractor-path: "$.price.amount"
+
+          - json-data-types: [FIELD, META_DATA]
+            name: priceCurrency
+            extractor-path: "$.price.currency"
+
+          - json-data-types: [FIELD]
+            name: productDescription
+            extractor-path: "$.description"
+
+          - json-data-types: [FIELD]
+            name: reviewsComments
+            extractor-path: "$.reviews[*]"
+            transformation:
+              name: expand
+              parameters:
+                template: "{comment} (rating: {rating}/5)"
+                join-with: ", "
+
+          - json-data-types: [FIELD, META_DATA]
+            name: averageRating
+            extractor-path: "$.reviews[*]"
+            transformation:
+              name: calculation
+              parameters:
+                operation: AVERAGE(rating)
+
+          - json-data-types: [FIELD, META_DATA]
+            name: reviewCount
+            extractor-path: "$.reviews[*]"
+            transformation:
+              name: calculation
+              parameters:
+                operation: COUNT(rating)
+
+          - json-data-types: [FIELD, META_DATA]
+            name: positiveReviewCount
+            extractor-path: "$.reviews[*]"
+            transformation:
+              name: calculation
+              parameters:
+                condition: GREATER_THAN_OR_EQUAL_TO(rating, 4)
+                operation: COUNT(rating)
+
+          - json-data-types: [FIELD, META_DATA]
+            name: maxRating
+            extractor-path: "$.reviews[*]"
+            transformation:
+              name: calculation
+              parameters:
+                operation: MAX(rating)
+
+          - json-data-types: [FIELD, META_DATA]
+            name: minRating
+            extractor-path: "$.reviews[*]"
+            transformation:
+              name: calculation
+              parameters:
+                operation: MIN(rating)
+
+          - json-data-types: [FIELD]
+            name: downloadUrl
+            extractor-path: "$.downloadUrl"
+
+          - json-data-types: [FIELD]
+            name: fileSize
+            extractor-path: "$.fileSize"
+
+          - json-data-types: [FIELD]
+            name: dimensionLength
+            extractor-path: "$.dimensions.length"
+
+          - json-data-types: [FIELD]
+            name: dimensionWidth
+            extractor-path: "$.dimensions.width"
+
+          - json-data-types: [FIELD]
+            name: dimensionHeight
+            extractor-path: "$.dimensions.height"
+
+        generation-text-rules:
+          - template: "productName: {productName}"
+            variables:
+              productName: productName!
+
+          - template: "productId: {productId}"
+            variables:
+              productId: productId!
+
+          - template: "productSku: {productSku}"
+            variables:
+              productSku: productSku!
+
+          - template: "catalogName: {catalogName}"
+            variables:
+              catalogName: catalogName!
+
+          - template: "catalogId: {catalogId}"
+            variables:
+              catalogId: catalogId
+
+          - template: "productType: {productType}"
+            variables:
+              productType: productType:"unknown"
+
+          - template: "price: {priceAmount} {priceCurrency}"
+            variables:
+              priceAmount: priceAmount
+              priceCurrency: priceCurrency
+
+          - template: "averageRating: {averageRating}/5"
+            variables:
+              averageRating: averageRating
+
+          - template: "reviewStats: reviewCount={reviewCount}, positiveReviewCount={positiveReviewCount}, minRating={minRating}, maxRating={maxRating}"
+            variables:
+              reviewCount: reviewCount
+              positiveReviewCount: positiveReviewCount
+              minRating: minRating
+              maxRating: maxRating
+
+          - template: "description: {productDescription}"
+            variables:
+              productDescription: productDescription
+
+          - template: "customerReviews: {reviewsComments}"
+            variables:
+              reviewsComments: reviewsComments
+
+          - template: "physicalDimensions: {dimensionLength} x {dimensionWidth} x {dimensionHeight}"
+            variables:
+              dimensionLength: dimensionLength
+              dimensionWidth: dimensionWidth
+              dimensionHeight: dimensionHeight
+
+          - template: "digitalAsset: {downloadUrl} ({fileSize} bytes)"
+            variables:
+              downloadUrl: downloadUrl
+              fileSize: fileSize
+
+        children: []

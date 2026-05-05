@@ -1,5 +1,6 @@
 package io.github.spring.middleware.product.service;
 
+import com.google.common.collect.Lists;
 import io.github.spring.middleware.catalog.api.CatalogApi;
 import io.github.spring.middleware.catalog.dto.CatalogWithProductsDto;
 import io.github.spring.middleware.product.domain.Product;
@@ -269,7 +270,7 @@ public class ProductServiceImpl implements ProductService {
                     .toList();
 
             if (!reviewsIds.isEmpty()) {
-                var reviews = reviewApi.getReviewsByIds(reviewsIds);
+                var reviews = Lists.partition(reviewsIds, 10).stream().map(batch -> reviewApi.getReviewsByIds(batch)).flatMap(List::stream).collect(Collectors.toList());
                 Map<UUID, List<ReviewDto>> reviewsByProductId = reviews.stream()
                         .collect(Collectors.groupingBy(ReviewDto::getProductId));
 

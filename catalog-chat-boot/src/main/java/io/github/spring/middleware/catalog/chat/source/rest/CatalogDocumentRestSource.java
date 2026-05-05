@@ -1,4 +1,4 @@
-package io.github.spring.middleware.catalog.chat.source;
+package io.github.spring.middleware.catalog.chat.source.rest;
 
 import io.github.spring.middleware.ai.infrastructure.rag.source.custom.AbstarctCustomDocumentSourceProvider;
 import io.github.spring.middleware.ai.infrastructure.rag.source.custom.CustomDocumentSourceProviderOptions;
@@ -17,11 +17,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@SourceProviderName("catalogs-provider")
+@SourceProviderName("catalogs-rest-provider")
 @RequiredArgsConstructor
-public class CatalogDocumentSource extends AbstarctCustomDocumentSourceProvider {
+public class CatalogDocumentRestSource extends AbstarctCustomDocumentSourceProvider {
 
-    private final CatalogDocumentSourceConfiguration configuration;
+    private final CatalogDocumentRestSourceConfiguration configuration;
     private final OAuth2ClientCredentialsClient clientCredentialsClient;
     private final WebClient.Builder webClientBuilder;
 
@@ -30,11 +30,14 @@ public class CatalogDocumentSource extends AbstarctCustomDocumentSourceProvider 
         String token = getAccessToken();
         WebClient webClient = webClientBuilder
                 .baseUrl(configuration.getUrl())
+                .codecs(configurer ->
+                        configurer.defaultCodecs().maxInMemorySize(5 * 1024 * 1024) // 5 MB
+                )
                 .defaultHeader("Authorization", STR."Bearer \{token}")
                 .build();
 
         return fetchAllCatalogs(webClient)
-                .flatMap(catalogId -> fetchCatalogDetails(webClient, catalogId));
+                .concatMap(catalogId -> fetchCatalogDetails(webClient, catalogId));
     }
 
     private String getAccessToken() {
@@ -72,7 +75,8 @@ public class CatalogDocumentSource extends AbstarctCustomDocumentSourceProvider 
                                     .queryParam("sort", "id,desc")
                                     .build())
                             .retrieve()
-                            .bodyToMono(PagedCatalogResponseDto.class);
+                            .bodyToMono(PagedCatalogResponseDto.class)
+                            .delayElement(java.time.Duration.ofMillis(500)); // Aumentado delay y asegura orden
                 })
                 .flatMapIterable(PagedCatalogResponseDto::getItems)
                 .map(catalog -> catalog.getId().toString());
@@ -86,13 +90,14 @@ public class CatalogDocumentSource extends AbstarctCustomDocumentSourceProvider 
                         .build(catalogId))
                 .retrieve()
                 .bodyToMono(String.class)
+                .delayElement(java.time.Duration.ofMillis(200)) // Aumentado delay
                 .map(jsonResponse -> new DocumentSource(
                         catalogId,
                         "Catalog " + catalogId,
                         new ByteArrayInputStream(jsonResponse.getBytes(StandardCharsets.UTF_8)),
                         "json",
                         "application/json",
-                        Map.of(),
+                        Map.of("source", configuration.getUrl()),
                         Instant.now()
                 ))
                 .flux();

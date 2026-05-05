@@ -22,11 +22,17 @@ logging:
 
 catalog:
   document-source:
-    url: ${CATALOG_DOCUMENT_SOURCE_URL:http://localhost:8070/catalog}
-    token-uri: ${CATALOG_DOCUMENT_SOURCE_TOKEN_URI:http://localhost:8081/realms/spring-middleware/protocol/openid-connect/token}
-    client-id: ${OAUTH2_CLIENT_ID_CATALOG_SERVICE:catalog-service}
-    client-secret: ${OAUTH2_CLIENT_SECRET_CATALOG_SERVICE:KPIRHbxU9Ear4qTaE55wKynwhsGtRhI2}
-    scopes: catalog.read catalog.write
+    rest:
+      url: ${CATALOG_DOCUMENT_SOURCE_URL:http://localhost:8070/catalog}
+      token-uri: ${CATALOG_DOCUMENT_SOURCE_TOKEN_URI:http://localhost:8081/realms/spring-middleware/protocol/openid-connect/token}
+      client-id: ${OAUTH2_CLIENT_ID_CATALOG_SERVICE:catalog-service}
+      client-secret: ${OAUTH2_CLIENT_SECRET_CATALOG_SERVICE:KPIRHbxU9Ear4qTaE55wKynwhsGtRhI2}
+      scopes: catalog.read catalog.write
+    graphql:
+      url: ${CATALOG_GRAPHQL_DOCUMENT_SOURCE_URL:http://localhost:8060/graphql}
+      items-per-page: 10
+      query-path: classpath:/query.graphql
+
 
 middleware:
   log:
@@ -57,40 +63,40 @@ middleware:
   ai:
     document:
       sources:
-        catalogs:
+        catalogs-summary:
           enabled: true
-          system-context: |
-            You are a product catalog assistant.
-            
-            Answer ONLY using the provided product catalog context.
-            If the answer is not explicitly present in the retrieved context, say exactly:
-            "No está en los catálogos."
-            
-            Hard constraints:
-            - Never use external knowledge.
-            - Never invent product names.
-            - Never add examples.
-            - Never add partial-list disclaimers.
-            - Never say "some products" unless the context explicitly says the list is partial.
-            - Product names must be copied exactly from the context.
-            - If no product names are present in the context, say: "No está en los catálogos."
-            
-            Style:
-            - Be concise.
-            - Prefer bullet points only when listing products from the context.
+          system-context-path: classpath:/context/catalogs.context
           type: CUSTOM
           chunker: catalogs-chunker
-          provider-name: catalogs-provider
+          provider-name: catalogs-rest-provider
+
+        catalogs-full:
+            enabled: false
+            system-context-path: classpath:/context/catalogs.context
+            type: CUSTOM
+            chunker: catalogs-chunker
+            provider-name: catalogs-graphql-provider
 
       indexing:
         enabled: true
-        index-on-startup: true
+        index-on-startup: ${INDEX_ON_STARTUP:true}
         sources:
-          catalogs:
+          catalogs-summary:
             vector-type: QDRANT
             chunker: catalogs-chunker
-            vector-namespace: catalogs
+            planner-path: classpath:/planner/catalogs.planner
+            vector-namespace: catalogs-summary
             embedding-model: mxbai-embed-large
+            top-k: 10
+            document-indexer-type: CHUNKER
+
+          catalogs-full:
+            vector-type: QDRANT
+            chunker: catalogs-chunker
+            planner-path: classpath:/planner/catalogs.planner
+            vector-namespace: catalogs-full
+            embedding-model: mxbai-embed-large
+            planner-model: gpt-5
             top-k: 10
             document-indexer-type: CHUNKER
 
@@ -99,9 +105,12 @@ middleware:
         type: JSON
         json:
           definitions:
-            catalogs:
+            catalogs-summary:
               rules-paths:
-                - classpath:rules/catalogs.yml
+                - classpath:rules/catalogs-summary.yml
+            catalogs-full:
+              rules-paths:
+                - classpath:rules/catalogs-full.yml
 
     vector-store:
       in-memory:
@@ -113,12 +122,25 @@ middleware:
         url: ${QDRANT_URL:http://localhost:6333}
 
     provider:
+      enabled: true
       ollama:
         models:
           - qwen2.5:7b-instruct
           - mxbai-embed-large
           - nomic-embed-text
         baseUrl: ${OLLAMA_BASE_URL:http://localhost:11434}
+
+      openai:
+        enabled: true
+        models:
+          - gpt-5
+          - gpt-4.1-mini
+          - text-embedding-3-small
+
+        apiKey: ${OPENAI_API_KEY}
+        baseUrl: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+        temperature: 0.1
+        maxTokens: 3000
 
 
 

@@ -25,15 +25,16 @@ rules:
           catalogName: catalogName!
           catalogId: catalogId!
           catalogStatus: catalogStatus
-      - template: "{description}"
+
+      - template: "{catalogDescription}"
         variables:
-          description: catalogDescription
+          catalogDescription: catalogDescription
 
     children:
       - name: product
         extractor-path: "$.products[*]"
         inherit-metadata:
-         - catalogName
+          - catalogName
 
         extractor-rules:
           - json-data-types: [FIELD, META_DATA]
@@ -48,8 +49,8 @@ rules:
             name: productType
             extractor-path: "$.productType"
 
-          - json-data-types: [ FIELD, META_DATA ]
-            name: sku
+          - json-data-types: [FIELD, META_DATA]
+            name: productSku
             extractor-path: "$.sku"
 
           - json-data-types: [FIELD]
@@ -64,41 +65,26 @@ rules:
             name: productDescription
             extractor-path: "$.description"
 
-          - json-data-types: [FIELD]
-            name: reviewComments
-            extractor-path: "$.reviews[*].comment"
-
-          - json-data-types: [FIELD]
-            name: dlUrl
-            extractor-path: "$.downloadUrl"
-
-          - json-data-types: [FIELD]
-            name: fsize
-            extractor-path: "$.fileSize"
-
-          - json-data-types: [FIELD]
-            name: dimL
-            extractor-path: "$.dimensions.length"
-
-          - json-data-types: [FIELD]
-            name: dimW
-            extractor-path: "$.dimensions.width"
-
-          - json-data-types: [FIELD]
-            name: dimH
-            extractor-path: "$.dimensions.height"
+          - json-data-types: [ FIELD ]
+            name: reviews
+            extractor-path: "$.reviews[*]"
+            transformation:
+              name: expand
+              parameters:
+                template: "{comment} (rating: {rating}/5)"
+                join-with: ", "
 
         generation-text-rules:
-          - template: "Product {productName} (id:{productId} sku: {sku}) belongs to catalog {catalogName}."
+          - template: "Product {productName} (id: {productId}, sku: {productSku}) belongs to catalog {catalogName}."
             variables:
-              sku: sku!
               productName: productName!
-              catalogName: catalogName
               productId: productId
+              productSku: productSku
+              catalogName: catalogName
 
-          - template: "It is a {productType} with price {priceAmount} {priceCurrency}."
+          - template: "It is a {productType} product with price {priceAmount} {priceCurrency}."
             variables:
-              productType: productType:"product"
+              productType: productType:"unknown"
               priceAmount: priceAmount!
               priceCurrency: priceCurrency!
 
@@ -106,19 +92,8 @@ rules:
             variables:
               productDescription: productDescription
 
-          - template: "Reviews: {reviewComments}"
+          - template: "Customer reviews: {reviews}"
             variables:
-              reviewComments: reviewComments
-
-          - template: "Dimensions: {dimL}x{dimW}x{dimH}."
-            variables:
-              dimL: dimL
-              dimW: dimW
-              dimH: dimH
-
-          - template: "Download digital asset at {dlUrl} ({fsize} bytes)."
-            variables:
-              dlUrl: dlUrl
-              fsize: fsize
+              reviews: reviews
 
         children: []
