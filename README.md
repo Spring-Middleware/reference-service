@@ -27,6 +27,7 @@
 - [Security & Keycloak (optional)](#security--keycloak-optional)
 - [How to test Spring Middleware features](#how-to-test-spring-middleware-features)
 - [Seeding Data (Optional)](#seeding-data-optional)
+- [Catalog Chat Boot (RAG & AI)](#catalog-chat-boot-rag--ai)
 - [Extending this reference](#extending-this-reference)
 - [Further reading](#further-reading)
 
@@ -221,6 +222,15 @@ For clients, this means they only need to know one URL (`/graphql`), while the
 GraphQL Gateway takes care of discovering services, composing the schema and
 routing operations to the right microservice.
 
+#### Catalog Chat Boot (`catalog-chat-boot`)
+
+A service that demonstrates **RAG (Retrieval-Augmented Generation)** capabilities using Spring Middleware AI modules. It allows chatting with your catalog data using LLMs.
+
+Typical role in the platform:
+- Indexes catalogs and products into a Vector Database (Qdrant).
+- Provides a chat interface to query catalog information using natural language.
+- Supports multiple LLM providers (Ollama, OpenAI).
+
 #### Catalog Service (`catalog-service`)
 
 Service responsible for **catalog‑level APIs**. It demonstrates:
@@ -410,6 +420,13 @@ cd product-service/boot
 mvn spring-boot:run
 ```
 
+**Catalog Chat Boot (AI)**
+
+```bash
+cd catalog-chat-boot
+mvn spring-boot:run
+```
+
 Make sure the Registry Service is up and reachable with the configuration
 specified in the services `application.yml`.
 
@@ -441,6 +458,7 @@ services above are intended for **local development and debugging**.
 - Catalog Service: `http://catalog:8080/catalog`
 - Product Service: `http://product:8080/product`
 - GraphQL Gateway: `http://graphql-gateway:8060/graphql`
+- Catalog Chat: `http://catalog-chat:8080/`
 
 ### REST – Catalog → Product via `@MiddlewareClient`
 
@@ -626,6 +644,36 @@ This command will:
 - For each product, create between **0 and 8 reviews**.
 
 _Note: Make sure the services (catalog, product, and review) are running and the Registry is reachable before executing the script, as it uses the REST APIs to populate the data._
+
+---
+
+## Catalog Chat Boot (RAG & AI)
+
+The `catalog-chat-boot` service enables natural language interactions with your catalog data. It implements a RAG pipeline that fetches data from `catalog-service` (REST or GraphQL), indexes it into **Qdrant**, and uses an LLM to answer questions.
+
+
+### Requirements for AI
+
+1.  **Vector Database**: Ensure Qdrant is running (included in `docker-compose.yml`).
+2.  **LLM Provider**:
+    *   **Ollama (Local)**: If you want to use local models like `qwen2.5:7b-instruct`, you must have **Ollama installed and running** on your machine.
+    *   **OpenAI**: Requires a valid `OPENAI_API_KEY` configured in your environment or `application.yml`.
+
+### Example AI Request
+
+You can ask questions about your catalogs using a POST request:
+
+```bash
+curl -X POST "http://localhost:8083/ask" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sourceName": "catalogs",
+    "model": "qwen2.5:7b-instruct",
+    "question": "Which catalog contains products with organic labels?"
+  }'
+```
+
+The service will use the `catalogs-rest-provider` to fetch data, perform a semantic search in Qdrant, and generate a response based on the retrieved context.
 
 ---
 

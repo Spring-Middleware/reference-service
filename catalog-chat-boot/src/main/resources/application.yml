@@ -63,24 +63,40 @@ middleware:
   ai:
     document:
       sources:
-        catalogs-summary:
+        documentation:
           enabled: true
+          system-context-path: classpath:/context/documentation.context
+          type: FILE_SYSTEM
+          file-system:
+            paths:
+              - /app/rag
+
+        catalogs-summary:
+          enabled: false
           system-context-path: classpath:/context/catalogs.context
           type: CUSTOM
           chunker: catalogs-chunker
           provider-name: catalogs-rest-provider
 
         catalogs-full:
-            enabled: false
-            system-context-path: classpath:/context/catalogs.context
-            type: CUSTOM
-            chunker: catalogs-chunker
-            provider-name: catalogs-graphql-provider
+          enabled: true
+          system-context-path: classpath:/context/catalogs.context
+          type: CUSTOM
+          chunker: catalogs-chunker
+          provider-name: catalogs-graphql-provider
 
       indexing:
         enabled: true
         index-on-startup: ${INDEX_ON_STARTUP:true}
         sources:
+          documentation:
+            vector-type: QDRANT
+            chunker: documentation-chunker
+            vector-namespace: documentation
+            embedding-model: nomic-embed-text
+            top-k: 5
+            document-indexer-type: CHUNKER
+
           catalogs-summary:
             vector-type: QDRANT
             chunker: catalogs-chunker
@@ -93,14 +109,31 @@ middleware:
           catalogs-full:
             vector-type: QDRANT
             chunker: catalogs-chunker
-            planner-path: classpath:/planner/catalogs.planner
+            planner-path: classpath:/planner/catalogs-qwen.planner
             vector-namespace: catalogs-full
             embedding-model: mxbai-embed-large
-            planner-model: gpt-5
+            planner-model: qwen2.5:7b-instruct
             top-k: 10
             document-indexer-type: CHUNKER
 
     document-chunkers:
+      documentation-chunker:
+        type: MARKDOWN
+        markdown:
+          max-chars: 2000
+          min-chars: 200
+          split-by-headings: true
+          max-heading-level: 6
+          include-heading-in-chunk: true
+          preserve-heading-path: true
+          split-by-paragraphs: true
+          split-by-sentences: false
+          detect-code-blocks: true
+          keep-code-blocks-intact: true
+          trim: true
+          remove-empty-lines: false
+          include-line-numbers: false
+
       catalogs-chunker:
         type: JSON
         json:

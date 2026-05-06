@@ -312,8 +312,8 @@ services:
 
   catalog-chat-boot:
     build:
-      context: ./catalog-chat-boot
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: catalog-chat-boot/Dockerfile
     image: catalog-chat-boot:latest
     profiles: ["services"]
     container_name: catalog-chat

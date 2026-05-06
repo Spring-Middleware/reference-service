@@ -28,22 +28,30 @@ rules:
             operation: AVERAGE(price.amount)
 
       - json-data-types: [FIELD, META_DATA]
-        name: maxPrice
         extractor-path: "$.products[*]"
         transformation:
           name: calculation
           parameters:
             operation: MAX(price.amount)
-            result: "{.} price.currency"
+            result:
+              maxPriceAmount: "{.}"
+              maxPriceCurrency: "{price.currency}"
+              maxPriceText: "{.} {price.currency}"
+              maxPriceProductName: "{name}"
+              maxPriceProductSku: "{sku}"
 
       - json-data-types: [FIELD, META_DATA]
-        name: minPrice
         extractor-path: "$.products[*]"
         transformation:
           name: calculation
           parameters:
             operation: MIN(price.amount)
-            result: "{.} price.currency"
+            result:
+              minPriceAmount: "{.}"
+              minPriceCurrency: "{price.currency}"
+              minPriceText: "{.} {price.currency}"
+              minPriceProductName: "{name}"
+              minPriceProductSku: "{sku}"
 
       - json-data-types: [FIELD, META_DATA]
         name: productCount
@@ -72,24 +80,32 @@ rules:
             operation: COUNT(price.amount)
 
       - json-data-types: [FIELD, META_DATA]
-        name: maxPriceEUR
         extractor-path: "$.products[*]"
         transformation:
           name: calculation
           parameters:
             condition: EQUAL_TO(price.currency, 'EUR')
             operation: MAX(price.amount)
-            result: "{.} price.currency"
+            result:
+              maxPriceEURAmount: "{.}"
+              maxPriceEURCurrency: "{price.currency}"
+              maxPriceEURText: "{.} {price.currency}"
+              maxPriceEURProductName: "{name}"
+              maxPriceEURProductSku: "{sku}"
 
       - json-data-types: [FIELD, META_DATA]
-        name: minPriceEUR
         extractor-path: "$.products[*]"
         transformation:
           name: calculation
           parameters:
             condition: EQUAL_TO(price.currency, 'EUR')
             operation: MIN(price.amount)
-            result: "{.} price.currency"
+            result:
+              minPriceEURAmount: "{.}"
+              minPriceEURCurrency: "{price.currency}"
+              minPriceEURText: "{.} {price.currency}"
+              minPriceEURProductName: "{name}"
+              minPriceEURProductSku: "{sku}"
 
     generation-text-rules:
       - template: "catalogName: {catalogName}"
@@ -108,14 +124,28 @@ rules:
         variables:
           catalogDescription: catalogDescription
 
-      - template: "catalogStats: productCount={productCount}, digitalProductCount={digitalProductCount}, physicalProductCount={physicalProductCount}, averagePrice={averagePrice}, minPrice={minPrice}, maxPrice={maxPrice}"
+      - template: "catalogStats: productCount={productCount}, digitalProductCount={digitalProductCount}, physicalProductCount={physicalProductCount}, averagePrice={averagePrice}, minPrice={minPriceText}, maxPrice={maxPriceText}, minPriceEUR={minPriceEURText}, maxPriceEUR={maxPriceEURText}"
         variables:
           productCount: productCount
           digitalProductCount: digitalProductCount
           physicalProductCount: physicalProductCount
           averagePrice: averagePrice
-          minPrice: minPrice
-          maxPrice: maxPrice
+          minPriceText: minPriceText
+          maxPriceText: maxPriceText
+          minPriceEURText: minPriceEURText
+          maxPriceEURText: maxPriceEURText
+
+      - template: "mostExpensiveProduct: {maxPriceProductName} ({maxPriceProductSku}) at {maxPriceText}"
+        variables:
+          maxPriceProductName: maxPriceProductName
+          maxPriceProductSku: maxPriceProductSku
+          maxPriceText: maxPriceText
+
+      - template: "cheapestProduct: {minPriceProductName} ({minPriceProductSku}) at {minPriceText}"
+        variables:
+          minPriceProductName: minPriceProductName
+          minPriceProductSku: minPriceProductSku
+          minPriceText: minPriceText
 
     children:
       - name: product
@@ -207,7 +237,7 @@ rules:
             name: downloadUrl
             extractor-path: "$.downloadUrl"
 
-          - json-data-types: [FIELD]
+          - json-data-types: [FIELD, META_DATA]
             name: fileSize
             extractor-path: "$.fileSize"
 
